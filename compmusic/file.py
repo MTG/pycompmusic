@@ -1,3 +1,5 @@
+import os
+
 eyed3api = None
 try:
     import eyed3
@@ -22,6 +24,9 @@ def has_coverart(fname):
     """Return true if a file has embedded coverart."""
     pass
 
+def is_mp3_file(fname):
+    return os.path.isfile(fname) and fname.lower().endswith(".mp3")
+
 def _mb_id(tag, key):
     if eyed3api == "old":
         tags = [t for t in tag.getUserTextFrames() if t.description == key]
@@ -40,7 +45,10 @@ def mb_artist_id(tag):
     return _mb_id(tag, "MusicBrainz Artist Id")
 
 def mb_recording_id(tag):
-    ids = tag.getUniqueFileIDs()
+    if eyed3api == "old":
+        ids = tag.getUniqueFileIDs()
+    else:
+        ids = list(tag.unique_file_ids)
     if len(ids):
         i = ids[0]
         if i.owner_id == "http://musicbrainz.org":
@@ -60,10 +68,17 @@ def file_metadata(fname):
         artist = audfile.tag.artist
         title = audfile.tag.title
         album = audfile.tag.album
+
+    releaseid = mb_release_id(audfile.tag)
+    artistid = mb_artist_id(audfile.tag)
+    recordingid = mb_recording_id(audfile.tag)
     return {"file": fname,
             "duration": duration,
             "meta": {"artist": artist,
                      "title": title,
-                     "album": album
+                     "album": album,
+                     "releaseid": releaseid,
+                     "artistid": artistid,
+                     "recordingid": recordingid
                     }
            }
