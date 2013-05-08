@@ -52,7 +52,8 @@ def mb_recording_id(tag):
     if len(ids):
         i = ids[0]
         if i.owner_id == "http://musicbrainz.org":
-            return i.id
+            d = i.data.split("\0")
+            return d[-1]
     return None
 
 def file_metadata(fname):
