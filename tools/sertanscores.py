@@ -6,6 +6,10 @@ import argparse
 import collections
 import unidecode
 import shutil
+import random
+import functools32
+import json
+import string
 
 import compmusic.file
 import compmusic.musicbrainz
@@ -27,17 +31,21 @@ class MakamScore(object):
             self.map_files_to_recording(self.audio)
 
     def map_files_to_recording(self, source_dir):
+        if os.path.exists("recording_to_file.json"):
+            self.mapping = json.load(open("recording_to_file.json"))
+            return
         for root, dirs, files in os.walk(source_dir):
             if len(files):
                 for f in files:
-                    if compmusic.file.is_mp3_file(f):
-                        fname = os.path.join(root, f)
+                    fname = os.path.join(root, f)
+                    if compmusic.file.is_mp3_file(fname):
                         metadata = compmusic.file.file_metadata(fname)
                         recordingid = metadata["meta"]["recordingid"]
                         if recordingid:
                             self.mapping[recordingid].append(fname)
+        json.dump(self.mapping, open("recording_to_file.json", "w"))
 
-    def save_scores(self, fname, workid):
+    def save_scores(self, fname, recordingids):
         # make a dir based on fname
         target = os.path.join(self.targetdir, fname)
         try:
@@ -57,21 +65,53 @@ class MakamScore(object):
         except IOError:
             pass
 
-        work = mb.get_work_by_id(workid, includes=["recording-rels"])
-        work = work["work"]
-        for rel in work.get("recording-relation-list", []):
-            recid = rel["target"]
+        for recid in recordingids:
             for fname in self.mapping.get(recid, []):
-                if os.path.exists(os.path.join(target, os.path.basename(fname))):
-                    name = os.path.basename(fname)
+                name = os.path.basename(fname)
+                n, ext = os.path.splitext(name)
+                if os.path.exists(os.path.join(target, n)):
                     sourcedir = os.path.dirname(fname)
-                    n, ext = os.path.splitext(name)
-                    newname = n + "_1" + ext
-                    newdest = os.path.join(target, newname)
+                    rand = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(4))
+                    ndir = "%s_%s" % (n, rand)
+                    newname = "%s%s" % (ndir, ext)
+                    newdest = os.path.join(target, ndir, newname)
+                    try:
+                        os.makedirs(os.path.dirname(newdest))
+                    except:
+                        pass
                     print name, "exists, copying", target, "to", newname, "instead"
                     shutil.copy(fname, newdest)
                 else:
-                    shutil.copy(fname, target)
+                    innertarget = os.path.join(target, n)
+                    try:
+                        os.makedirs(innertarget)
+                    except:
+                        pass
+                    shutil.copy(fname, innertarget)
+
+    @functools32.lru_cache(2000)
+    def get_performance_credit_for_recording(self, recordingid):
+        recording = mb.get_recording_by_id(recordingid, includes=["releases"])
+        recording = recording["recording"]
+        ret = []
+        for release in recording.get("release-list", []):
+            relid = release["id"]
+            mbrelease = mb.get_release_by_id(relid, includes=["artist-credits", "recordings"])
+            mbrelease = mbrelease["release"]
+            for medium in mbrelease.get("medium-list", []):
+                for track in medium.get("track-list", []):
+                    if track["recording"]["id"] == recordingid:
+                        ret.append(track["recording"]["artist-credit-phrase"])
+        return list(set(ret))
+
+    @functools32.lru_cache(2000)
+    def aliases_for_artist(self, artistid):
+        a = mb.get_artist_by_id(artistid, includes=["aliases"])
+        a = a["artist"]
+        ret = []
+        for alias in a.get("alias-list", []):
+            ret.append(alias["alias"])
+        return list(set(ret))
 
     def match(self, a, b):
         if isinstance(a, unicode):
@@ -136,9 +176,27 @@ class MakamScore(object):
                     aname = unidecode.unidecode(aname)
                 if isinstance(wname, unicode):
                     wname = unidecode.unidecode(wname)
-                if self.match(composer, aname) and self.match(name, wname):
+                anywork = self.match(name, wname)
+                anyname = self.match(composer, aname)
+                reclist = self.recordingids_for_work(w["id"])
+                for n in self.aliases_for_artist(a["id"]):
+                    anyname = anyname or self.match(composer, n)
+                for r in reclist:
+                    for n in self.get_performance_credit_for_recording(r):
+                        anyname = anyname or self.match(composer, n)
+                if anywork and anyname:
                     print "  match: %s by %s - http://musicbrainz.org/work/%s" % (w["title"], aname, w["id"])
-                    self.save_scores(fname, w["id"])
+                    self.save_scores(fname, reclist)
+
+    @functools32.lru_cache(2000)
+    def recordingids_for_work(self, workid):
+        work = mb.get_work_by_id(workid, includes=["recording-rels"])
+        work = work["work"]
+        ret = []
+        for rel in work.get("recording-relation-list", []):
+            recid = rel["target"]
+            ret.append(recid)
+        return ret
 
     def test_dir(self, dirname):
         for i, f in enumerate(os.listdir(dirname)):
