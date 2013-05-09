@@ -1,8 +1,10 @@
 import os
+import logging
 
 eyed3api = None
 try:
     import eyed3
+    eyed3.utils.log.log.setLevel(logging.ERROR)
     eyed3api = "new"
 except ImportError:
     pass
