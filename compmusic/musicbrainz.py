@@ -2,6 +2,11 @@ from log import log
 import urllib2
 import xml.etree.ElementTree as etree
 
+import musicbrainzngs as mb
+mb.set_useragent("Dunya", "0.1")
+mb.set_rate_limit(False)
+mb.set_hostname("sitar.s.upf.edu:8090")
+
 MUSICBRAINZ_COLLECTION_CARNATIC = ""
 MUSICBRAINZ_COLLECTION_HINDUSTANI = ""
 MUSICBRAINZ_COLLECTION_MAKAM = ""
