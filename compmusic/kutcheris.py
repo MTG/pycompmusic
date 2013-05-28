@@ -1,0 +1,68 @@
+import requests
+import bs4
+import re
+
+def _do_k_query(url, args):
+    pass
+
+def search_artist(name):
+    """ Search for an artist name.
+    Return a map of matching results -> artist id
+    remove spaces between initials, e.g., M. S. Subbulakshmi -> M.S. Subbulakshmi
+    """
+    # Replace a single letter + space to letter. space
+    name = re.sub(r"\b([A-Za-z]) ", r"\1. ", name)
+    # Every time there's an initial, remove the space between it
+    # and the next initial. Don't remove the space before the
+    # last word
+    name = re.sub("((?<=[A-Za-z]\.)) ([A-Za-z]\.)", r"\1\2", name)
+    print "searching for", name
+    url = "http://kutcheris.com/directory_art.php?search=%s" % name
+    r = requests.get(url)
+    b = bs4.BeautifulSoup(r.text)
+    # If the search we did resulted in an exact match, Kutcheris
+    # doesn't display results, but instead puts a js redirect
+    # to the artist id.
+    for script in b.find_all("script"):
+        text = script.get_text()
+        if text.startswith("window.location"):
+            id = re.search(r"id=(\d+)", text)
+            if id:
+                return {name: id.group(1)}
+    directory = b.find("div", id="directory_area")
+    ret = {}
+    for link in directory.find_all("a"):
+        name = link.get_text()
+        url = link.get("href")
+        id = url.replace("artist.php?id=", "")
+        ret[name] = id
+    return ret
+
+def get_artist_details(artistid):
+    url = "http://kutcheris.com/artist.php?id=%s" % artistid
+    r = requests.get(url)
+    b = bs4.BeautifulSoup(r.text)
+    profile = b.find("div", id="profile")
+    img = profile.find("img")
+    imgurl = img.get("src")
+    if "temp.gif" in imgurl:
+        imgurl = None
+        imagecontents = None
+    else:
+        imgurl = "http://kutcheris.com/%s" % imgurl
+        imagecontents = requests.get(imgurl).text
+
+    text = profile.find("div", id="right")
+    wplink = text.find("a", href=re.compile(r".*?wikipedia\.org.*?"))
+    if wplink:
+        wikipedia = wplink.get("href")
+    else:
+        wikipedia = None
+    bio = text.get_text()
+    if "Read more on wikipedia." in bio:
+        bio = bio.replace("Read more on wikipedia.", "")
+    if "There is no profile information available" in bio:
+        bio = None
+
+    return imagecontents, bio, wikipedia
+
