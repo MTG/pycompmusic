@@ -2,9 +2,6 @@ import requests
 import bs4
 import re
 
-def _do_k_query(url, args):
-    pass
-
 def search_artist(name):
     """ Search for an artist name.
     Return a map of matching results -> artist id
@@ -16,7 +13,6 @@ def search_artist(name):
     # and the next initial. Don't remove the space before the
     # last word
     name = re.sub("((?<=[A-Za-z]\.)) ([A-Za-z]\.)", r"\1\2", name)
-    print "searching for", name
     url = "http://kutcheris.com/directory_art.php?search=%s" % name
     r = requests.get(url)
     b = bs4.BeautifulSoup(r.text)
