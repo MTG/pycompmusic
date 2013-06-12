@@ -22,22 +22,32 @@ def has_musicbrainz_tags(fname):
     """Return true if a file has musicbrainz tags set."""
     pass
 
-def has_coverart(fname):
-    """Return true if a file has embedded coverart."""
-    pass
+def get_coverart(fname):
+    """Get the embedded coverart, or None.
+    Currently returns the first found coverart."""
+    audfile = eyed3.load(fname)
+    images = audfile.tag.frame_set.get("APIC", [])
+    if images:
+        for i in images:
+            if i.picture_type == i.FRONT_COVER:
+                return i.image_data
+        return images[0].image_data
+    else:
+        return None
 
 def is_mp3_file(fname):
     return os.path.isfile(fname) and fname.lower().endswith(".mp3")
 
 def _mb_id(tag, key):
     if eyed3api == "old":
-        tags = [t for t in tag.getUserTextFrames() if t.description == key]
-        if len(tags):
-            return tags[0].text
-        else:
-            return None
+        texttags = tag.getUserTextFrames()
     elif eyed3api == "new":
-        pass
+        texttags = tag.frame_set.get("TXXX", [])
+    tags = [t for t in texttags if t.description == key]
+    if len(tags):
+        return tags[0].text
+    else:
+        return None
 
 def mb_release_id(tag):
     """Return the Musicbrainz release ID in an eyed3 tag"""
