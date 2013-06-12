@@ -16,9 +16,9 @@ def download_image(imgname):
     else:
         args = {"format": "json", "action": "query", "prop": "imageinfo", "iiprop":"url", "titles": "File:%s" % imgname}
         data = _make_wp_query(args)
-        imgurl = data["query"]["pages"]["-1"]
+        imgurl = data["query"]["pages"].values()[0]
         if "imageinfo" in imgurl:
-            imgurl = ["imageinfo"][0]["url"]
+            imgurl = imgurl["imageinfo"][0]["url"]
         else:
             return None
 
