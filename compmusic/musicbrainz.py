@@ -14,8 +14,8 @@ MUSICBRAINZ_COLLECTION_MAKAM = ""
 def ws_ids(xml):
     ids = []
     tree = etree.fromstring(xml)
-    count = int(tree.getchildren()[0].getchildren()[2].attrib["count"])
-    for rel in tree.getchildren()[0].getchildren()[2].getchildren():
+    count = int(list(list(tree)[0])[2].attrib["count"])
+    for rel in list(list(list(tree)[0])[2]):
         ids.append(rel.attrib["id"])
     return (count, ids)
 
@@ -34,6 +34,14 @@ def get_releases_in_collection(collection):
         releases.extend(ids)
         offset += 25
     return releases
+
+def get_collection_name(collection):
+    """ Get the name of a collection """
+    url = "http://musicbrainz.org/ws/2/collection/%s/releases" % (collection, )
+    xml = urllib2.urlopen(url).read()
+    tree = etree.fromstring(xml)
+    name = list(list(tree)[0])[0]
+    return name.text
 
 def metadata_for_release(releaseid):
     """ Get the title """
