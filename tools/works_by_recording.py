@@ -13,6 +13,38 @@ mb.set_useragent("Dunya", "0.1")
 mb.set_rate_limit(False)
 mb.set_hostname("sitar.s.upf.edu:8090")
 
+if os.path.exists("recording_to_file.json"):
+    recording_to_file = json.load(open("recording_to_file.json"))
+else:
+    recording_to_file = {}
+
+TARGET_DIR = "audio"
+
+def copy_recordingid_to_dir(recordingid):
+    files = recording_to_file.get(recordingid, [])
+    for fname in files:
+        name = os.path.basename(fname)
+        n, ext = os.path.splitext(name)
+        if os.path.exists(os.path.join(TARGET_DIR, n)):
+            sourcedir = os.path.dirname(fname)
+            rand = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(4))
+            ndir = "%s_%s" % (n, rand)
+            newname = "%s%s" % (ndir, ext)
+            newdest = os.path.join(TARGET_DIR, ndir, newname)
+            try:
+                os.makedirs(os.path.dirname(newdest))
+            except:
+                pass
+            print name, "exists, copying", target, "to", newname, "instead"
+            shutil.copy(fname, newdest)
+        else:
+            innertarget = os.path.join(TARGET_DIR, n)
+            try:
+                os.makedirs(innertarget)
+            except:
+                pass
+            shutil.copy(fname, innertarget)
+
 def main(collectionid):
     # work -> list recordings
     mapping = collections.defaultdict(list)
@@ -64,6 +96,7 @@ def dump_data():
         output.write(u'<li><a href="http://musicbrainz.org/work/%s">%s</a></li>\n' % (i, worknames[i]))
         output.write("<ul>")
         for e in d[1]:
+            copy_recordingid_to_dir(e)
             output.write(u'<li><a href="http://musicbrainz.org/recording/%s">%s</a></li>\n' % (e, recordingnames[e]))
         output.write("</ul>")
     output.write("</ul></body></html>")
