@@ -74,22 +74,25 @@ def file_metadata(fname):
         duration = audfile.play_time
         artist = audfile.tag.getArtist()
         title = audfile.tag.getTitle()
-        album = audfile.tag.getAlbum()
+        release = audfile.tag.getAlbum()
     elif eyed3api == "new":
         audfile = eyed3.load(fname)
         duration = audfile.info.time_secs
         artist = audfile.tag.artist
         title = audfile.tag.title
-        album = audfile.tag.album
+        release = audfile.tag.album
 
     releaseid = mb_release_id(audfile.tag)
+    # TODO: Album release artist.
+    # TODO: If there are 2 artists, the tags are separated by '; '
+    # TODO: In id3 2.4 it's a \0
     artistid = mb_artist_id(audfile.tag)
     recordingid = mb_recording_id(audfile.tag)
     return {"file": fname,
             "duration": duration,
             "meta": {"artist": artist,
                      "title": title,
-                     "album": album,
+                     "release": release,
                      "releaseid": releaseid,
                      "artistid": artistid,
                      "recordingid": recordingid
