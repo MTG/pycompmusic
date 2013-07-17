@@ -11,6 +11,9 @@ import functools32
 import json
 import string
 
+import Levenshtein
+import re
+
 import compmusic.file
 import compmusic.musicbrainz
 import musicbrainzngs as mb
@@ -113,12 +116,20 @@ class MakamScore(object):
             ret.append(alias["alias"])
         return list(set(ret))
 
+    @functools32.lru_cache(2000)
+    def aliases_for_work(self, workid):
+        w = mb.get_work_by_id(workid, includes=["aliases"])
+        w = w["work"]
+        ret = []
+        for alias in w.get("alias-list", []):
+            ret.append(alias["alias"])
+        return list(set(ret))
+
     def match(self, a, b):
         if isinstance(a, unicode):
             a = unidecode.unidecode(a)
         if isinstance(b, unicode):
             b = unidecode.unidecode(b)
-        import re
         bey = re.compile(r'\bbey\b')
         efendi = re.compile(r'\befendi\b')
         a = a.lower()
@@ -145,11 +156,11 @@ class MakamScore(object):
         # now, a is the shorter one. If a starts in b at position 0
         #  then we have the overlap at the end
         if b.startswith(a):
-            if len(b) - len(a) <= 3:
-                return True
+            return True
 
-        # otherwise, lev dand listance of <= 3
-        import Levenshtein
+        # Otherwise, chop both strings to the length of the shortest
+        # one, and check lev distance between them for <= 3
+        b = b[:len(a)]
         return Levenshtein.distance(a, b) <= 3
 
     def test_file(self, fname):
@@ -172,10 +183,10 @@ class MakamScore(object):
                 a = a["artist"]
                 aname = a["name"]
                 wname = w["title"]
-                if isinstance(aname, unicode):
-                    aname = unidecode.unidecode(aname)
-                if isinstance(wname, unicode):
-                    wname = unidecode.unidecode(wname)
+                #if isinstance(aname, unicode):
+                #    aname = unidecode.unidecode(aname)
+                #if isinstance(wname, unicode):
+                #    wname = unidecode.unidecode(wname)
                 anywork = self.match(name, wname)
                 anyname = self.match(composer, aname)
                 reclist = self.recordingids_for_work(w["id"])
@@ -184,6 +195,9 @@ class MakamScore(object):
                 for r in reclist:
                     for n in self.get_performance_credit_for_recording(r):
                         anyname = anyname or self.match(composer, n)
+                for w in self.aliases_for_work(w["id"]):
+                    print "matching a work alias", w
+                    anywork = anywork or self.match(name, w)
                 if anywork and anyname:
                     print "  match: %s by %s - http://musicbrainz.org/work/%s" % (w["title"], aname, w["id"])
                     self.save_scores(fname, reclist)
