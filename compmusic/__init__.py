@@ -1,8 +1,3 @@
 from musicbrainz import *
 from file import *
-
-HINDUSTANI_COLLECTION="5d9b5dc6-507b-4f1a-abc4-fefd14f5e84c"
-CARNATIC_COLLECTION="55412ad8-1b15-44d5-8dc8-9c3cb0cf9e5d"
-MAKAM_COLLECTION="5bfb724f-7e74-45fe-9beb-3e3bdb1a119e"
-ANDALUSIAN_COLLECTION="142ea0d7-7fdf-4ea5-9b04-219f68023d01"
-BEIJING_COLLECTION="31cb2b02-5712-49ec-9697-483f117bd439"
+import tags

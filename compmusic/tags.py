@@ -6,16 +6,22 @@ import re
 import logging
 logging.basicConfig(level=logging.INFO)
 
-sys.path.insert(0, os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), ".."))
-from dunya import settings
-from django.core.management import setup_environ
-setup_environ(settings)
+#sys.path.insert(0, os.path.join(
+#        os.path.dirname(os.path.abspath(__file__)), ".."))
+#from dunya import settings
+#from django.core.management import setup_environ
+#setup_environ(settings)
 
-from carnatic.models import Raaga, Taala
+#from carnatic.models import Raaga, Taala
 
 reraaga = re.compile(r"\braa?gam?\b")
 retaala = re.compile(r"\btaa?lam?\b")
+
+def has_raaga(tag):
+    return re.search(reraaga, tag)
+
+def has_taala(tag):
+    return re.search(retaala, tag)
 
 def parse_raaga(raaga):
     raaga = raaga.strip()
