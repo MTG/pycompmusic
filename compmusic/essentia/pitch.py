@@ -4,7 +4,9 @@ import numpy as np
 import essentia.standard
 
 class PitchExtract(compmusic.essentia.EssentiaModule):
-    __version__ = 0.1
+    __version__ = "0.1"
+    __sourcefile__ = "mp3"
+    __slug__ = "pitch"
 
     def run(fname, **kwargs):
         HopSize = 128
@@ -28,7 +30,9 @@ class PitchExtract(compmusic.essentia.EssentiaModule):
         return dump
 
 class PitchExtract2(compmusic.essentia.EssentiaModule):
-    __version__ = 0.1
+    __version__ = "0.1"
+    __sourcefile__ = "mp3"
+    __slug__ = "pitch2"
 
     def run(fname, **kwargs):
         loader = essentia.standard.EasyLoader(filename=fname, sampleRate=44100)
