@@ -5,17 +5,17 @@ import essentia.standard
 
 class PitchExtract(compmusic.essentia.EssentiaModule):
     __version__ = "0.1"
-    __sourcefile__ = "mp3"
+    __sourcetype__ = "mp3"
     __slug__ = "pitch"
 
-    def run(fname, **kwargs):
+    def run(self, fname):
         HopSize = 128
         FrameSize = 2048
         BinResolution = 10
         GuessUnvoiced = True
         output = "Pitch"
 
-        audio = essentia.standard.MonoLoader(filename=audiofilename)()
+        audio = essentia.standard.MonoLoader(filename=fname)()
         pitch = essentia.standard.PredominantMelody(hopSize=HopSize,
                                     frameSize=FrameSize,
                                     binResolution=BinResolution,
@@ -31,10 +31,10 @@ class PitchExtract(compmusic.essentia.EssentiaModule):
 
 class PitchExtract2(compmusic.essentia.EssentiaModule):
     __version__ = "0.1"
-    __sourcefile__ = "mp3"
+    __sourcetype__ = "mp3"
     __slug__ = "pitch2"
 
-    def run(fname, **kwargs):
+    def run(self, fname):
         loader = essentia.standard.EasyLoader(filename=fname, sampleRate=44100)
         equalLoudness = essentia.standard.EqualLoudness(sampleRate=44100)
         audio = loader()
