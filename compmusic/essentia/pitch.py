@@ -27,7 +27,7 @@ class PitchExtract(compmusic.essentia.EssentiaModule):
         #generating time stamps (because its equally hopped)
         TStamps = np.array(range(0,len(pitch)))*np.float(HopSize)/44100.0
         dump = np.array([TStamps, pitch]).transpose()
-        return dump
+        return dump.tolist()
 
 class PitchExtract2(compmusic.essentia.EssentiaModule):
     __version__ = "0.1"
