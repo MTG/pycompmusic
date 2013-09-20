@@ -32,3 +32,13 @@ def get_coverart_for_release(releaseid):
         else:
             img = None
     return img
+
+def get_coverart_from_caa(releaseid):
+    """Get the cover art inside a file, otherwise try on CAA"""
+    url = "http://coverartarchive.org/release/%s/front" % releaseid
+    r = requests.get(url)
+    if r.status_code == 200:
+        img = r.content
+    else:
+        img = None
+    return img
