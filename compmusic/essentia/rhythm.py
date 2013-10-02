@@ -1,6 +1,6 @@
 import compmusic.essentia
 import numpy as np
-import aksharaPulseTrack as ap
+import rhythmlib.aksharaPulseTrack as ap
 import logging
 
 class RhythmExtract(compmusic.essentia.EssentiaModule):
