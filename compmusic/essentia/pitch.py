@@ -30,11 +30,13 @@ class PitchExtract(compmusic.essentia.EssentiaModule):
         return dump.tolist()
 
 class PitchExtract2(compmusic.essentia.EssentiaModule):
-    __version__ = "0.1"
+    __version__ = "0.3"
     __sourcetype__ = "mp3"
     __slug__ = "pitch2"
 
     def run(self, fname):
+        self.logger.info("PitchExtract2 logger info")
+        return {"woo": "datav3"}
         loader = essentia.standard.EasyLoader(filename=fname, sampleRate=44100)
         equalLoudness = essentia.standard.EqualLoudness(sampleRate=44100)
         audio = loader()
