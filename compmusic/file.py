@@ -61,8 +61,8 @@ def mb_recording_id(tag):
         ids = tag.getUniqueFileIDs()
     else:
         ids = list(tag.unique_file_ids)
-    if len(ids):
-        i = ids[0]
+
+    for i in ids:
         if i.owner_id == "http://musicbrainz.org":
             d = i.data.split("\0")
             return d[-1]
