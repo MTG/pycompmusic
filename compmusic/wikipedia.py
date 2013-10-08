@@ -53,9 +53,27 @@ def _get_image_from_tree(tree):
                     return img.value.strip()
     return None
 
+def parse_node(node):
+    """ Parse a node. If it's a template that's a language, return
+    the language. Otherwise remove the template.
+    Also remove <tags> and [[]] from links.
+    """
+    if isinstance(node, mwparserfromhell.nodes.template.Template):
+        if node.name.startswith("lang"):
+            return str(node.get(1))
+        else:
+            return ""
+    elif isinstance(node, mwparserfromhell.nodes.wikilink.Wikilink):
+        if node.title.startswith("File:") or node.title.startswith("Image:"):
+            return ""
+        return str(node.title)
+    else:
+        return str(node)
+
 def _get_introduction_from_tree(tree):
     """ Get the text of the first section of an article """
-    return tree.get_sections()[0].strip_code()
+    nodes = [parse_node(n) for n in tree.get_sections()[0].nodes]
+    return "".join(nodes).strip()
 
 def get_artist_details(name):
     article = load_article(name)
