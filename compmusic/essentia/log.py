@@ -1,6 +1,7 @@
 import logging
 
 essentia_log = logging.getLogger("essentia")
+adapted_logs = {}
 
 class EssentiaAdapter(logging.LoggerAdapter):
     """ A logging adapter that lets you set the document and sourcefile
@@ -26,8 +27,12 @@ class EssentiaAdapter(logging.LoggerAdapter):
         extra["modulename"] = self.extra["modulename"]
         extra["moduleversion"] = self.extra["moduleversion"]
         kwargs["extra"] = extra
+        print "logger extra", extra
         return (msg, kwargs)
 
-def get_logger(modulename, moduleversion):
-    log = EssentiaAdapter(essentia_log, {"modulename": modulename, "moduleversion": moduleversion})
-    return log
+def get_logger(modulename, moduleversion=None):
+    global adapted_logs
+    if modulename not in adapted_logs:
+        assert moduleversion is not None, "First time getting the logger must include module version"
+        adapted_logs[modulename] = EssentiaAdapter(essentia_log, {"modulename": modulename, "moduleversion": moduleversion})
+    return adapted_logs[modulename]
