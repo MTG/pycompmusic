@@ -27,7 +27,6 @@ class EssentiaAdapter(logging.LoggerAdapter):
         extra["modulename"] = self.extra["modulename"]
         extra["moduleversion"] = self.extra["moduleversion"]
         kwargs["extra"] = extra
-        print "logger extra", extra
         return (msg, kwargs)
 
 def get_logger(modulename, moduleversion=None):
