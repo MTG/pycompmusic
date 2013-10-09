@@ -7,9 +7,6 @@ A file with parameters for rhythm extraction
 import collections as coll
 import numpy as np
 import math
-# Code parameters here
-LogDisableFlag = False
-loggerName = 'RhythmExtractorv0.1'
 # Frame parameters first
 Fs = 44100.0
 hop = 512

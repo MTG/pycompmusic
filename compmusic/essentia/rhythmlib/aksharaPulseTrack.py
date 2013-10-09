@@ -11,7 +11,8 @@ import math
 import scipy.stats as scistats 
 import essentia.standard as ess
 import essentia as es
-import logging
+
+from compmusic.essentia import log
 
 # Main things to do
 # 1. Segment audio into alapana and kriti: Look at the Mridangam base
@@ -55,7 +56,7 @@ def normalizeFeature(featMat,normP):
     return featNorm
 ###########################################################################################
 def compute_fourierCoefficients(s,win,noverlap,f,fs):
-    logger = logging.getLogger(params.loggerName)
+    logger = log.get_logger("rhythm")
     winLen = win.size
     hopSize = winLen - noverlap   
     T = np.arange(0,winLen,1)/fs
@@ -83,7 +84,7 @@ def compute_fourierCoefficients(s,win,noverlap,f,fs):
     return x,f,t              
 ############################################################################################    
 def tempogram_viaDFT(fn,param):
-    logger = logging.getLogger(params.loggerName)
+    logger = log.get_logger("rhythm")
     logger.info('Computing Tempogram...')
     winLen = np.round(param.tempoWindow*param.featureRate)
     winLen = winLen + np.mod(winLen,2) - 1
@@ -250,7 +251,7 @@ def getTempoCurve(tg,tcparams):
     % params.theta (1x1) = smoothing parameter, higher the value, more smooth
     % is the curve. Set theta = 0 for a maximum vote tempo across time
     '''
-    logger = logging.getLogger(params.loggerName)
+    logger = log.get_logger("rhythm")
     logger.info('Computing IAI curve...')
     (D,N) = tg.shape
     DP = np.zeros(tg.shape)
@@ -310,7 +311,7 @@ def getTempoCurve(tg,tcparams):
     return tc
 ##################################################################################
 def getMatraPeriodEstimateFromTC(TCper,tcparams):
-    logger = logging.getLogger(params.loggerName)
+    logger = log.get_logger("rhythm")
     logger.info('Computing akshara pulse period...')
     histFn, binEdges = np.histogram(TCper,tcparams.Nbins,(0.0,60.0/tcparams.minBPM))
     binCentres = np.zeros(histFn.size)
@@ -347,7 +348,7 @@ def isScaleRelated(a,b,tol):
         return False
 ##################################################################################
 def correctOctaveErrors(x,per,tol):
-    logger = logging.getLogger(params.loggerName)
+    logger = log.get_logger("rhythm")
     logger.info('Correcting octave errors in IAI estimation...')
     y = x.copy()
     flag = np.zeros(x.size)
@@ -371,7 +372,7 @@ def correctOctaveErrors(x,per,tol):
     return y,flag
 ##################################################################################
 def estimateAksharaCandidates(tstamps,onsFn,TCper,TCts,medIAI,akParams):
-    logger = logging.getLogger(params.loggerName)
+    logger = log.get_logger("rhythm")
     logger.info('Estimating akshara candidates...')
     ts = tstamps[1] - tstamps[0]
     medIAISamp = medIAI/ts
@@ -400,7 +401,7 @@ def estimateAksharaCandidates(tstamps,onsFn,TCper,TCts,medIAI,akParams):
     return akCandLocs, akCandTs, akCandWts, akCandTransMat  
 ##################################################################################
 def DPSearch(cands,param):
-    logger = logging.getLogger(params.loggerName)
+    logger = log.get_logger("rhythm")
     logger.info('Searching through candidates...')
     TM = (cands.TransMatCausal).copy()
     ts = (cands.ts).copy()
@@ -436,12 +437,12 @@ def PreProcessAudio(fname):
     '''
     Pre-process data so that an audio file can be input. Right now, just does nothing. No preprocessing done
     '''
-    logger = logging.getLogger(params.loggerName)
+    logger = log.get_logger("rhythm")
     logger.info('Pre-processing audio... [Nothing for now]')
     return True
 ##################################################################################
 def getKritiStartBoundary(onsFn,onsTs):
-    logger = logging.getLogger(params.loggerName)
+    logger = log.get_logger("rhythm")
     logger.info('Obtaining Start of piece boundary...')
     peakLocs, peakVals = findpeaks(onsFn, imode = 'n', pmode = 'p', wdTol = 0, ampTol = 0.4, prominence = 10.0)
     offsetIndex = peakLocs[0]
@@ -449,7 +450,7 @@ def getKritiStartBoundary(onsFn,onsTs):
     return offsetIndex
 ##################################################################################
 def getOnsetFunctions(fname):
-    logger = logging.getLogger(params.loggerName)
+    logger = log.get_logger("rhythm")
     zeropadLen = params.Nfft - params.frmSize
     zz = np.zeros((zeropadLen,),dtype = 'float32')
     frameCounter = 0
@@ -492,26 +493,9 @@ def getOnsetFunctions(fname):
     pass
     return np.transpose(all_feat)
 ##################################################################################
-def setupLogger():
-    logger = logging.getLogger(params.loggerName)
-    logger.setLevel(logging.DEBUG)
-    # create console handler and set level to debug
-    #ch = logging.StreamHandler()
-    #ch.setLevel(logging.DEBUG)
-    # create formatter
-    #formatter = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
-    # add formatter to ch
-    #ch.setFormatter(formatter)
-    # add ch to logger
-    #logger.addHandler(ch)
-    return logger
-#     return True
-##################################################################################
 if __name__ == '__main__':
     # An example to run the module correctly
-    # Setup a logger first
-    logger = setupLogger()
-    logger.disabled = params.LogDisableFlag
+    logger = log.get_logger("rhythm")
     logger.info('Started Processing...')
 #     fname = '/media/Code/UPFWork/PhD/Data/CMCMDa/mp3/adi/10014_1313_Bhagyadalakshmi.mp3'
 #     fname = '/media/Data/Data/CompMusicDB/Carnatic/audio/T._M._Krishna/Carnatic_Vocal/2_Ninnenera.mp3'

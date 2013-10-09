@@ -1,7 +1,6 @@
 import compmusic.essentia
 import numpy as np
-import imagelib. as ap
-import logging
+import imagelib as ap
 
 class RhythmExtract(compmusic.essentia.EssentiaModule):
     __version__ = "0.1"
@@ -10,11 +9,8 @@ class RhythmExtract(compmusic.essentia.EssentiaModule):
 
     def run(self, fname):
         params = ap.params
-        # Setup a logger first
-        logger = ap.setupLogger()
-        logger.disabled = params.LogDisableFlag
-        logger.info('Started Processing...')
-        logger.info(fname)
+        self.logger.info('Started Processing...')
+        self.logger.info(fname)
         # Extract Onset functions
         onsFns = ap.getOnsetFunctions(fname)
         onsFn = onsFns[:,6].copy()
