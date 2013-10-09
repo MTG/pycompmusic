@@ -6,6 +6,8 @@ import unidecode
 import shutil
 import json
 import codecs
+import random
+import string
 
 import compmusic.musicbrainz
 import musicbrainzngs as mb
@@ -20,30 +22,32 @@ else:
 
 TARGET_DIR = "audio"
 
-def copy_recordingid_to_dir(recordingid):
+def copy_recordingid_to_dir(recordingid, workname, recordingname):
     files = recording_to_file.get(recordingid, [])
+    if not files:
+        return False
+    target = os.path.join(TARGET_DIR, workname, recordingname)
     for fname in files:
         name = os.path.basename(fname)
         n, ext = os.path.splitext(name)
-        if os.path.exists(os.path.join(TARGET_DIR, n)):
-            sourcedir = os.path.dirname(fname)
+        if os.path.exists(target):
             rand = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(4))
-            ndir = "%s_%s" % (n, rand)
-            newname = "%s%s" % (ndir, ext)
-            newdest = os.path.join(TARGET_DIR, ndir, newname)
+            newdest = "%s_%s" % (target, rand)
+            newname = "%s_%s%s" % (n, rand, ext)
             try:
-                os.makedirs(os.path.dirname(newdest))
+                os.makedirs(newdest)
             except:
+                raise
                 pass
-            print name, "exists, copying", target, "to", newname, "instead"
-            shutil.copy(fname, newdest)
+            print name, "exists, copying", fname, "to", newdest, "instead"
+            shutil.copy(fname, os.path.join(newdest, newname))
         else:
-            innertarget = os.path.join(TARGET_DIR, n)
             try:
-                os.makedirs(innertarget)
+                os.makedirs(target)
             except:
                 pass
-            shutil.copy(fname, innertarget)
+            shutil.copy(fname, target)
+    return True
 
 def main(collectionid):
     # work -> list recordings
@@ -96,8 +100,9 @@ def dump_data():
         output.write(u'<li><a href="http://musicbrainz.org/work/%s">%s</a></li>\n' % (i, worknames[i]))
         output.write("<ul>")
         for e in d[1]:
-            copy_recordingid_to_dir(e)
-            output.write(u'<li><a href="http://musicbrainz.org/recording/%s">%s</a></li>\n' % (e, recordingnames[e]))
+            is_file = copy_recordingid_to_dir(e, worknames[i], recordingnames[e])
+            bit = " *" if not is_file else ""
+            output.write(u'<li><a href="http://musicbrainz.org/recording/%s">%s%s</a></li>\n' % (e, recordingnames[e], bit))
         output.write("</ul>")
     output.write("</ul></body></html>")
 
