@@ -16,12 +16,24 @@ logging.basicConfig(level=logging.INFO)
 
 reraaga = re.compile(r"\braa?gam?\b")
 retaala = re.compile(r"\btaa?lam?\b")
+remakam = re.compile(r"\bmakam\b")
+reusul = re.compile(r"\busul\b")
+reform = re.compile(r"\bform\b")
 
 def has_raaga(tag):
-    return re.search(reraaga, tag)
+    return re.search(reraaga, tag) is not None
 
 def has_taala(tag):
-    return re.search(retaala, tag)
+    return re.search(retaala, tag) is not None
+
+def has_makam(tag):
+    return re.search(remakam, tag) is not None
+
+def has_usul(tag):
+    return re.search(reusul, tag) is not None
+
+def has_form(tag):
+    return re.search(reform, tag) is not None
 
 def parse_raaga(raaga):
     raaga = raaga.strip()
@@ -34,6 +46,25 @@ def parse_taala(taala):
     taala = re.sub(r" ?: ?", " ", taala)
     taala = re.sub(r" ?taa?lam?[0-9]* ?", "", taala)
     return taala
+
+def parse_makam(makam):
+    makam = makam.strip()
+    makam = re.sub(r" ?: ?", " ", makam)
+    makam = re.sub(r" ?makam ?", "", makam)
+    return makam
+
+def parse_usul(usul):
+    usul = usul.strip()
+    usul = re.sub(r" ?: ?", " ", usul)
+    usul = re.sub(r" ?usul ?", "", usul)
+    return usul
+
+def parse_form(form):
+    form = form.strip()
+    form = re.sub(r" ?: ?", " ", form)
+    print form
+    form = re.sub(r" ?form ?", "", form)
+    return form
 
 def main():
     tags = open(sys.argv[1]).readlines()
