@@ -4,6 +4,7 @@ import cStringIO as StringIO
 import struct
 
 import essentia.standard
+import intonation
 
 from compmusic.dunya import docserver
 
@@ -35,6 +36,29 @@ class PitchExtract(compmusic.essentia.EssentiaModule):
                           BinResolution=10,
                           GuessUnvoiced=True,
                           CentsPerBin=1)
+
+    def get_histogram(self, pitch):
+        """
+        Given a numpy array of nx2, where the first column is 
+        of timestamps, and the second column of pitch values
+        normalized to tonic, this function returns a (unsmoothed)
+        histogram.
+        """
+        pitch_obj = intonation.Pitch(pitch[:, 0], pitch[:, 1])
+        recording = intonation.Recording(pitch_obj)
+
+        #if no bins are given, the resolution would be 1 cent/bin
+        recording.compute_hist(weight="duration") 
+
+        #Uncomment the following couple of lines to return a smooth histogram.
+        #The argument refers to standard deviation of gaussian kernel 
+        #used for smoothing.
+
+        #recording.histogram.set_smoothness(7)
+        #return [recording.histogram.x, recording.histogram.y]
+
+        #This would instead return a raw histogram without smoothing.
+        return [recording.histogram.x, recording.histogram.y_raw]
 
     def run(self, fname):
         audioLoader = essentia.standard.EasyLoader(filename=fname, startTime=30, endTime=35)
