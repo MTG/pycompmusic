@@ -6,12 +6,13 @@ import yaml
 import numpy as np
 import DAO as dao
 import stringDuplicates as sd
+import csv
 
 db = dao.DAO()
 
 
 class FuzzyMatch:
-    def __init__(self, yaml_map_file, clusters_csv_file, tag="raaga", similarity_threshold=0.6):
+    def __init__(self, yaml_map_file, clusters_csv_file, tag="raaga", similarity_threshold=0.6, log="log.txt"):
         self.yaml_map = yaml.load(file(yaml_map_file))
         self.clusters = {}
         self.clusters_csv_file = clusters_csv_file
@@ -20,6 +21,7 @@ class FuzzyMatch:
         self.all_terms = []
         self.tag = tag
         self.similarity_threshold = similarity_threshold
+        self.log_file = file(log, "w")
 
     def load_clusters(self):
         data = np.loadtxt(self.clusters_csv_file, dtype="str", delimiter=",")
@@ -109,7 +111,7 @@ class FuzzyMatch:
                     elif tagInfo["category"] == "tala":
                         newterm = tagInfo["tag"]
                         break
-            return newterm
+            return newterm.lower()
 
     def get_terms(self):
         for mbid in self.yaml_map.keys():
@@ -124,7 +126,6 @@ class FuzzyMatch:
             self.all_terms.remove('')
         except ValueError:
             pass
-        #self.all_terms = [i.strip("0123456789()[]-") for i in self.all_terms]
 
 
     @staticmethod
@@ -145,11 +146,17 @@ class FuzzyMatch:
     def serialize_clusters(self, path):
         csv_clusters = []
         for cluster_name, values in self.clusters.items():
-            terms = values.remove(cluster_name)
+            try:
+                values.remove(cluster_name)
+            except ValueError:
+                pass
             row = [cluster_name]
-            row.extend(terms)
+            row.extend(values)
             csv_clusters.append(row)
-        np.savetxt(path, csv_clusters, fmt="%s", delimiter=",")
+        fileobj = file(path, "w")
+        csv_writer = csv.writer(fileobj)
+        csv_writer.writerows(csv_clusters)
+        fileobj.flush()
 
     def update_clusters(self):
         """
@@ -162,7 +169,8 @@ class FuzzyMatch:
         updated_clusters = []
         for term in self.all_terms:
             if term in existing_terms:
-                print term, "exists in our cluster\n"
+                print term, " exists in our catalogue\n"
+                self.log_file.write(term+" exists in our catalogue\n")
                 continue
 
             #find similarities of a new term to each of the existing clusters
@@ -179,28 +187,31 @@ class FuzzyMatch:
             max_index = np.argmax(tmp)
             if tmp[max_index] < self.similarity_threshold:
                 cluster_name = similarities[max_index][0]
-                print "Added new cluster for", term, "(Nearest cluster was", cluster_name, ") \n"
+                print "Added new cluster for", term, "(Nearest cluster was ", cluster_name, ") \n"
+                self.log_file.write("Added new cluster for " + term +
+                                    " (Nearest cluster was " + cluster_name + ") \n")
                 self.clusters[term] = [term]
                 updated_clusters.append(term)
             else:
                 cluster_name = similarities[max_index][0]
                 self.clusters[cluster_name].append(term)
-                print term, "is now part of", cluster_name, "cluster with", tmp[max_index], "confidence\n"
+                print term, "is now part of ", cluster_name, "cluster with", str(tmp[max_index]), "confidence\n"
+                self.log_file.write(term + " is now part of " + cluster_name +
+                                    " cluster with " + str(tmp[max_index]) + " confidence\n")
                 updated_clusters.append(cluster_name)
 
         updated_clusters = np.unique(updated_clusters)
-        print "The following are the updated clusters:"
+        self.log_file.write("The following are the updated clusters:\n")
         for i in updated_clusters:
-            print i
+            self.log_file.write(i + "\n")
 
 
 import sys
 if __name__ == "__main__":
-    #yaml_map_file = sys.argv[1]
-    #clusters_csv_file = sys.argv[2]
-    fuzzymatch = FuzzyMatch("../../../compileMetadata/temp.yaml", "../../../../../data/raagaClusters.csv",
+    yaml_map_file = sys.argv[1]
+    clusters_csv_file = sys.argv[2]
+    fuzzymatch = FuzzyMatch(yaml_map_file, clusters_csv_file,
                             tag="raaga", similarity_threshold=0.6)
-    mbids = fuzzymatch.yaml_map.keys()
-    fuzzymatch.get_tag(mbids[0])
     fuzzymatch.get_terms()
     fuzzymatch.update_clusters()
+    fuzzymatch.serialize_clusters(sys.argv[3])
