@@ -15,9 +15,9 @@ def _stripChars(word, chars):
 			result = result+char
 	return result
 
-def _similarity(x, y):
+def similarity(x, y):
 	"""
-	_similarity(x, y)
+	similarity(x, y)
 	
 	This function measures string similarity between x and y.
 	The function returns:
@@ -107,7 +107,7 @@ def stringDuplicates(term, origTerms, simThresh=0.8, n=100, stripped=False, recu
 		
 		similarities = [0] * l
 		for i in xrange(0, l):
-			similarities[i] = _similarity(term, strippedTerms[i])
+			similarities[i] = similarity(term, strippedTerms[i])
 		
 		duplicates = []
 		if n > l: n = l
