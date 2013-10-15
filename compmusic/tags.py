@@ -62,7 +62,6 @@ def parse_usul(usul):
 def parse_form(form):
     form = form.strip()
     form = re.sub(r" ?: ?", " ", form)
-    print form
     form = re.sub(r" ?form ?", "", form)
     return form
 
