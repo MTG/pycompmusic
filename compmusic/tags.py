@@ -14,8 +14,8 @@ logging.basicConfig(level=logging.INFO)
 
 #from carnatic.models import Raaga, Taala
 
-reraaga = re.compile(r"\braa?gam?\b")
-retaala = re.compile(r"\btaa?lam?\b")
+reraaga = re.compile(r"\braa?gam?[0-9]*\b")
+retaala = re.compile(r"\btaa?lam?[0-9]*\b")
 remakam = re.compile(r"\bmakam\b")
 reusul = re.compile(r"\busul\b")
 reform = re.compile(r"\bform\b")
