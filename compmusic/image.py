@@ -6,12 +6,12 @@ AUDIO_FILES = "/home/alastair/audio/carnatic"
 RELEASE_MAP = {}
 
 def get_coverart_from_directories(directories=[]):
-    """Get the cover art inside a file, otherwise try on CAA"""
+    """Find some coverart in the files that are part of a directory"""
     for d in directories:
-        files = os.listdir(d)
+        files = [os.path.join(d, f) for f in os.listdir(d)]
         files = [f for f in files if compmusic.is_mp3_file(f)]
         for f in files:
-            coverart = compmusic.get_coverart(os.path.join(d, f))
+            coverart = compmusic.get_coverart(f)
             if coverart:
                 return coverart
     return None
