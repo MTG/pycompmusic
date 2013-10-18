@@ -18,3 +18,11 @@ class TagTest(unittest.TestCase):
         t = "form: something"
         self.assertEqual(True, tags.has_form(t))
         self.assertEqual("something", tags.parse_form(t))
+
+    def test_raaga(self):
+        t = "raaga1 bhairavi"
+        self.assertEqual("bhairavi", tags.parse_raaga(t))
+
+        t = "bhairavi raaga1"
+        self.assertEqual("bhairavi", tags.parse_raaga(t))
+
