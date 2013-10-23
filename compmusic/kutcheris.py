@@ -46,7 +46,7 @@ def get_artist_details(artistid):
         imagecontents = None
     else:
         imgurl = "http://kutcheris.com/%s" % imgurl
-        imagecontents = requests.get(imgurl).text
+        imagecontents = requests.get(imgurl).content
 
     text = profile.find("div", id="right")
     wplink = text.find("a", href=re.compile(r".*?wikipedia\.org.*?"))
