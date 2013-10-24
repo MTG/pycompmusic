@@ -86,7 +86,7 @@ def get_artist_details(name):
         img_contents = None
     intro = _get_introduction_from_tree(article)
     url = "http://en.wikipedia.org/wiki/%s" % name.replace(" ", "_")
-    return img_contents, intro, url
+    return img_contents, img, intro, url
 
 def search(title):
     """ Perform a title search and return the first matching page """
