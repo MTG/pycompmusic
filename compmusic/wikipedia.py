@@ -2,6 +2,7 @@
 import requests
 import json
 import mwparserfromhell
+import functools32
 
 def _make_wp_query(params):
     url = "http://en.wikipedia.org/w/api.php"
@@ -75,10 +76,11 @@ def _get_introduction_from_tree(tree):
     nodes = [parse_node(n) for n in tree.get_sections()[0].nodes]
     return "".join(nodes).strip()
 
+@functools32.lru_cache(100)
 def get_artist_details(name):
     article = load_article(name)
     if not article:
-        return None, None, None
+        return None, None, None, None
     img = _get_image_from_tree(article)
     if img:
         img_contents = download_image(img)
