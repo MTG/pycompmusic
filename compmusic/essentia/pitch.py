@@ -14,7 +14,7 @@ class PitchExtract(compmusic.essentia.EssentiaModule):
     __slug__ = "pitch"
 
     __depends__ = "tonic"
-    __output__ = {"pitch": None, "packedpitch": None, "histogram": None}
+    __output__ = {"pitch": {"extension": "json", "mimetype": "application/json"}, "packedpitch": None, "histogram": None}
 
     def normalise_pitch(self, pitch):
         eps = np.finfo(np.float).eps
@@ -31,7 +31,9 @@ class PitchExtract(compmusic.essentia.EssentiaModule):
         return normalised_pitch
 
     def setup(self):
-        self.add_settings(HopSize=128,
+        # Hop size is 44100*4/900 because our smallest view is 4 seconds long
+        # and the image is 900px wide
+        self.add_settings(HopSize=196,
                           FrameSize=2048,
                           BinResolution=10,
                           GuessUnvoiced=True,
@@ -91,13 +93,18 @@ class PitchExtract(compmusic.essentia.EssentiaModule):
                 "histogram": p_histogram}
 
 class PitchExtract2(compmusic.essentia.EssentiaModule):
-    __version__ = "0.3"
+    __version__ = "0.6"
     __sourcetype__ = "mp3"
     __slug__ = "pitch2"
 
+    __output__ = {"data1": {"extension": "json", "mimetype": "application/json"},
+                  "data2": {"extension": "json", "mimetype": "application/json"},
+                 }
+
     def run(self, fname):
         self.logger.info("PitchExtract2 logger info")
-        return {"woo": "datav3"}
+
+        return {"data1": {"woo": "datav4 part"}, "data2": [{"mything": "pitch-data2part1"}, {"mything": "pitch-data2part2"}]}
         loader = essentia.standard.EasyLoader(filename=fname, sampleRate=44100)
         equalLoudness = essentia.standard.EqualLoudness(sampleRate=44100)
         audio = loader()
