@@ -5,8 +5,11 @@ import logging
 import collections as coll
 import wave 
 import os
+import tempfile
 
 from cStringIO import StringIO
+
+from docserver import util
 
 class AudioImages(compmusic.essentia.EssentiaModule):
     __version__ = "0.1"
@@ -15,8 +18,7 @@ class AudioImages(compmusic.essentia.EssentiaModule):
 
     __depends__ = "wav"
 
-    __output__ = 
-                {"waveform4": {"extension": "png", "mimetype": "image/png"},
+    __output__ = {"waveform4": {"extension": "png", "mimetype": "image/png"},
                   "spectrum4": {"extension": "png", "mimetype": "image/png"},
                 "waveform8": {"extension": "png", "mimetype": "image/png"},
                   "spectrum8": {"extension": "png", "mimetype": "image/png"},
@@ -32,11 +34,8 @@ class AudioImages(compmusic.essentia.EssentiaModule):
         print baseFname
         print ext
         
-        wavname = docserver.latest_derived_file_for_recording(self.document_id, "wav")
-        # TODO: also need a filename
+        wavfname = util.docserver_get_filename(self.document_id, "wav", "wave")
 
-        if ext != ".wav":
-            print "Cannot work on non-wav files. Please convert it before input"
         panelWidth = 900		              # pixels
         panelHeight = 255		              # pixels
         zoomlevels = [4, 8, 16, 32]           	      # seconds
@@ -45,12 +44,15 @@ class AudioImages(compmusic.essentia.EssentiaModule):
         options.fft_size = 4096
         baseSpecName = baseFname + "_spectrogram"
         baseWavName = baseFname + "_waveform"
-        wvFile = wave.Wave_read(fname)
+        wvFile = wave.Wave_read(wavfname)
         wvFileLen = wvFile.getnframes()/(float(wvFile.getframerate()))  # in seconds
 
         ret = {}
         
         for zoom in zoomlevels:
+            fp, smallname = tempfile.mkstemp(".wav")
+            os.close(fp)
+
             wfname = "waveform%s" % zoom
             specname = "spectrum%s" % zoom
 
@@ -67,6 +69,8 @@ class AudioImages(compmusic.essentia.EssentiaModule):
 
             ret[wfname] = wavio.getvalue()
             ret[specname] = specio.getvalue()
+
+            
 
         return ret
             
