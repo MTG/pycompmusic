@@ -41,7 +41,7 @@ class PitchExtract(compmusic.essentia.EssentiaModule):
 
     def get_histogram(self, pitch):
         """
-        Given a numpy array of nx2, where the first column is 
+        Given a numpy array of nx2, where the first column is
         of timestamps, and the second column of pitch values
         normalized to tonic, this function returns a (unsmoothed)
         histogram.
@@ -50,10 +50,10 @@ class PitchExtract(compmusic.essentia.EssentiaModule):
         recording = intonation.Recording(pitch_obj)
 
         #if no bins are given, the resolution would be 1 cent/bin
-        recording.compute_hist(weight="duration") 
+        recording.compute_hist(weight="duration")
 
         #Uncomment the following couple of lines to return a smooth histogram.
-        #The argument refers to standard deviation of gaussian kernel 
+        #The argument refers to standard deviation of gaussian kernel
         #used for smoothing.
 
         #recording.histogram.set_smoothness(7)
@@ -62,7 +62,7 @@ class PitchExtract(compmusic.essentia.EssentiaModule):
         #This would instead return a raw histogram without smoothing.
         return [recording.histogram.x, recording.histogram.y_raw]
 
-    def run(self, fname):
+    def get_pitch_essentia(self, fname):
         audioLoader = essentia.standard.EasyLoader(filename=fname, startTime=30, endTime=35)
         monoLoader = essentia.standard.MonoLoader(filename=fname)
         sampleRate = monoLoader.paramValue("sampleRate")
@@ -74,10 +74,21 @@ class PitchExtract(compmusic.essentia.EssentiaModule):
                                     guessUnvoiced=self.settings.GuessUnvoiced)(audio)
 
         pitch = pitch[0]
+        return pitch
+
+    def get_pitch_c(self, fname):
+        proclist = ["PitchExtract", fname]
+        p = subprocess.Popen(proclist)
+        output = p.communicate()
+        return output[0]
+
+    def run(self, fname):
 
         #generating time stamps (because its equally hopped)
         TStamps = np.array(range(0,len(pitch)))*np.float(self.settings.HopSize)/sampleRate
         dump = np.array([TStamps, pitch]).transpose()
+
+        pitch = self.get_pitch_c(fname)
 
         normalised_pitch = self.normalise_pitch(pitch)
 
