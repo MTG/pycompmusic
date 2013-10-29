@@ -1,3 +1,4 @@
+import compmusic.essentia
 import numpy as np
 import imagelib.wav2png as w2png
 import logging
@@ -5,15 +6,35 @@ import collections as coll
 import wave 
 import os
 
-class AudioImages():#(compmusic.essentia.EssentiaModule):
+from cStringIO import StringIO
+
+class AudioImages(compmusic.essentia.EssentiaModule):
     __version__ = "0.1"
-    __sourcetype__ = "wav"
+    __sourcetype__ = "mp3"
     __slug__ = "audioimages"
+
+    __depends__ = "wav"
+
+    __output__ = 
+                {"waveform4": {"extension": "png", "mimetype": "image/png"},
+                  "spectrum4": {"extension": "png", "mimetype": "image/png"},
+                "waveform8": {"extension": "png", "mimetype": "image/png"},
+                  "spectrum8": {"extension": "png", "mimetype": "image/png"},
+                "waveform16": {"extension": "png", "mimetype": "image/png"},
+                  "spectrum16": {"extension": "png", "mimetype": "image/png"},
+                "waveform32": {"extension": "png", "mimetype": "image/png"},
+                  "spectrum32": {"extension": "png", "mimetype": "image/png"},
+                  "fullsmall": {"extension": "png", "mimetype": "image/png"}
+                 }
 
     def run(self, fname):
         baseFname, ext = os.path.splitext(os.path.basename(fname))
         print baseFname
         print ext
+        
+        wavname = docserver.latest_derived_file_for_recording(self.document_id, "wav")
+        # TODO: also need a filename
+
         if ext != ".wav":
             print "Cannot work on non-wav files. Please convert it before input"
         panelWidth = 900		              # pixels
@@ -26,10 +47,26 @@ class AudioImages():#(compmusic.essentia.EssentiaModule):
         baseWavName = baseFname + "_waveform"
         wvFile = wave.Wave_read(fname)
         wvFileLen = wvFile.getnframes()/(float(wvFile.getframerate()))  # in seconds
+
+        ret = {}
         
         for zoom in zoomlevels:
+            wfname = "waveform%s" % zoom
+            specname = "spectrum%s" % zoom
+
+            specio = StringIO()
+            # Set the name attr so that PIL gets the filetype hint
+            specio.name = "spec.jpg"
+            wavio = StringIO()
+            wavio.name = "wav.png"
+            
             specname = baseSpecName + "_" + str(zoom) + ".jpg"
             wavname = baseWavName + "_" + str(zoom) + ".png"
             options.image_width = int(round(panelWidth*wvFileLen/float(zoom)))
-            w2png.genimages(fname,wavname,specname,options)
+            w2png.genimages(fname, wavio, specio, options)
+
+            ret[wfname] = wavio.getvalue()
+            ret[specname] = specio.getvalue()
+
+        return ret
             
