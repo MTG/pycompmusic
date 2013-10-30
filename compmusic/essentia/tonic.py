@@ -31,7 +31,7 @@ class CTonicExtract(compmusic.essentia.EssentiaModule):
 
     def run(self, fname):
         wavfname = util.docserver_get_filename(self.musicbrainz_id, "wav", "wave")
-        args = ["/srv/dunya/PitchCandExt_O0", "-m", "T", "-t", "V", "-i", wavfname]
+        proclist = ["/srv/dunya/PitchCandExt_O0", "-m", "T", "-t", "V", "-i", wavfname]
         p = subprocess.Popen(proclist, stdout=subprocess.PIPE)
         output = p.communicate()
         tonic = output[0]
