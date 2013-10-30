@@ -8,11 +8,11 @@ class TonicExtract(compmusic.essentia.EssentiaModule):
     __sourcetype__ = "mp3"
     __slug__ = "tonic"
 
-    __output__ = {"tonic": {"extension": "json", "mimetype": "application/json"}}
+    __output__ = {"tonic": {"extension": "dat", "mimetype": "text/plain"}}
 
     def run(self, fname):
 
         audio = essentia.standard.MonoLoader(filename=fname)()
         tonic = essentia.standard.TonicIndianArtMusic()(audio)
 
-        return {"tonic": {"tonic": tonic}}
+        return {"tonic": str(tonic)}
