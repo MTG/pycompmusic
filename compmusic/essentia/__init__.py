@@ -53,12 +53,13 @@ class EssentiaModule(object):
         """
         pass
 
-    def process_document(self, docid, sourcefileid, fname):
+    def process_document(self, docid, sourcefileid, musicbrainzid, fname):
         """ Set up some class state and call run. This should
-        never be called publically """
+        never be called publicly """
         self.document_id = docid
         self.logger.set_documentid(docid)
         self.logger.set_sourcefileid(sourcefileid)
+        self.musicbrainz_id = musicbrainzid
         return self.run(fname)
 
     def run(self, fname):

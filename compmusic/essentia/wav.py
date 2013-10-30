@@ -5,7 +5,7 @@ import tempfile
 import os
 
 class Mp3ToWav(compmusic.essentia.EssentiaModule):
-    __version__ = "0.3"
+    __version__ = "0.4"
     __sourcetype__ = "mp3"
     __slug__ = "wav"
 
@@ -14,7 +14,7 @@ class Mp3ToWav(compmusic.essentia.EssentiaModule):
     def run(self, fname):
         fp, tmpname = tempfile.mkstemp(".wav")
         os.close(fp)
-        proclist = ["lame", "--decode", "-x", fname, tmpname]
+        proclist = ["lame", "--decode", fname, tmpname]
         p = subprocess.Popen(proclist)
         p.communicate()
 
