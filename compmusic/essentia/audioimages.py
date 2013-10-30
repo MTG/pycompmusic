@@ -34,7 +34,7 @@ class AudioImages(compmusic.essentia.EssentiaModule):
         print baseFname
         print ext
 
-        wavfname = util.docserver_get_filename(self.document_id, "wav", "wave")
+        wavfname = util.docserver_get_filename(self.musicbrainz_id, "wav", "wave")
 
         panelWidth = 900		              # pixels
         panelHeight = 255		              # pixels
