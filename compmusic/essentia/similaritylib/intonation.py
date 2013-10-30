@@ -31,7 +31,31 @@ def fill_in(profile, _min=-2400, _max=4800]):
     return profile
 
 def distance(profile1, profile2):
-    v1 = profile1.values()
-    v2 = profile2.values()
+    keys = profile1.keys()
+    try:
+        keys.pop("skew1")
+    except KeyError:
+        pass
+    v1 = [profile1[k] for k in keys]
+    v2 = [profile2[k] for k in keys]
     return norm(v1-v2)
 
+def kldiv(A,B):
+    """
+    Calculates the KL divergence D(A||B) between the 
+    normalized distributions A and B.
+
+    Usage: d = kldiv(A,B)
+    """
+    eps = np.finfo(float).eps*2*len(A)
+    A = np.array(A)+eps
+    B = np.array(B)+eps
+    #eps = 0.01
+    #if max(sum(A), sum(B)) > 1+eps:
+    #   print max(sum(A), sum(B))
+    #   print "Probabilities do not sum to 1."
+    #   return np.NaN
+    if A.size != B.size:
+        print "Arguments are of different length."
+        return np.NaN
+    return (np.dot(A, np.log2(A)-np.log2(B))+np.dot(B, np.log2(B)-np.log2(A)))/2.0
