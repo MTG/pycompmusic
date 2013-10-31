@@ -40,7 +40,7 @@ class Raaga:
         """
         all_cents = []
         for i in xrange(len(paths_to_pitch_files)):
-            filepath = paths_to_pitch_files[filepath]
+            filepath = paths_to_pitch_files[i]
             data = np.loadtxt(filepath)
 
             if data is None:
@@ -60,7 +60,7 @@ class Raaga:
         n, bin_edges = np.histogram(all_cents, bins, normed=True)
         bin_centers = 0.5*(bin_edges[1:]+bin_edges[:-1])
         n = n.reshape(len(n), 1)
-        bin_centers = bin_centers.reshape(len(bin_centers, 1))
+        bin_centers = bin_centers.reshape(len(bin_centers), 1)
         self.average_hist = np.append(n, bin_centers, axis=1)
 
     def serialize_average_hist(self):
@@ -93,37 +93,45 @@ if __name__ == "__main__":
     sys.path.append("/media/CompMusic/audio/users/gkoduri/workspace/PhD/scripts")
     import utils as u
 
-    raaga_map = yaml.load(file("/home/gopal/data/raagaClusters.yaml"))
-    pitch_files = glob("/home/gopal/data/features/pitch/*.txt")
-    mbids = [basename(mbid)[:-4] for mbid in pitch_files]
+    #raaga_map = yaml.load(file("/home/gopal/data/raagaClusters.yaml"))
+    #pitch_files = glob("/home/gopal/data/features/pitch/*.txt")
+    #mbids = [basename(mbid)[:-4] for mbid in pitch_files]
+    #
+    #w = u.Workspace("/home/gopal/data/features/",
+    #                "/home/gopal/data/features/annotations/",
+    #                "/home/gopal/data/audio/Carnatic/metadata/Carnatic.yaml")
+    #tonics = [w.tonic(mbid) for mbid in mbids]
+    #
+    #raaga_mbids = {}
+    #for i in xrange(len(mbids)):
+    #    if tonics[i] is None:
+    #        continue
+    #
+    #    mbid = mbids[i]
+    #    tag = w.get_tag("raaga", mbid)
+    #    raaga = w.get_raaga(tag, raaga_map)
+    #    if raaga == "":
+    #        continue
+    #
+    #    print mbid, raaga
+    #    if raaga in raaga_mbids.keys():
+    #        raaga_mbids[raaga].append([mbid, tonics[i]])
+    #    else:
+    #        raaga_mbids[raaga] = [[mbid, tonics[i]]]
+    #
+    #import pickle
+    #pickle.dump(raaga_mbids, file("/home/gopal/data/raagaMBIDs.pickle", "w"))
 
-    w = u.Workspace("/home/gopal/data/features/",
-                    "/home/gopal/data/features/annotations/",
-                    "/home/gopal/data/audio/Carnatic/metadata/Carnatic.yaml")
-    tonics = [w.tonic(mbid) for mbid in mbids]
-
-    raaga_mbids = {}
-    for i in xrange(len(mbids)):
-        if tonics[i] is None:
+    import pickle
+    from os.path import exists
+    raaga_mbids = pickle.load(file("/home/gopal/data/raagaMBIDs.pickle"))
+    for r in raaga_mbids.keys():
+        if exists("/home/gopal/data/features/raagaProfiles/" + r + ".pickle"):
             continue
-
-        mbid = mbids[i]
-        tag = w.get_tag("raaga", mbid)
-        raaga = w.get_raaga(tag, raaga_map)
-        if raaga == "":
-            continue
-
-        print mbid, raaga
-        if raaga in raaga_mbids.keys():
-            raaga_mbids[raaga].append([mbid, tonics[i]])
-        else:
-            raaga_mbids[raaga] = [[mbid, tonics[i]]]
-
-    for raaga in raaga_mbids.keys():
         print r, len(raaga_mbids[r])
-        r = Raaga(raaga, "/home/gopal/data/features/raagaProfiles/")
-        pitch_files = ["/home/gopal/data/features/pitch/" + raaga_mbids[r][i][0] + ".txt"
+        raaga = Raaga(r, "/home/gopal/data/features/raagaProfiles/")
+        pitch_files = ["/home/gopal/data/features/pitch/" + str(i[0]) + ".txt"
                        for i in raaga_mbids[r]]
-        tonics = [raaga_mbids[r][i][1] for i in raaga_mbids[r]]
-        r.compute_average_hist(pitch_files, tonics)
-        r.serialize_average_hist()
+        tonics = [i[1] for i in raaga_mbids[r]]
+        raaga.compute_average_hist(pitch_files, tonics)
+        raaga.serialize_average_hist()
