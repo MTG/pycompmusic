@@ -447,7 +447,6 @@ class SpectrogramImage(object):
             self.pixels.append(self.palette[0])
 
     def save(self, filename, quality=80):
-        assert filename.lower().endswith(".jpg")
         self.image.putdata(self.pixels)
         self.image.transpose(Image.ROTATE_90).save(filename, quality=quality)
 
