@@ -31,6 +31,69 @@ class AudioImages(compmusic.essentia.EssentiaModule):
                   "smallfull": {"extension": "png", "mimetype": "image/png"}
                  }
 
+    def make_mini(self, wavfname):
+        smallfulloptions = coll.namedtuple('options', 'image_height fft_size image_width')
+        smallfulloptions.fft_size = 4096
+        smallfulloptions.image_height = 65
+        wvFile = wave.Wave_read(wavfname)
+        framerate = wvFile.getframerate()
+
+        # When we make the small image, we generate the parts so that
+        # their size will add up to `panelWidth` pixels wide
+        # TODO: Need to choose a smallpartsize so that it's
+        # always greater than 10. preferably much more. Split
+        # up into things by time. a few minutes each
+        totalframes = wvFile.getnframes()
+        lensecs = totalframes / framerate
+        print "len secs", lensecs
+        numsmallparts = math.ceil(lensecs/60.0)
+
+        smallpartsize = int(900 / numsmallparts)
+        smallfulloptions.image_width = int(smallpartsize)
+        smallfullimage = None
+        print "going to make %s parts, each %s in size" % (numsmallparts, smallpartsize)
+
+        wvFile = wave.Wave_read(wavfname)
+        framerate = wvFile.getframerate()
+        framesperimage = framerate * 60
+
+        minidata = []
+        countsecs = 0
+        while countsecs < lensecs:
+            fp, smallname = tempfile.mkstemp(".wav")
+            os.close(fp)
+            data = wvFile.readframes(framesperimage)
+            print len(data)
+            wavout = wave.open(smallname, "wb")
+            # This will set nframes, but writeframes resets it
+            wavout.setparams(wvFile.getparams())
+            wavout.writeframes(data)
+            wavout.close()
+
+            smallfullio = StringIO()
+            smallfullio.name = "wav.png"
+            # We don't use this
+            smallfullspecio = StringIO()
+            smallfullspecio.name = "spec.png"
+            print "small, options:", smallfulloptions.image_width
+            w2png.genimages(smallname, smallfullio, smallfullspecio, smallfulloptions)
+            minidata.append(smallfullio.getvalue())
+            os.unlink(smallname)
+            countsecs += 60
+
+        print "minidata, len", len(minidata)
+        smallfullimage = Image.new("RGB", (900, 65), (0,0,0))
+        # we need to stitch together the parts of the mini image
+        for i, data in enumerate(minidata):
+            print "start at", smallpartsize*i
+            coord = (smallpartsize*i, 0, smallpartsize*i+smallpartsize, 65)
+            pastedimage = Image.open(StringIO(data))
+            smallfullimage.paste(pastedimage, coord)
+
+        smallfullio = StringIO()
+        smallfullimage.save(smallfullio, "png")
+        return smallfullio.getvalue()
+
     def run(self, fname):
         baseFname, ext = os.path.splitext(os.path.basename(fname))
         print baseFname
@@ -43,14 +106,12 @@ class AudioImages(compmusic.essentia.EssentiaModule):
         zoomlevels = [4, 8, 16, 32]           	      # seconds
         zoomlevels = [32]           	      # seconds
         options = coll.namedtuple('options', 'image_height fft_size image_width')
-        smallfulloptions = coll.namedtuple('options', 'image_height fft_size image_width')
         options.image_height = panelHeight
         options.image_width = panelWidth
         options.fft_size = 4096
-        smallfulloptions.fft_size = 4096
-        smallfulloptions.image_height = 65
         wvFile = wave.Wave_read(wavfname)
         framerate = wvFile.getframerate()
+        totalframes = wvFile.getnframes()
 
         ret = {}
 
@@ -65,16 +126,6 @@ class AudioImages(compmusic.essentia.EssentiaModule):
             specname = "spectrum%s" % zoom
             wfdata = []
             specdata = []
-
-            minidata = []
-            # When we make the small image, we generate the parts so that
-            # their size will add up to `panelWidth` pixels wide
-            totalframes = wvFile.getnframes()
-            numsmallparts = math.ceil(totalframes*1.0/framesperimage)
-            smallpartsize = int(panelWidth / numsmallparts)
-            smallfulloptions.image_width = smallpartsize
-            smallfullimage = None
-            print "going to make %s parts, each %s in size" % (numsmallparts, smallpartsize)
 
             sum = 0
             while sum <= totalframes:
@@ -98,35 +149,16 @@ class AudioImages(compmusic.essentia.EssentiaModule):
 
                 w2png.genimages(smallname, wavio, specio, options)
 
-                if not smallfullimage:
-                    smallfullio = StringIO()
-                    smallfullio.name = "wav.png"
-                    # We don't use this
-                    smallfullspecio = StringIO()
-                    smallfullspecio.name = "spec.png"
-                    w2png.genimages(smallname, smallfullio, smallfullspecio, smallfulloptions)
-                    minidata.append(smallfullio.getvalue())
 
                 os.unlink(smallname)
 
                 specdata.append(specio.getvalue())
                 wfdata.append(wavio.getvalue())
 
-            if not smallfullimage:
-                smallfullimage = Image.new("RGB", (900, 65), (0,0,0))
-                # we need to stitch together the parts of the mini image
-                for i, data in enumerate(minidata):
-                    coord = (smallpartsize*i, 0, smallpartsize*i+smallpartsize, 65)
-                    pastedimage = Image.open(StringIO(data))
-                    smallfullimage.paste(pastedimage, coord)
-
-                smallfullio = StringIO()
-                smallfullimage.save(smallfullio, "png")
-                ret["smallfull"] = smallfullio.getvalue()
-
             ret[wfname] = wfdata
             ret[specname] = specdata
 
+        ret["smallfull"] = self.make_mini(wavfname)
         if created:
             os.unlink(wavefname)
 
