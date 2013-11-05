@@ -1,9 +1,9 @@
 import compmusic.essentia
 import numpy as np
-import imagelib as ap
+import rhythmlib as ap
 
 class RhythmExtract(compmusic.essentia.EssentiaModule):
-    __version__ = "0.1"
+    __version__ = "0.3"
     __sourcetype__ = "mp3"
     __slug__ = "rhythm"
     __output__ = {"sections": {"extension": "json", "mimetype": "application/json"},
@@ -70,8 +70,8 @@ class RhythmExtract(compmusic.essentia.EssentiaModule):
         TCper = np.round(TCper,params.roundOffLen)
         APcurve = {TCts[t]:TCper[t] for t in range(TCts.size)}
 
-        return {"sections": sections,
-                "aksharaPeriod": np.round(mmpFromTC,params.roundOffLen),
-                "aksharaTicks": np.round(aksharaTimes,params.roundOffLen),
+        return {"sections": {"sec": sections},
+                "aksharaPeriod": np.asscalar(np.round(mmpFromTC,params.roundOffLen)),
+                "aksharaTicks": {"ticks": np.round(aksharaTimes,params.roundOffLen).tolist()},
                 "APcurve": APcurve
                 }
