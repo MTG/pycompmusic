@@ -2,24 +2,29 @@ import compmusic.essentia
 import numpy as np
 import cStringIO as StringIO
 import struct
+import sys
 
 import essentia.standard
 import intonation
 
-from compmusic.dunya import docserver
+from docserver import util
 
 class PitchExtract(compmusic.essentia.EssentiaModule):
-    __version__ = "0.1"
+    __version__ = "0.2"
     __sourcetype__ = "mp3"
     __slug__ = "pitch"
 
     __depends__ = "tonic"
-    __output__ = {"pitch": {"extension": "json", "mimetype": "application/json"}, "packedpitch": None, "histogram": None}
+    __output__ = {"pitch": {"extension": "json", "mimetype": "application/json"},
+            "packedpitch": {"extension": "dat", "mimetype": "application/octet-stream"},
+            "normalisedpitch": {"extension": "json", "mimetype": "application/json"},
+            "histogram": {"extension": "json", "mimetype": "application/json"}}
 
     def normalise_pitch(self, pitch):
         eps = np.finfo(np.float).eps
-        #tonic = docserver.latest_derived_file_for_recording(self.document_id, "tonic")
-        tonic = 100
+        tonic = util.docserver_get_contents(self.musicbrainz_id, "ctonic", "tonic")
+        tonic = float(tonic)
+        print "got tonic", tonic
         factor = 1200.0 / self.settings.CentsPerBin
         normalised_pitch = []
         two_to_sixteen = 2**16
@@ -32,7 +37,8 @@ class PitchExtract(compmusic.essentia.EssentiaModule):
 
     def setup(self):
         # Hop size is 44100*4/900 because our smallest view is 4 seconds long
-        # and the image is 900px wide
+        # and the image is 900px wide. For 8 seconds, we take every 2,
+        # 16 seconds, every 4, and 32 seconds every 8 samples.
         self.add_settings(HopSize=196,
                           FrameSize=2048,
                           BinResolution=10,
@@ -60,9 +66,10 @@ class PitchExtract(compmusic.essentia.EssentiaModule):
         #return [recording.histogram.x, recording.histogram.y]
 
         #This would instead return a raw histogram without smoothing.
-        return [recording.histogram.x, recording.histogram.y_raw]
+        return [recording.histogram.x.tolist(), recording.histogram.y_raw.tolist()]
 
-    def get_pitch_essentia(self, fname):
+    def run(self, fname):
+
         audioLoader = essentia.standard.EasyLoader(filename=fname, startTime=30, endTime=35)
         monoLoader = essentia.standard.MonoLoader(filename=fname)
         sampleRate = monoLoader.paramValue("sampleRate")
@@ -74,33 +81,25 @@ class PitchExtract(compmusic.essentia.EssentiaModule):
                                     guessUnvoiced=self.settings.GuessUnvoiced)(audio)
 
         pitch = pitch[0]
-        return pitch
-
-    def get_pitch_c(self, fname):
-        proclist = ["PitchExtract", fname]
-        p = subprocess.Popen(proclist)
-        output = p.communicate()
-        return output[0]
-
-    def run(self, fname):
 
         #generating time stamps (because its equally hopped)
         TStamps = np.array(range(0,len(pitch)))*np.float(self.settings.HopSize)/sampleRate
         dump = np.array([TStamps, pitch]).transpose()
 
-        pitch = self.get_pitch_c(fname)
-
         normalised_pitch = self.normalise_pitch(pitch)
+        normalised_pitch = {"normalised": normalised_pitch}
 
-        #p_histogram = get_histogram(normalised_pitch)
-        p_histogram = 1
+        p_histogram = self.get_histogram(dump)
+        p_histogram = {"histogram": p_histogram}
+        thepitch = {"pitch": dump.tolist()}
 
         packed_pitch = StringIO.StringIO()
-        for p in normalised_pitch:
-            packed_pitch.write(struct.pack("H", p))
+        #for p in normalised_pitch:
+        #    packed_pitch.write(struct.pack("H", p))
 
-        return {"pitch": dump.tolist(),
+        return {"pitch": thepitch,
                 "packedpitch": packed_pitch.getvalue(),
+                "normalisedpitch": normalised_pitch,
                 "histogram": p_histogram}
 
 class PitchExtract2(compmusic.essentia.EssentiaModule):
