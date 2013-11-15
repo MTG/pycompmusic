@@ -108,7 +108,7 @@ class AudioImages(compmusic.essentia.EssentiaModule):
         options = coll.namedtuple('options', 'image_height fft_size image_width')
         options.image_height = panelHeight
         options.image_width = panelWidth
-        options.fft_size = 4096
+        options.fft_size = 31
         wvFile = wave.Wave_read(wavfname)
         framerate = wvFile.getframerate()
         totalframes = wvFile.getnframes()

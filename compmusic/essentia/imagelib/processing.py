@@ -279,7 +279,6 @@ def interpolate_colors(colors, flat=False, num_colors=256):
 
     return palette
 
-
 def desaturate(rgb, amount):
     """
         desaturate colors by amount
@@ -303,8 +302,7 @@ class WaveformImage(object):
 
         if palette == 1:
             background_color = (0,0,0)
-            colors = [
-                        (50,0,200),
+            colors = [  (50,0,200),
                         (0,220,80),
                         (255,224,0),
                         (255,70,0),
@@ -358,7 +356,6 @@ class WaveformImage(object):
 
     def draw_anti_aliased_pixels(self, x, y1, y2, color):
         """ vertical anti-aliasing at y1 and y2 """
-
         y_max = max(y1, y2)
         y_max_int = int(y_max)
         alpha = y_max - y_max_int
@@ -405,7 +402,7 @@ class SpectrogramImage(object):
         self.fft_size = fft_size
 
         self.image = Image.new("RGB", (image_height, image_width))
-
+	'''
         colors = [
             (0, 0, 0),
             (58/4,68/4,65/4),
@@ -415,16 +412,33 @@ class SpectrogramImage(object):
             (255,60,30),
             (255,255,255)
          ]
+         '''
+        # Changed Colormap to dull green
+        
+        kf = 2
+        colors = [
+            (0, 0, 0),
+            (0,12/kf,0),
+            (0,30/kf,0),
+            (0,80/kf,0),
+            (0,160/kf,0),
+            (0,246/kf,0),
+            (0,254/kf,0)
+        ]
+        
         self.palette = interpolate_colors(colors)
 
         # generate the lookup which translates y-coordinate to fft-bin
         self.y_to_bin = []
         f_min = 100.0
-        f_max = 22050.0
+        #f_max = 22050.0		# Changed the range 
+        f_max = 16000.0
         y_min = math.log10(f_min)
         y_max = math.log10(f_max)
-        for y in range(self.image_height):
-            freq = math.pow(10.0, y_min + y / (image_height - 1.0) *(y_max - y_min))
+        freqs = numpy.linspace(f_min,f_max,image_height)
+        for i,y in enumerate(range(self.image_height)):
+            #freq = math.pow(10.0, y_min + y / (image_height - 1.0) *(y_max - y_min))
+	    freq = freqs[i]
             bin = freq / 22050.0 * (self.fft_size/2 + 1)
 
             if bin < self.fft_size/2:
@@ -447,6 +461,7 @@ class SpectrogramImage(object):
             self.pixels.append(self.palette[0])
 
     def save(self, filename, quality=80):
+        assert filename.lower().endswith(".jpg")
         self.image.putdata(self.pixels)
         self.image.transpose(Image.ROTATE_90).save(filename, quality=quality)
 
