@@ -10,7 +10,7 @@ import intonation
 from docserver import util
 
 class PitchExtract(compmusic.essentia.EssentiaModule):
-    __version__ = "0.2"
+    __version__ = "0.3"
     __sourcetype__ = "mp3"
     __slug__ = "pitch"
 
@@ -69,8 +69,7 @@ class PitchExtract(compmusic.essentia.EssentiaModule):
         return [recording.histogram.x.tolist(), recording.histogram.y_raw.tolist()]
 
     def run(self, fname):
-
-        audioLoader = essentia.standard.EasyLoader(filename=fname, startTime=30, endTime=35)
+        audioLoader = essentia.standard.EasyLoader(filename=fname)
         monoLoader = essentia.standard.MonoLoader(filename=fname)
         sampleRate = monoLoader.paramValue("sampleRate")
         equalLoudness = essentia.standard.EqualLoudness(sampleRate=sampleRate)
