@@ -26,3 +26,6 @@ class TagTest(unittest.TestCase):
         t = "bhairavi raaga1"
         self.assertEqual("bhairavi", tags.parse_raaga(t))
 
+        t = "raga kedaragaula"
+        self.assertEqual("kedaragaula", tags.parse_raaga(t))
+

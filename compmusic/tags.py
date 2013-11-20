@@ -38,32 +38,32 @@ def has_form(tag):
 def parse_raaga(raaga):
     raaga = raaga.strip()
     raaga = re.sub(r" ?: ?", " ", raaga)
-    raaga = re.sub(r" ?raa?gam?[0-9]* ?", "", raaga)
-    return raaga
+    raaga = re.sub(reraaga, "", raaga)
+    return raaga.replace(" ", "")
 
 def parse_taala(taala):
     taala = taala.strip()
     taala = re.sub(r" ?: ?", " ", taala)
-    taala = re.sub(r" ?taa?lam?[0-9]* ?", "", taala)
-    return taala
+    taala = re.sub(retaala, "", taala)
+    return taala.replace(" ", "")
 
 def parse_makam(makam):
     makam = makam.strip()
     makam = re.sub(r" ?: ?", " ", makam)
-    makam = re.sub(r" ?makam ?", "", makam)
-    return makam
+    makam = re.sub(remakam, "", makam)
+    return makam.replace(" ", "")
 
 def parse_usul(usul):
     usul = usul.strip()
     usul = re.sub(r" ?: ?", " ", usul)
-    usul = re.sub(r" ?usul ?", "", usul)
-    return usul
+    usul = re.sub(reusul, "", usul)
+    return usul.replace(" ", "")
 
 def parse_form(form):
     form = form.strip()
     form = re.sub(r" ?: ?", " ", form)
-    form = re.sub(r" ?form ?", "", form)
-    return form
+    form = re.sub(reform, "", form)
+    return form.replace(" ", "")
 
 def main():
     tags = open(sys.argv[1]).readlines()
