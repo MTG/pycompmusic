@@ -10,30 +10,13 @@ import intonation
 from docserver import util
 
 class PitchExtract(compmusic.essentia.EssentiaModule):
-    __version__ = "0.3"
+    __version__ = "0.4"
     __sourcetype__ = "mp3"
     __slug__ = "pitch"
 
     __depends__ = "tonic"
     __output__ = {"pitch": {"extension": "json", "mimetype": "application/json"},
-            "packedpitch": {"extension": "dat", "mimetype": "application/octet-stream"},
-            "normalisedpitch": {"extension": "json", "mimetype": "application/json"},
             "histogram": {"extension": "json", "mimetype": "application/json"}}
-
-    def normalise_pitch(self, pitch):
-        eps = np.finfo(np.float).eps
-        tonic = util.docserver_get_contents(self.musicbrainz_id, "ctonic", "tonic")
-        tonic = float(tonic)
-        print "got tonic", tonic
-        factor = 1200.0 / self.settings.CentsPerBin
-        normalised_pitch = []
-        two_to_sixteen = 2**16
-        for p in pitch:
-            normalised = np.log2(2.0 * (p+eps) / tonic)
-            normalised = np.max([normalised, 0])
-            factored = np.min([normalised * factor, two_to_sixteen])
-            normalised_pitch.append(int(factored))
-        return normalised_pitch
 
     def setup(self):
         # Hop size is 44100*4/900 because our smallest view is 4 seconds long
@@ -85,44 +68,50 @@ class PitchExtract(compmusic.essentia.EssentiaModule):
         TStamps = np.array(range(0,len(pitch)))*np.float(self.settings.HopSize)/sampleRate
         dump = np.array([TStamps, pitch]).transpose()
 
+        p_histogram = self.get_histogram(dump)
+        thepitch = dump.tolist()
+
+        return {"pitch": thepitch,
+                "histogram": p_histogram}
+
+
+class NormalisedPitchExtract(compmusic.essentia.EssentiaModule):
+    __version__ = "0.1"
+    __sourcetype__ = "mp3"
+    __slug__ = "normalisedpitch"
+
+    __depends__ = "pitch"
+
+    __output__ = {"packedpitch": {"extension": "dat", "mimetype": "application/octet-stream"},
+            "normalisedpitch": {"extension": "json", "mimetype": "application/json"},
+            "normalisedhistogram": {"extension": "json", "mimetype": "application/json"}}
+
+    def normalise_pitch(self, pitch):
+        eps = np.finfo(np.float).eps
+        tonic = util.docserver_get_contents(self.musicbrainz_id, "ctonic", "tonic")
+        tonic = float(tonic)
+        print "got tonic", tonic
+        factor = 1200.0 / self.settings.CentsPerBin
+        normalised_pitch = []
+        two_to_sixteen = 2**16
+        for p in pitch:
+            normalised = np.log2(2.0 * (p+eps) / tonic)
+            normalised = np.max([normalised, 0])
+            factored = np.min([normalised * factor, two_to_sixteen])
+            normalised_pitch.append(int(factored))
+        return normalised_pitch
+
+    def run(self, fname):
+        pitch = util.docserver_get_json(self.musicbrainz_id, "pitch", "pitch")
+        histogram = util.docserver_get_json(self.musicbrainz_id, "pitch", "histogram")
+
         normalised_pitch = self.normalise_pitch(pitch)
         normalised_pitch = {"normalised": normalised_pitch}
-
-        p_histogram = self.get_histogram(dump)
-        p_histogram = {"histogram": p_histogram}
-        thepitch = {"pitch": dump.tolist()}
 
         packed_pitch = StringIO.StringIO()
         #for p in normalised_pitch:
         #    packed_pitch.write(struct.pack("H", p))
 
-        return {"pitch": thepitch,
-                "packedpitch": packed_pitch.getvalue(),
+        return {"packedpitch": packed_pitch.getvalue(),
                 "normalisedpitch": normalised_pitch,
-                "histogram": p_histogram}
-
-class PitchExtract2(compmusic.essentia.EssentiaModule):
-    __version__ = "0.6"
-    __sourcetype__ = "mp3"
-    __slug__ = "pitch2"
-
-    __output__ = {"data1": {"extension": "json", "mimetype": "application/json"},
-                  "data2": {"extension": "json", "mimetype": "application/json"},
-                 }
-
-    def run(self, fname):
-        self.logger.info("PitchExtract2 logger info")
-
-        return {"data1": {"woo": "datav4 part"}, "data2": [{"mything": "pitch-data2part1"}, {"mything": "pitch-data2part2"}]}
-        loader = essentia.standard.EasyLoader(filename=fname, sampleRate=44100)
-        equalLoudness = essentia.standard.EqualLoudness(sampleRate=44100)
-        audio = loader()
-        audioDL = equalLoudness(audio)
-
-        pitch = essentia.standard.PitchPolyphonic(binResolution=1)
-        res = pitch(audioDL)
-
-        t = np.linspace(0, len(res[0])*128.0/44100, len(res[0]))
-        data = zip(t, res[0], res[1])
-        data = np.array(data)
-        return data
+                "normalisedhistogram": p_histogram}
