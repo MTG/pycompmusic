@@ -20,16 +20,16 @@ class AudioImages(compmusic.essentia.EssentiaModule):
 
     __depends__ = "wav"
 
-    __output__ = {"waveform4": {"extension": "png", "mimetype": "image/png"},
-                  "spectrum4": {"extension": "png", "mimetype": "image/png"},
-                "waveform8": {"extension": "png", "mimetype": "image/png"},
-                  "spectrum8": {"extension": "png", "mimetype": "image/png"},
-                "waveform16": {"extension": "png", "mimetype": "image/png"},
-                  "spectrum16": {"extension": "png", "mimetype": "image/png"},
-                "waveform32": {"extension": "png", "mimetype": "image/png"},
-                  "spectrum32": {"extension": "png", "mimetype": "image/png"},
-                  "smallfull": {"extension": "png", "mimetype": "image/png"}
-                 }
+    __output__ = {"waveform4": {"extension": "png", "mimetype": "image/png", "parts": True},
+            "spectrum4": {"extension": "png", "mimetype": "image/png", "parts": True},
+            "waveform8": {"extension": "png", "mimetype": "image/png", "parts": True},
+            "spectrum8": {"extension": "png", "mimetype": "image/png", "parts": True},
+            "waveform16": {"extension": "png", "mimetype": "image/png", "parts": True},
+            "spectrum16": {"extension": "png", "mimetype": "image/png", "parts": True},
+            "waveform32": {"extension": "png", "mimetype": "image/png", "parts": True},
+            "spectrum32": {"extension": "png", "mimetype": "image/png", "parts": True},
+            "smallfull": {"extension": "png", "mimetype": "image/png"}
+        }
 
     def make_mini(self, wavfname):
         smallfulloptions = coll.namedtuple('options', 'image_height fft_size image_width')
