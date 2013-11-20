@@ -31,7 +31,7 @@ class CTonicExtract(compmusic.essentia.EssentiaModule):
     __output__ = {"tonic": {"extension": "dat", "mimetype": "text/plain"}}
 
     def get_from_file(self, mbid):
-        data_root = "/home/alastair/code/dunya/annotations"
+        data_root = "/srv/dunya/annotations"
         mbidfile = os.path.join(data_root, "%s.yaml" % mbid)
         if os.path.exists(mbidfile):
             ydata = yaml.load(open(mbidfile))
@@ -48,7 +48,7 @@ class CTonicExtract(compmusic.essentia.EssentiaModule):
         else:
             print "Need to calculate the tonic from scratch"
             wavfname = util.docserver_get_filename(self.musicbrainz_id, "wav", "wave")
-            proclist = ["/srv/dunya/PitchCandExt_O0", "-m", "T", "-t", "V", "-i", wavfname]
+            proclist = ["/srv/dunya/PitchCandExt_O3", "-m", "T", "-t", "V", "-i", wavfname]
             p = subprocess.Popen(proclist, stdout=subprocess.PIPE)
             output = p.communicate()
             tonic = output[0]
