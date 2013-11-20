@@ -27,6 +27,7 @@ class EssentiaModule(object):
     __depends__ = None
     """A dictionary of output formats that this runner creates. Of the form:
     {"outputname": {"extension": "json"|"png"|"..etc",
+                    "mimetype": "application/json",
                     "parts": bool},
      ...}
     The `run` method should return a dict of {"outputname": output}
@@ -34,6 +35,7 @@ class EssentiaModule(object):
     serialised to json before writing to disk. Otherwise it's written directly and the
     extension is used as the file extension.
     If parts is True then the data is a list of parts that make up this data.
+    omit `parts' to say that there is only one item in the returned data.
     If __output__ is missing, then the output is expected to be a json dict with no parts.
     """
     __output__ = None
