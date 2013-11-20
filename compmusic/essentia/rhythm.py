@@ -68,10 +68,11 @@ class RhythmExtract(compmusic.essentia.EssentiaModule):
             sections["label"] = labelStr[1]
         TCts = np.round(TCts,params.roundOffLen)
         TCper = np.round(TCper,params.roundOffLen)
-        APcurve = {TCts[t]:TCper[t] for t in range(TCts.size)}
 
-        return {"sections": {"sec": sections},
+        APcurve = [[TCts[t], TCper[t]] for t in range(TCts.size)]
+
+        return {"sections": sections,
                 "aksharaPeriod": np.asscalar(np.round(mmpFromTC,params.roundOffLen)),
-                "aksharaTicks": {"ticks": np.round(aksharaTimes,params.roundOffLen).tolist()},
+                "aksharaTicks": np.round(aksharaTimes,params.roundOffLen).tolist(),
                 "APcurve": APcurve
                 }
