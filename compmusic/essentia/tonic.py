@@ -31,7 +31,7 @@ class CTonicExtract(compmusic.essentia.EssentiaModule):
     __output__ = {"tonic": {"extension": "dat", "mimetype": "text/plain"}}
 
     def get_from_file(self, mbid):
-        data_root = "/srv/dunya/annotations"
+        data_root = "/mnt/compmusic/incoming/derived/annotations"
         mbidfile = os.path.join(data_root, "%s.yaml" % mbid)
         if os.path.exists(mbidfile):
             ydata = yaml.load(open(mbidfile))
