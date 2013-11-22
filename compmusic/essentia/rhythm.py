@@ -70,9 +70,11 @@ class RhythmExtract(compmusic.essentia.EssentiaModule):
         TCper = np.round(TCper,params.roundOffLen)
 
         APcurve = [[TCts[t], TCper[t]] for t in range(TCts.size)]
+        ticks = np.round(aksharaTimes,params.roundOffLen).tolist()
+        ticks = list(set(ticks))
 
         return {"sections": sections,
                 "aksharaPeriod": np.asscalar(np.round(mmpFromTC,params.roundOffLen)),
-                "aksharaTicks": np.round(aksharaTimes,params.roundOffLen).tolist(),
+                "aksharaTicks": ticks,
                 "APcurve": APcurve
                 }
