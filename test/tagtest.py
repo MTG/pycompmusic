@@ -29,3 +29,6 @@ class TagTest(unittest.TestCase):
         t = "raga kedaragaula"
         self.assertEqual("kedaragaula", tags.parse_raaga(t))
 
+    def test_taala(self):
+        t = "taala sankeerna jati triputa"
+        self.assertEqual("sankeerna jati triputa", tags.parse_taala(t))

@@ -39,31 +39,31 @@ def parse_raaga(raaga):
     raaga = raaga.strip()
     raaga = re.sub(r" ?: ?", " ", raaga)
     raaga = re.sub(reraaga, "", raaga)
-    return raaga.replace(" ", "")
+    return raaga.strip()
 
 def parse_taala(taala):
     taala = taala.strip()
     taala = re.sub(r" ?: ?", " ", taala)
     taala = re.sub(retaala, "", taala)
-    return taala.replace(" ", "")
+    return taala.strip()
 
 def parse_makam(makam):
     makam = makam.strip()
     makam = re.sub(r" ?: ?", " ", makam)
     makam = re.sub(remakam, "", makam)
-    return makam.replace(" ", "")
+    return makam.strip()
 
 def parse_usul(usul):
     usul = usul.strip()
     usul = re.sub(r" ?: ?", " ", usul)
     usul = re.sub(reusul, "", usul)
-    return usul.replace(" ", "")
+    return usul.strip()
 
 def parse_form(form):
     form = form.strip()
     form = re.sub(r" ?: ?", " ", form)
     form = re.sub(reform, "", form)
-    return form.replace(" ", "")
+    return form.strip()
 
 def main():
     tags = open(sys.argv[1]).readlines()
