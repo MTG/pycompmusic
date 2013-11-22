@@ -73,7 +73,7 @@ class AudioImages(compmusic.essentia.EssentiaModule):
             specdata = []
 
             sumframes = 0
-            while sumframes <= totalframes:
+            while sumframes < totalframes:
                 fp, smallname = tempfile.mkstemp(".wav")
                 os.close(fp)
                 data = wvFile.readframes(framesperimage)
