@@ -1,5 +1,6 @@
 import compmusic.essentia
 import numpy as np
+from scipy.ndimage.filters import gaussian_filter
 import cStringIO as StringIO
 import struct
 import sys
@@ -60,62 +61,45 @@ class NormalisedPitchExtract(compmusic.essentia.EssentiaModule):
     __output__ = {"packedpitch": {"extension": "dat", "mimetype": "application/octet-stream"},
             "normalisedpitch": {"extension": "json", "mimetype": "application/json"},
             "normalisedhistogram": {"extension": "json", "mimetype": "application/json"},
-            "histogram": {"extension": "json", "mimetype": "application/json"}}
+            "drawhistogram": {"extension": "json", "mimetype": "application/json"}}
 
-    def get_histogram(self, pitch):
-        """
-        Given a numpy array of nx2, where the first column is
-        of timestamps, and the second column of pitch values
-        normalized to tonic, this function returns a (unsmoothed)
-        histogram.
-        """
-        pitch_obj = intonation.Pitch(pitch[:, 0], pitch[:, 1])
-        recording = intonation.Recording(pitch_obj)
+    def get_histogram(self, pitch, smoothness=1):
+        valid_pitch = [p for p in pitch if p > 0]
+        histogram, edges = np.histogram(valid_pitch, 256, density=True)
+        smoothed = gaussian_filter(histogram, smoothness)
 
-        #if no bins are given, the resolution would be 1 cent/bin
-        recording.compute_hist(weight="duration")
+        return smoothed
 
-        #Uncomment the following couple of lines to return a smooth histogram.
-        #The argument refers to standard deviation of gaussian kernel
-        #used for smoothing.
-
-        recording.histogram.set_smoothness(100)
-        #return [recording.histogram.x, recording.histogram.y]
-
-        #This would instead return a raw histogram without smoothing.
-        return zip(recording.histogram.x.tolist(), recording.histogram.y.tolist())
-
-    def normalise_pitch(self, pitch):
+    def normalise_pitch(self, pitch, tonic, bins_per_octave, max_value):
         eps = np.finfo(np.float).eps
-        tonic = util.docserver_get_contents(self.musicbrainz_id, "ctonic", "tonic")
-        tonic = float(tonic)
-        print "got tonic", tonic
-        factor = 1200.0 / self.settings.CentsPerBin
-        normalised_pitch = []
-        two_to_sixteen = 2**16
-        for p in pitch:
-            normalised = np.log2(2.0 * (p+eps) / tonic)
-            normalised = np.max([normalised, 0])
-            factored = np.min([normalised * factor, two_to_sixteen])
-            normalised_pitch.append(int(factored))
+        normalised_pitch = bins_per_octave * np.log2(2.0 * (pitch+eps) / tonic)
+        indexes = np.where(normalised_pitch <= 0)
+        normalised_pitch[indexes] = 0
+        indexes = np.where(normalised_pitch > max_value)
+        normalised_pitch[indexes] = max_value
         return normalised_pitch
 
     def run(self, fname):
         eps = np.finfo(np.float).eps
         pitch = util.docserver_get_json(self.musicbrainz_id, "pitch", "pitch")
-        histogram = util.docserver_get_json(self.musicbrainz_id, "pitch", "histogram")
+        tonic = util.docserver_get_contents(self.musicbrainz_id, "ctonic", "tonic")
+        tonic = float(tonic)
 
-        histpitch = 1200 * np.log2(pitch + eps)
-        hist_in = np.array([TStamps, histpitch]).transpose()
-        p_histogram = self.get_histogram(hist_in)
-
-        normalised_pitch = self.normalise_pitch(pitch)
-        normalised_pitch = {"normalised": normalised_pitch}
-
+        nppitch = np.array(pitch)
+        bpo = 64 # 256 pixel high image spanning 4 octaves = 64px/octave
+        height = 255 # Height of the image
+        drawpitch = self.normalise_pitch(nppitch[:,1], tonic, bpo, height)
         packed_pitch = StringIO.StringIO()
-        #for p in normalised_pitch:
-        #    packed_pitch.write(struct.pack("H", p))
+        for p in drawpitch:
+            packed_pitch.write(struct.pack("B", p))
+        drawhist = self.get_histogram(drawpitch, 1)
+
+        bpo = 1200 # 10 cents per bin (original resolution in melody calculation)
+        max_value = bpo * 4 # 4 octaves
+        simpitch = self.normalise_pitch(nppitch[:,1], tonic, bpo, max_value)
+        simhist = self.get_histogram(simpitch, 7)
 
         return {"packedpitch": packed_pitch.getvalue(),
-                "normalisedpitch": normalised_pitch,
-                "normalisedhistogram": p_histogram}
+                "normalisedpitch": drawpitch,
+                "drawhistogram": drawhist,
+                "normalisedhistogram": simhist}
