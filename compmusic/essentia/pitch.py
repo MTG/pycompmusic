@@ -52,7 +52,7 @@ class PitchExtract(compmusic.essentia.EssentiaModule):
 
 
 class NormalisedPitchExtract(compmusic.essentia.EssentiaModule):
-    __version__ = "0.1"
+    __version__ = "0.2"
     __sourcetype__ = "mp3"
     __slug__ = "normalisedpitch"
 
@@ -65,7 +65,8 @@ class NormalisedPitchExtract(compmusic.essentia.EssentiaModule):
 
     def get_histogram(self, pitch, smoothness=1):
         valid_pitch = [p for p in pitch if p > 0]
-        histogram, edges = np.histogram(valid_pitch, 256, density=True)
+        bins = [i-0.5 for i in range(0, 257)]
+        histogram, edges = np.histogram(valid_pitch, bins, density=True)
         smoothed = gaussian_filter(histogram, smoothness)
 
         return smoothed
