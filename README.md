@@ -1,7 +1,30 @@
 pycompmusic
 ===========
 
-Python tools for interacting with the compmusic infrastructure
+Introduction
+------------
+Python tools for analysing and working with audio.
+
+This repository contains utilities and algorithms for use in the Dunya
+project (https://github.com/MTG/dunya, http://dunya.compmusic.upf.edu), 
+but is separate to make it easier to develop.
+
+Authors
+-------
+Dunya and pycompmusic have been developed by a number of people in the
+CompMusic project. For a list of contributors see the AUTHORS file.
+Dunya includes methods and techniques developed as part of CompMusic.
+For a list of publications see http://compmusic.upf.edu/node/4.
+
+License
+=======
+Dunya is Copyright 2013 Music Technology Group - Universitat Pompeu Fabra
+
+Dunya is released under the terms of the GNU Affero General Public
+License (v3 or later). See the COPYING file for more information.
+
+If you would prefer to get a (non FOSS) commercial license, please
+contact us at mtg@upf.edu
 
 Installation
 ============
