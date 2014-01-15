@@ -52,7 +52,7 @@ class PitchExtract(compmusic.essentia.EssentiaModule):
 
 
 class NormalisedPitchExtract(compmusic.essentia.EssentiaModule):
-    __version__ = "0.2"
+    __version__ = "0.4"
     __sourcetype__ = "mp3"
     __slug__ = "normalisedpitch"
 
@@ -63,9 +63,9 @@ class NormalisedPitchExtract(compmusic.essentia.EssentiaModule):
             "normalisedhistogram": {"extension": "json", "mimetype": "application/json"},
             "drawhistogram": {"extension": "json", "mimetype": "application/json"}}
 
-    def get_histogram(self, pitch, smoothness=1):
+    def get_histogram(self, pitch, nbins, smoothness=1):
         valid_pitch = [p for p in pitch if p > 0]
-        bins = [i-0.5 for i in range(0, 257)]
+        bins = [i-0.5 for i in range(0, nbins+1)]
         histogram, edges = np.histogram(valid_pitch, bins, density=True)
         smoothed = gaussian_filter(histogram, smoothness)
 
@@ -93,12 +93,12 @@ class NormalisedPitchExtract(compmusic.essentia.EssentiaModule):
         packed_pitch = StringIO.StringIO()
         for p in drawpitch:
             packed_pitch.write(struct.pack("B", p))
-        drawhist = self.get_histogram(drawpitch, 1)
+        drawhist = self.get_histogram(drawpitch, 256, 1)
 
-        bpo = 1200 # 10 cents per bin (original resolution in melody calculation)
+        bpo = 120 # 10 cents per bin (original resolution in melody calculation)
         max_value = bpo * 4 # 4 octaves
         simpitch = self.normalise_pitch(nppitch[:,1], tonic, bpo, max_value)
-        simhist = self.get_histogram(simpitch, 7)
+        simhist = self.get_histogram(simpitch, max_value, 7)
 
         return {"packedpitch": packed_pitch.getvalue(),
                 "normalisedpitch": drawpitch,
