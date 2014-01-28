@@ -19,36 +19,6 @@ import urlparse
 import urllib
 import os
 
-DUNYA_ROOT = "localhost:8001"
-
-def _dunya_query(path, **kwargs):
-    if not kwargs:
-        kwargs = {}
-    for key, value in kwargs.items():
-        if isinstance(value, unicode):
-            kwargs[key] = value.encode('utf8')
-    url = urlparse.urlunparse((
-        'http',
-        DUNYA_ROOT,
-        'document/%s' % path,
-        '',
-        urllib.urlencode(kwargs),
-        ''
-    ))
-    g = requests.get(url)
-    g.raise_for_status()
-    return g
-
-def _dunya_query_json(path, **kwargs):
-    """Make a query to dunya and expect the results to be JSON"""
-    g = _dunya_query(path, **kwargs)
-    return g.json()
-
-def _dunya_query_file(path, **kwargs):
-    """Make a query to dunya and return the raw result"""
-    g = _dunya_query(path, **kwargs)
-    return g.content
-
 def get_collections():
     """Get a list of all collections in the server"""
     path = "collections"
@@ -131,4 +101,12 @@ def derived_file_for_recording_version(recordingid, derivedtype, version):
       The contents of the derived file at the given version"""
     path = "by-id/%s/%s" % (recordingid, derivedtype)
     return _dunya_query_file(path)
+
+def download_mp3(recordingid, location):
+    pass
+
+def download_concert(concertid, location):
+    pass
+
+def download_artist_concerts(artistid, location):
     pass
