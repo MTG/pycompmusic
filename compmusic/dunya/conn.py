@@ -20,15 +20,14 @@ def set_token(token):
     TOKEN = token
 
 def _get_paged_json(path, **kwargs):
+    nxt = _make_url(path, **kwargs)
+    logger.debug("initial paged to %s", nxt)
     ret = []
-    res = _dunya_query_json(path, **kwargs)
-    ret.extend(res.get("results", []))
-    nxt = res.get("next")
     while nxt:
-        res = _json_url_query(nxt)
+        res = _dunya_url_query(nxt)
         res = res.json()
-        nxt = res.get("next")
         ret.extend(res.get("results", []))
+        nxt = res.get("next")
     return ret
 
 def _dunya_url_query(url):
@@ -37,10 +36,13 @@ def _dunya_url_query(url):
         raise ConnectionError("You need to authenticate with `set_token`")
     headers = {"Authorization": "Token %s" % TOKEN}
     g = requests.get(url, headers=headers)
+    if g.status_code == 404:
+        # 404, we return None, otherwise we raise for other errors
+        return None
     g.raise_for_status()
     return g
 
-def _dunya_query(path, **kwargs):
+def _make_url(path, **kwargs):
     if not kwargs:
         kwargs = {}
     for key, value in kwargs.items():
@@ -54,14 +56,14 @@ def _dunya_query(path, **kwargs):
         urllib.urlencode(kwargs),
         ''
     ))
-    return _dunya_url_query(url)
+    return url
 
 def _dunya_query_json(path, **kwargs):
     """Make a query to dunya and expect the results to be JSON"""
-    g = _dunya_query(path, **kwargs)
-    return g.json()
+    g = _dunya_url_query(_make_url(path, **kwargs))
+    return g.json() if g else None
 
 def _dunya_query_file(path, **kwargs):
     """Make a query to dunya and return the raw result"""
-    g = _dunya_query(path, **kwargs)
-    return g.content
+    g = _dunya_url_query(_make_url(path, **kwargs))
+    return g.content if g else None

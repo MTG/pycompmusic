@@ -1,8 +1,10 @@
+import os
 import requests
 import logging
 logger = logging.getLogger("dunya")
 
 import conn
+import docserver
 
 def get_recordings():
     """ Get a list of carnatic recordings in the database.
@@ -150,3 +152,31 @@ def get_instrument(iid):
     """
     return conn._dunya_query_json("api/carnatic/instrument/%s" % str(iid))
 
+def download_mp3(recordingid, location):
+    if not os.path.exists(location):
+        raise Exception("Location %s doesn't exist; can't save" % location)
+
+    recording = get_recording(recordingid)
+    concert = get_concert(recording["concert"]["mbid"])
+    title = recording["title"]
+    artists = " and ".join([a["name"] for a in concert["concert_artists"]])
+    contents = docserver.get_mp3(recordingid)
+    name = "%s - %s.mp3" % (artists, title)
+    path = os.path.join(location, name)
+    open(path, "wb").write(contents)
+
+def download_concert(concertid, location):
+    if not os.path.exists(location):
+        raise Exception("Location %s doesn't exist; can't save" % location)
+
+    concert = get_concert(concert_id)
+    artists = " and ".join([a["name"] for a in concert["concert_artists"]])
+    concertname = concert["title"]
+    concertdir = os.path.join(location, "%s - %s" % (artists, concertname))
+    for r in concert["tracks"]:
+        rid = r["mbid"]
+        title = r["title"]
+        contents = docserver.get_mp3(rid)
+        name = "%s - %s.mp3" % (artists, title)
+        path = os.path.join(concertdir, name)
+        open(path, "wb").write(contents)

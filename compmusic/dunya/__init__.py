@@ -2,6 +2,6 @@ import logging
 logger = logging.getLogger("dunya")
 logger.setLevel(logging.INFO)
 
-from conn import *
+from conn import set_hostname, set_token
 from docserver import *
-from carnatic import *
+import carnatic
