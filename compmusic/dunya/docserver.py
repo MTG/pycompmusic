@@ -53,7 +53,7 @@ def file_for_document(recordingid, thetype, subtype=None, part=None, version=Non
     if part:
         args["part"] = part
     if version:
-        args["version"] = version
+        args["v"] = version
     return conn._dunya_query_file(path, **args)
 
 def get_mp3(recordingid):
