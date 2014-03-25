@@ -36,9 +36,6 @@ def _dunya_url_query(url):
         raise ConnectionError("You need to authenticate with `set_token`")
     headers = {"Authorization": "Token %s" % TOKEN}
     g = requests.get(url, headers=headers)
-    if g.status_code == 404:
-        # 404, we return None, otherwise we raise for other errors
-        return None
     g.raise_for_status()
     return g
 
