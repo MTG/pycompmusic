@@ -66,4 +66,11 @@ def _dunya_query_json(path, **kwargs):
 def _dunya_query_file(path, **kwargs):
     """Make a query to dunya and return the raw result"""
     g = _dunya_url_query(_make_url(path, **kwargs))
-    return g.content if g else None
+    if g:
+        cl = g.headers.get('content-length')
+        content = g.content
+        if cl and int(cl) != len(content):
+            logger.warning("Indicated content length is not the same as returned content. Some data may be missing")
+        return content
+    else:
+        return None
