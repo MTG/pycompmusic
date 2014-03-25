@@ -47,7 +47,14 @@ def file_for_document(recordingid, thetype, subtype=None, part=None, version=Non
     Returns:
       The contents of the most recent version of the derived file"""
     path = "document/by-id/%s/%s" % (recordingid, thetype)
-    return conn._dunya_query_file(path)
+    args = {}
+    if subtype:
+        args["subtype"] = subtype
+    if part:
+        args["part"] = part
+    if version:
+        args["version"] = version
+    return conn._dunya_query_file(path, **args)
 
 def get_mp3(recordingid):
     return file_for_document(recordingid, "mp3")
