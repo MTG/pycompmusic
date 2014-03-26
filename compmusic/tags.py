@@ -115,7 +115,7 @@ def parse_raag(raag):
     raaga = re.sub(r" ?raa?gam?[0-9]* ?", "", raag)
     return (position, raaga)
 
-def parse_taala(taal):
+def parse_taal(taal):
     taal = taal.strip()
     number = re.search(r"([0-9]+)", taala)
     if number:
