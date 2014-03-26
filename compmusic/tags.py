@@ -32,23 +32,45 @@ logging.basicConfig(level=logging.INFO)
 
 reraaga = re.compile(r"\braa?gam?[0-9]*\b")
 retaala = re.compile(r"\btaa?lam?[0-9]*\b")
+retaal = re.compile(r"\btaal[0-9]*\b")
+reraag = re.compile(r"\braag[0-9]*\b")
+relaay = re.compile(r"\blaay[0-9]*\b")
+resection = re.compile(r"\bsection[0-9]*\b")
 remakam = re.compile(r"\bmakam\b")
 reusul = re.compile(r"\busul\b")
-reform = re.compile(r"\bform\b")
+reform = re.compile(r"\bform[0-9]*\b")
+
 
 def has_raaga(tag):
+    """ Carnatic raaga tag """
     return re.search(reraaga, tag) is not None
 
 def has_taala(tag):
+    """ Carnatic taala tag """
     return re.search(retaala, tag) is not None
 
+def has_raag(tag):
+    """ Hindustani raag tag """
+    return re.search(reraag, tag) is not None
+
+def has_taal(tag):
+    """ Hindustani taal tag """
+    return re.search(retaal, tag) is not None
+
+def has_section(tag):
+    """ Hindustani section tag """
+    return re.search(resection, tag) is not None
+
 def has_makam(tag):
+    """ Makam tag """
     return re.search(remakam, tag) is not None
 
 def has_usul(tag):
+    """ Makam usul tag """
     return re.search(reusul, tag) is not None
 
 def has_form(tag):
+    """ Makam / Hindustani form """
     return re.search(reform, tag) is not None
 
 def parse_raaga(raaga):
@@ -81,30 +103,26 @@ def parse_form(form):
     form = re.sub(reform, "", form)
     return form.strip()
 
-def main():
-    tags = open(sys.argv[1]).readlines()
-    r = []
-    t = []
-    for tg in tags:
-        if re.search(reraaga, tg):
-            r.append(parse_raaga(tg))
-        if re.search(retaala, tg):
-            t.append(parse_taala(tg))
-    rfp = open("raaga_list", "w")
-    tfp = open("taala_list", "w")
-    for ra in sorted(list(set(r))):
-        try:
-            Raaga.objects.fuzzy(ra)
-        except Raaga.DoesNotExist:
-            rfp.write("%s\n" % ra)
-    for ta in sorted(list(set(t))):
-        try:
-            Taala.objects.fuzzy(ta)
-        except Taala.DoesNotExist:
-            tfp.write("%s\n" % ta)
-    rfp.close()
-    tfp.close()
 
+def parse_raag(raag):
+    raaga = raaga.strip()
+    number = re.search(r"([0-9]+)", raag)
+    if number:
+        position = int(number.group(0))
+    else:
+        position = 0
+    raaga = re.sub(r" ?: ?", " ", raag)
+    raaga = re.sub(r" ?raa?gam?[0-9]* ?", "", raag)
+    return (position, raaga)
 
-if __name__ == "__main__":
-    main()
+def parse_taala(taal):
+    taal = taal.strip()
+    number = re.search(r"([0-9]+)", taala)
+    if number:
+        position = int(number.group(0))
+    else:
+        position = 0
+    taala = re.sub(r" ?: ?", " ", taala)
+    taala = re.sub(r" ?taa?lam?[0-9]* ?", "", taala)
+    return (position, taala)
+
