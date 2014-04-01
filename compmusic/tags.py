@@ -39,6 +39,8 @@ resection = re.compile(r"\bsection[0-9]*\b")
 remakam = re.compile(r"\bmakam\b")
 reusul = re.compile(r"\busul\b")
 reform = re.compile(r"\bform[0-9]*\b")
+rehform = re.compile(r"\bform([0-9])?:? ?(.*)\b")
+relaya = re.compile(r"\blaya([0-9])?:? ?(.*)\b")
 
 
 def has_raaga(tag):
@@ -56,6 +58,10 @@ def has_raag(tag):
 def has_taal(tag):
     """ Hindustani taal tag """
     return re.search(retaal, tag) is not None
+
+def has_laya(tag):
+    """ Hindustani laya tag """
+    return re.search(relaya, tag) is not None
 
 def has_section(tag):
     """ Hindustani section tag """
@@ -105,7 +111,8 @@ def parse_form(form):
 
 
 def parse_raag(raag):
-    raaga = raaga.strip()
+    # TODO: Use 2 regexes and get each group
+    raag = raag.strip()
     number = re.search(r"([0-9]+)", raag)
     if number:
         position = int(number.group(0))
@@ -116,6 +123,7 @@ def parse_raag(raag):
     return (position, raaga)
 
 def parse_taal(taal):
+    # TODO: Use 2 regexes and get each group
     taal = taal.strip()
     number = re.search(r"([0-9]+)", taala)
     if number:
@@ -126,3 +134,26 @@ def parse_taal(taal):
     taala = re.sub(r" ?taa?lam?[0-9]* ?", "", taala)
     return (position, taala)
 
+def parse_hindustani_form(form):
+    form = laya.strip()
+    match = re.search(reform, form)
+    if match:
+        number = match.group(0)
+        if number:
+            number = int(number)
+        form = match.group(1)
+        return (number, form)
+    else:
+        return (None, None)
+
+def parse_laya(laya):
+    laya = laya.strip()
+    match = re.search(relaya, laya)
+    if match:
+        number = match.group(0)
+        if number:
+            number = int(number)
+        laya = match.group(1)
+        return (number, laya)
+    else:
+        return (None, None)
