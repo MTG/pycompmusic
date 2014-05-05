@@ -56,21 +56,29 @@ class Raaga:
         self.average_hist = pickle.load(file(self.path_to_raaga_profiles.rstrip("/") + "/" + self.name + ".pickle"))
 
     def compute_average_hist(self, paths_to_pitch_files, tonics, octave_folded=True, bins=1200):
-        """
-        Computes average histogram for a list of given pitch files.
-        The pitch values are expected to be in hertz.
-        """
-        all_cents = []
+        pitches = []
         for i in xrange(len(paths_to_pitch_files)):
             filepath = paths_to_pitch_files[i]
             data = np.loadtxt(filepath)
 
             if data is None:
                 raise Exception("Pitch data not received.")
+            pitches.append(data)
 
+        compute_average_hist_data(pitches, tonics, octave_folded, bins)
+
+
+    def compute_average_hist_data(self, pitches, tonics, octave_folded=True, bins=1200):
+        """
+        Computes average histogram for a list of given pitches.
+        Pitch data should be a numpy array. `tonics` are the tonics for each
+        pitch array.
+        The pitch values are expected to be in hertz.
+        """
+        all_cents = []
+        for data, tonic in zip(pitches, tonics):
             #Histogram
             valid_pitch = data[:, 1]
-            tonic = tonics[i]
             valid_pitch = [1200*np.log2(i/tonic) for i in valid_pitch if i > 0]
             if octave_folded:
                 valid_pitch = map(lambda x: int(x % 1200), valid_pitch)
