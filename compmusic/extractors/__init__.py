@@ -15,6 +15,7 @@
 # this program.  If not, see http://www.gnu.org/licenses/
 
 import log
+import redis
 
 class Settings(dict):
     __getattr__ = dict.__getitem__
@@ -60,6 +61,7 @@ class ExtractorModule(object):
         """Set up the logger, and run a setup method if it's been defined."""
         self.logger = log.get_logger(self.__slug__, self.__version__)
         self.settings = Settings()
+        self.redis = redis.StrictRedis()
         self.setup()
 
     def get_key(self, k):
