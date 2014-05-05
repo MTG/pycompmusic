@@ -24,6 +24,12 @@ import tempfile
 import os
 from docserver import util
 import yaml
+import json
+
+from compmusic import dunya
+#from compmusic import hindustani
+from compmusic.dunya import carnatic
+dunya.set_token("69ed3d824c4c41f59f0bc853f696a7dd80707779")
 
 class TonicExtract(compmusic.extractors.ExtractorModule):
     __version__ = "0.1"
@@ -78,7 +84,7 @@ class TonicVote(compmusic.extractors.ExtractorModule):
 
     __output__ = {"tonic": {"extension": "dat", "mimetype": "text/plain"}}
 
-    def find_nearest_index(arr, value):
+    def find_nearest_index(self, arr, value):
         """
         For a given value, the function finds the nearest value
         in the array and returns its index.
@@ -89,28 +95,60 @@ class TonicVote(compmusic.extractors.ExtractorModule):
         index = (np.abs(arr-value)).argmin()
         return index
 
-    def vote(artist_tonics):
-        count = 0
-        for artist, tonics in artist_tonics.keys():
-            data = np.array(tonics)
-            data = data[:, 1].astype("float")
-            [n, bins] = np.histogram(data)
-            max_index = np.argmax(n)
-            _median = data[self.find_nearest_index(data, bins[max_index])]
-            for rec in tonics:
-                cents_diff = abs(1200*np.log2(rec[1]/_median))
-                if cents_diff > 350:
-                    rec[1] = float(_median)
-                    count+=1
-        return artist_tonics
+    def vote(self, artist_tonics, tonic):
+        """ Given a list of (mbid, tonic) tonics for an artist, and another
+        tonic to check, see if this tonic should be moved
+        """
+        data = np.array(artist_tonics)
+        data = data[:, 1].astype("float")
+        [n, bins] = np.histogram(data)
+        max_index = np.argmax(n)
+        _median = data[self.find_nearest_index(data, bins[max_index])]
+
+        cents_diff = abs(1200*np.log2(tonic/_median))
+        if cents_diff > 350:
+            tonic = float(_median)
+
+        return tonic
+
+    def get_tonics_for_artist(self, artistid):
+        key = "artist-tonics-%s" % artistid
+        tonics = self.get_key(key)
+        if tonics:
+            return json.loads(tonics)
+
+        if tonics is None: 
+            tonics = []
+            artist = carnatic.get_artist(artistid)
+            releases = artist["concerts"]
+            for r in releases:
+                release = carnatic.get_concert(r["mbid"])
+                tracks = release["tracks"]
+                for t in tracks:
+                    tonic = dunya.file_for_document(t["mbid"], "ctonic", "tonic")
+                    tonics.append( (t["mbid"], float(tonic)) )
+        
+            self.set_key(key, json.dumps(tonics))
+        return tonics
 
     def run(self, fname):
 
-        # Get recording id, get release->artist
-        # look in cache for artist id
-        # Artist -> all releases -> all recordings
-        # cache artist id: recordings
-        # {artistid, [ (recid, rectonic), (recid, rectonic), ... ]
+        recording = carnatic.get_recording(self.musicbrainz_id)
+        concertid = recording["concert"]["mbid"]
+        concert = carnatic.get_concert(concertid)
+        artists = concert["concert_artists"]
+
+        thistonic = dunya.file_for_document(self.musicbrainz_id, "ctonic", "tonic")
+        thistonic = float(thistonic)
+        if len(artists) == 1:
+            aid = artists[0]["mbid"]
+
+            tonics = self.get_tonics_for_artist(aid)
+            voted = self.vote(tonics, thistonic)
+            if voted != thistonic:
+                return {"tonic": str(voted)}
+
+        return {"tonic": str(thistonic)}
 
 
-        return {"tonic": str(tonic)}
+
