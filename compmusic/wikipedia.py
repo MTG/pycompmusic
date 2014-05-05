@@ -18,13 +18,25 @@
 import requests
 import json
 import mwparserfromhell
-import functools32
 
 def _make_wp_query(params):
     url = "http://en.wikipedia.org/w/api.php"
     headers = {'User-Agent': 'CompMusic-bot (http://compmusic.upf.edu)'}
     response = requests.get(url, headers=headers, params=params)
     return json.loads(response.text)
+
+def _get_extract(page):
+    params = {"action": "query", "prop": "extracts", "exintro": "1",
+            "format": "json", "redirects": "1", "titles": page}
+    extract = _make_wp_query(params)
+    pages = extract.get("query", {}).get("pages", {})
+    if pages:
+        key = pages.keys()[0]
+        if key == "-1":
+            return None
+        page = pages[key]
+        return page.get("extract")
+    return None
 
 def download_image(imgname):
     """ Take the name of an image on Wikipedia and return the contents of the image """
@@ -58,53 +70,28 @@ def load_article(title):
 def _get_image_from_tree(tree):
     """ See if a document tree (from `load_article`) has an infobox with an
         image defined in it, and return the contents of the image (or none).
-        Only works on Musical artist or Instrument infoboxes
+        Only works on Musical artist infoboxes
     """
     for node in tree.nodes:
         if hasattr(node, "name"):
             name = node.name.strip()
-            if name.startswith("Infobox musical artist") or \
-                    name.startswith("Infobox instrument"):
+            if name.startswith("Infobox musical artist"):
                 img = node.get("image")
                 if img:
                     return img.value.strip()
     return None
 
-def parse_node(node):
-    """ Parse a node. If it's a template that's a language, return
-    the language. Otherwise remove the template.
-    Also remove <tags> and [[]] from links.
-    """
-    if isinstance(node, mwparserfromhell.nodes.template.Template):
-        if node.name.startswith("lang"):
-            return str(node.get(1))
-        else:
-            return ""
-    elif isinstance(node, mwparserfromhell.nodes.wikilink.Wikilink):
-        if node.title.startswith("File:") or node.title.startswith("Image:"):
-            return ""
-        return str(node.title)
-    else:
-        return str(node)
-
-def _get_introduction_from_tree(tree):
-    """ Get the text of the first section of an article """
-    nodes = [parse_node(n) for n in tree.get_sections()[0].nodes]
-    return "".join(nodes).strip()
-
-@functools32.lru_cache(100)
 def get_artist_details(name):
     article = load_article(name)
     if not article:
-        return None, None, None, None
-    img = _get_image_from_tree(article)
-    if img:
-        img_contents = download_image(img)
+        return None, None
+    img_url = _get_image_from_tree(article)
+    if img_url:
+        img_contents = download_image(img_url)
     else:
         img_contents = None
-    intro = _get_introduction_from_tree(article)
-    url = "http://en.wikipedia.org/wiki/%s" % name.replace(" ", "_")
-    return img_contents, img, intro, url
+    intro = _get_extract(name)
+    return img_contents, intro
 
 def search(title):
     """ Perform a title search and return the first matching page """
