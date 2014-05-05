@@ -65,9 +65,12 @@ def run_file(module, filename, mbid=None):
         md = compmusic.file_metadata(filename)
         mbid = md["meta"]["recordingid"]
 
-    module.musicbrainz_id = mbid
-    ret = module.run(filename)
-    save_data(module, ret)
+    if mbid:
+        module.musicbrainz_id = mbid
+        ret = module.run(filename)
+        save_data(module, ret)
+    else:
+        print >>sys.stderr, "Cannot find a mbid in this file. Use the mbid argument"
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
