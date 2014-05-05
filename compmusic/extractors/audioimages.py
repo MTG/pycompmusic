@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
 
-import compmusic.essentia
+import compmusic.extractors
 import numpy as np
 import imagelib.wav2png as w2png
 import logging
@@ -29,7 +29,7 @@ from StringIO import StringIO
 
 from docserver import util
 
-class AudioImages(compmusic.essentia.EssentiaModule):
+class AudioImages(compmusic.extractors.ExtractorModule):
     __version__ = "0.2"
     __sourcetype__ = "mp3"
     __slug__ = "audioimages"

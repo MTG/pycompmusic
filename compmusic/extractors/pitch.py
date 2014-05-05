@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
 
-import compmusic.essentia
+import compmusic.extractors
 import numpy as np
 from scipy.ndimage.filters import gaussian_filter
 import cStringIO as StringIO
@@ -26,7 +26,7 @@ import intonation
 
 from docserver import util
 
-class PitchExtract(compmusic.essentia.EssentiaModule):
+class PitchExtract(compmusic.extractors.ExtractorModule):
     __version__ = "0.4"
     __sourcetype__ = "mp3"
     __slug__ = "pitch"
@@ -67,7 +67,7 @@ class PitchExtract(compmusic.essentia.EssentiaModule):
         return {"pitch": thepitch.tolist()}
 
 
-class NormalisedPitchExtract(compmusic.essentia.EssentiaModule):
+class NormalisedPitchExtract(compmusic.extractors.ExtractorModule):
     __version__ = "0.4"
     __sourcetype__ = "mp3"
     __slug__ = "normalisedpitch"

@@ -19,13 +19,13 @@ import log
 class Settings(dict):
     __getattr__ = dict.__getitem__
 
-class EssentiaModule(object):
+class ExtractorModule(object):
     """ A module that runs on a file and returns an output.
 
     Logging:
     Inside a subclass, use self.logger to log a message.
     Inside an external module you can use 
-       from compmusic.essentia import log
+       from compmusic.extractors import log
        logger = log.get_logger("module_slug")
     where module_slug is the value defined in __slug__, below
     """
@@ -61,6 +61,17 @@ class EssentiaModule(object):
         self.logger = log.get_logger(self.__slug__, self.__version__)
         self.settings = Settings()
         self.setup()
+
+    def get_key(self, k):
+        key = "%s-%s-%s" % (self.__slug__, self.__version__, k)
+        return self.redis.get(key)
+
+    def set_key(self, k, val, timeout=None):
+        key = "%s-%s-%s" % (self.__slug__, self.__version__, k)
+        if timeout:
+            self.redis.setex(key, val, timeout)
+        else:
+            self.redis.set(key, val)
 
     def setup(self):
         """ Override this if you want to do some pre-setup after

@@ -14,12 +14,12 @@
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
 
-import compmusic.essentia
+import compmusic.extractors
 import numpy as np
 
 import essentia.standard
 
-class MotiveExtract(compmusic.essentia.EssentiaModule):
+class MotiveExtract(compmusic.extractors.ExtractorModule):
     __version__ = "0.1"
     __sourcetype__ = "mp3"
     __slug__ = "motive"

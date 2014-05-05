@@ -14,11 +14,11 @@
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
 
-import compmusic.essentia
+import compmusic.extractors
 import numpy as np
 import rhythmlib as ap
 
-class RhythmExtract(compmusic.essentia.EssentiaModule):
+class RhythmExtract(compmusic.extractors.ExtractorModule):
     __version__ = "0.3"
     __sourcetype__ = "mp3"
     __slug__ = "rhythm"
