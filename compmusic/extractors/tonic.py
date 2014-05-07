@@ -28,6 +28,7 @@ import json
 
 from compmusic import dunya
 #from compmusic import hindustani
+import hindustani
 from compmusic.dunya import carnatic
 dunya.set_token("69ed3d824c4c41f59f0bc853f696a7dd80707779")
 
@@ -78,9 +79,15 @@ class CTonicExtract(compmusic.extractors.ExtractorModule):
         return {"tonic": str(tonic)}
 
 class TonicVote(compmusic.extractors.ExtractorModule):
+    """ Vote on tonics to filter out small errors by the tonic identification script
+    Unfortunately because we don't know if an mbid comes from hindustani or
+    carnatic we need 2 subclasses.
+    Annoyingly, this means we need 2 slugs. 
+    Another option would be to check a recording id against both databases and
+    use just that one, but that's a little more complex to implement.
+    """
     __version__ = "0.1"
     __sourcetype__ = "mp3"
-    __slug__ = "votedtonic"
 
     __output__ = {"tonic": {"extension": "dat", "mimetype": "text/plain"}}
 
@@ -118,30 +125,21 @@ class TonicVote(compmusic.extractors.ExtractorModule):
             return json.loads(tonics)
 
         if tonics is None: 
+            recordings = self._recordings_for_artist(artistid)
             tonics = []
-            artist = carnatic.get_artist(artistid)
-            releases = artist["concerts"]
-            for r in releases:
-                release = carnatic.get_concert(r["mbid"])
-                tracks = release["tracks"]
-                for t in tracks:
-                    tonic = dunya.file_for_document(t["mbid"], "ctonic", "tonic")
-                    tonics.append( (t["mbid"], float(tonic)) )
-        
-            self.set_key(key, json.dumps(tonics))
+            for r in recordings:
+                tonic = dunya.file_for_document(r, "ctonic", "tonic")
+                tonics.append( (r, float(tonic)) )
+            self.set_key(key, json.dumps(tonics), 3600)
         return tonics
 
     def run(self, fname):
-
-        recording = carnatic.get_recording(self.musicbrainz_id)
-        concertid = recording["concert"]["mbid"]
-        concert = carnatic.get_concert(concertid)
-        artists = concert["concert_artists"]
+        artists = self._artists_for_recording(self.musicbrainz_id)
 
         thistonic = dunya.file_for_document(self.musicbrainz_id, "ctonic", "tonic")
         thistonic = float(thistonic)
         if len(artists) == 1:
-            aid = artists[0]["mbid"]
+            aid = artists[0]
 
             tonics = self.get_tonics_for_artist(aid)
             voted = self.vote(tonics, thistonic)
@@ -150,5 +148,39 @@ class TonicVote(compmusic.extractors.ExtractorModule):
 
         return {"tonic": str(thistonic)}
 
+class HindustaniTonicVote(TonicVote):
+    __slug__ = "hindustanivotedtonic"
 
+    def _artists_for_recording(self, recordingid):
+        recording = hindustani.models.Recording.objects.get(mbid=recordingid)
+        artists = recording.release_set.get().artists.all()
+        return [a.mbid for a in artists]
 
+    def _recordings_for_artist(self, artistid):
+        recordings = []
+        artist = hindustani.models.Artist.objects.get(mbid=artistid)
+        for r in artist.primary_concerts.all():
+            for t in r.tracks.all():
+                recordings.append(t.mbid)
+        return recordings
+
+class CarnaticTonicVote(TonicVote):
+    __slug__ = "carnaticvotedtonic"
+
+    def _artists_for_recording(self, recordingid):
+        recording = carnatic.get_recording(recordingid)
+        concertid = recording["concert"]["mbid"]
+        concert = carnatic.get_concert(concertid)
+        artists = concert["concert_artists"]
+        return [a["mbid"] for a in artists]
+
+    def _recordings_for_artist(self, artistid):
+        recordings = []
+        artist = carnatic.get_artist(artistid)
+        releases = artist["concerts"]
+        for r in releases:
+            release = carnatic.get_concert(r["mbid"])
+            tracks = release["tracks"]
+            for t in tracks:
+                recordings.append(t["mbid"])
+        return recordings
