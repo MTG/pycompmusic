@@ -57,21 +57,28 @@ class ExtractorModule(object):
     """
     __output__ = None
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         """Set up the logger, and run a setup method if it's been defined."""
         self.logger = log.get_logger(self.__slug__, self.__version__)
         self.settings = Settings()
-        self.redis = redis.StrictRedis()
+        self.add_settings(**kwargs)
         self.setup()
+        self.redis = None
+        if "redis_host" in self.settings:
+            self.redis = redis.StrictRedis(host=self.settings["redis_host"])
 
     def get_key(self, k):
+        if not self.redis:
+            raise Exception("Redis not configured")
         key = "%s-%s-%s" % (self.__slug__, self.__version__, k)
         return self.redis.get(key)
 
     def set_key(self, k, val, timeout=None):
+        if not self.redis:
+            raise Exception("Redis not configured")
         key = "%s-%s-%s" % (self.__slug__, self.__version__, k)
         if timeout:
-            self.redis.setex(key, val, timeout)
+            self.redis.setex(key, timeout, val)
         else:
             self.redis.set(key, val)
 
