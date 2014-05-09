@@ -116,7 +116,7 @@ class Raaga:
 
         #The following is for plotting xticks at proper peak locations
         locs = np.arange(0, 1200, 100)
-        labels = ["Sa", "Ri1", "Ri2/Ga1", "Ri3/Ga2", "Ga3", "Ma1", "Ma2", "Pa", "Da1", "Da2/Ni1", "Da3/Ni2", "Ni3"]
+        labels = ["Sa", "Ri1", "Ri2\nGa1", "Ri3\nGa2", "Ga3", "Ma1", "Ma2", "Pa", "Da1", "Da2\nNi1", "Da3\nNi2", "Ni3"]
         label_map = {}
         for i in xrange(len(locs)):
             label_map[locs[i]] = labels[i]
@@ -131,13 +131,13 @@ class Raaga:
         y = gaussian_filter(y, smoothness)
         plt.ioff()
         fig = plt.figure()
-        fig.set_size_inches(10, 10)
+        fig.set_size_inches(5, 4.5)
         fig.set_dpi(300)
 
         plt.plot(x, y, "k-")
         plt.xlim(-50, 1150)
 
-        plt.xticks(actual_locs, actual_labels, fontsize=6)
+        plt.xticks(actual_locs, actual_labels, fontsize=10)
         plt.yticks([])
 
         plt.savefig(filepath, bbox_inches="tight")
