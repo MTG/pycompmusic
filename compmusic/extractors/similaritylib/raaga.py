@@ -131,7 +131,7 @@ class Raaga:
         y = gaussian_filter(y, smoothness)
         plt.ioff()
         fig = plt.figure()
-        fig.set_size_inches(2, 2)
+        fig.set_size_inches(10, 10)
         fig.set_dpi(300)
 
         plt.plot(x, y, "k-")
