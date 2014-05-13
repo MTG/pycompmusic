@@ -106,8 +106,8 @@ def get_raag(rid):
     Arguments:
       rid: A raag id
     Returns: id, name, artists, recordings, composers 
-             artists includes artists with recording- and release-
-             level relationships to a recording with this raag
+             artists includes artists with recording-level 
+             relationships to a recording with this raag
     """
     return conn._dunya_query_json("api/hindustani/raag/%s" % str(rid))
 
@@ -139,7 +139,7 @@ def get_layas():
     }
     For additional information about each laya use the
     `get_laya` method. """
-    return conn._dunya_query_json("api/hindustani/laya")
+    return conn._get_paged_json("api/hindustani/laya")
 
 def get_laya(lid):
     """ Get specific information about a laya.
@@ -158,12 +158,12 @@ def get_forms():
     }
     For additional information about each form use the
     `get_form` method. """
-    return conn._dunya_query_json("api/hindustani/form")
+    return conn._get_paged_json("api/hindustani/form")
 
 def get_form(fid):
     """ Get specific information about a form.
     Arguments:
-      tid: A form id
+      fid: A form id
     Returns: id, name, artists, recordings
              artists includes artists with recording- and release-
              level relationships to a recording with this form
