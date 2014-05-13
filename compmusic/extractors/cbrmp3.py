@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
 
-import compmusic.essentia
+import compmusic.extractors
 import numpy as np
 
 import essentia.standard
@@ -22,10 +22,9 @@ import subprocess
 
 import tempfile
 import os
-from docserver import util
 import yaml
 
-class CbrMp3(compmusic.essentia.EssentiaModule):
+class CbrMp3(compmusic.extractors.ExtractorModule):
     """ Convert an mp3 file to a constant bitrate if needed """
     __version__ = "0.1"
     __sourcetype__ = "mp3"

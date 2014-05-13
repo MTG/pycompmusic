@@ -32,14 +32,13 @@ logging.basicConfig(level=logging.INFO)
 
 reraaga = re.compile(r"\braa?gam?[0-9]*\b")
 retaala = re.compile(r"\btaa?lam?[0-9]*\b")
-retaal = re.compile(r"\btaal[0-9]*\b")
-reraag = re.compile(r"\braag[0-9]*\b")
-relaay = re.compile(r"\blaay[0-9]*\b")
+retaal = re.compile(r"\btaa?la?[0-9]*\b")
+reraag = re.compile(r"\braa?ga?[0-9]*\b")
 resection = re.compile(r"\bsection[0-9]*\b")
 remakam = re.compile(r"\bmakam\b")
 reusul = re.compile(r"\busul\b")
 reform = re.compile(r"\bform[0-9]*\b")
-rehform = re.compile(r"\bform([0-9])?:? ?(.*)\b")
+rehindustaniform = re.compile(r"\bform([0-9])?:? ?(.*)\b")
 relaya = re.compile(r"\blaya([0-9])?:? ?(.*)\b")
 
 
@@ -75,9 +74,13 @@ def has_usul(tag):
     """ Makam usul tag """
     return re.search(reusul, tag) is not None
 
-def has_form(tag):
-    """ Makam / Hindustani form """
+def has_makam_form(tag):
+    """ Makam form """
     return re.search(reform, tag) is not None
+
+def has_hindustani_form(tag):
+    """ Hindustani form """
+    return re.search(rehindustaniform, tag) is not None
 
 def parse_raaga(raaga):
     raaga = raaga.strip()
@@ -103,7 +106,7 @@ def parse_usul(usul):
     usul = re.sub(reusul, "", usul)
     return usul.strip()
 
-def parse_form(form):
+def parse_makam_form(form):
     form = form.strip()
     form = re.sub(r" ?: ?", " ", form)
     form = re.sub(reform, "", form)
@@ -111,37 +114,39 @@ def parse_form(form):
 
 
 def parse_raag(raag):
-    # TODO: Use 2 regexes and get each group
     raag = raag.strip()
-    number = re.search(r"([0-9]+)", raag)
-    if number:
-        position = int(number.group(0))
-    else:
-        position = 0
-    raaga = re.sub(r" ?: ?", " ", raag)
-    raaga = re.sub(r" ?raa?gam?[0-9]* ?", "", raag)
-    return (position, raaga)
-
-def parse_taal(taal):
-    # TODO: Use 2 regexes and get each group
-    taal = taal.strip()
-    number = re.search(r"([0-9]+)", taala)
-    if number:
-        position = int(number.group(0))
-    else:
-        position = 0
-    taala = re.sub(r" ?: ?", " ", taala)
-    taala = re.sub(r" ?taa?lam?[0-9]* ?", "", taala)
-    return (position, taala)
-
-def parse_hindustani_form(form):
-    form = laya.strip()
-    match = re.search(reform, form)
+    reraag = re.compile(r"\braa?ga?([0-9])?:? ?(.*)\b")
+    match = re.search(reraag, raag)
     if match:
-        number = match.group(0)
+        number = match.group(1)
         if number:
             number = int(number)
-        form = match.group(1)
+        mraag = match.group(2)
+        return (number, mraag)
+    else:
+        return (None, None)
+
+def parse_taal(taal):
+    retaal = re.compile(r"\btaa?la?([0-9])?:? ?(.*)\b")
+    taal = taal.strip()
+    match = re.search(retaal, taal)
+    if match:
+        number = match.group(1)
+        if number:
+            number = int(number)
+        mtaal = match.group(2)
+        return (number, mtaal)
+    else:
+        return (None, None)
+
+def parse_hindustani_form(form):
+    form = form.strip()
+    match = re.search(rehindustaniform, form)
+    if match:
+        number = match.group(1)
+        if number:
+            number = int(number)
+        form = match.group(2)
         return (number, form)
     else:
         return (None, None)
@@ -150,10 +155,10 @@ def parse_laya(laya):
     laya = laya.strip()
     match = re.search(relaya, laya)
     if match:
-        number = match.group(0)
+        number = match.group(1)
         if number:
             number = int(number)
-        laya = match.group(1)
+        laya = match.group(2)
         return (number, laya)
     else:
         return (None, None)

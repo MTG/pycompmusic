@@ -15,17 +15,18 @@
 # this program.  If not, see http://www.gnu.org/licenses/
 
 import log
+import redis
 
 class Settings(dict):
     __getattr__ = dict.__getitem__
 
-class EssentiaModule(object):
+class ExtractorModule(object):
     """ A module that runs on a file and returns an output.
 
     Logging:
     Inside a subclass, use self.logger to log a message.
     Inside an external module you can use 
-       from compmusic.essentia import log
+       from compmusic.extractors import log
        logger = log.get_logger("module_slug")
     where module_slug is the value defined in __slug__, below
     """
@@ -56,11 +57,30 @@ class EssentiaModule(object):
     """
     __output__ = None
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         """Set up the logger, and run a setup method if it's been defined."""
         self.logger = log.get_logger(self.__slug__, self.__version__)
         self.settings = Settings()
+        self.add_settings(**kwargs)
         self.setup()
+        self.redis = None
+        if "redis_host" in self.settings:
+            self.redis = redis.StrictRedis(host=self.settings["redis_host"])
+
+    def get_key(self, k):
+        if not self.redis:
+            raise Exception("Redis not configured")
+        key = "%s-%s-%s" % (self.__slug__, self.__version__, k)
+        return self.redis.get(key)
+
+    def set_key(self, k, val, timeout=None):
+        if not self.redis:
+            raise Exception("Redis not configured")
+        key = "%s-%s-%s" % (self.__slug__, self.__version__, k)
+        if timeout:
+            self.redis.setex(key, timeout, val)
+        else:
+            self.redis.set(key, val)
 
     def setup(self):
         """ Override this if you want to do some pre-setup after

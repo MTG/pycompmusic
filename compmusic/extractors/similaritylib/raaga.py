@@ -56,21 +56,29 @@ class Raaga:
         self.average_hist = pickle.load(file(self.path_to_raaga_profiles.rstrip("/") + "/" + self.name + ".pickle"))
 
     def compute_average_hist(self, paths_to_pitch_files, tonics, octave_folded=True, bins=1200):
-        """
-        Computes average histogram for a list of given pitch files.
-        The pitch values are expected to be in hertz.
-        """
-        all_cents = []
+        pitches = []
         for i in xrange(len(paths_to_pitch_files)):
             filepath = paths_to_pitch_files[i]
             data = np.loadtxt(filepath)
 
             if data is None:
                 raise Exception("Pitch data not received.")
+            pitches.append(data)
 
+        compute_average_hist_data(pitches, tonics, octave_folded, bins)
+
+
+    def compute_average_hist_data(self, pitches, tonics, octave_folded=True, bins=1200):
+        """
+        Computes average histogram for a list of given pitches.
+        Pitch data should be a numpy array. `tonics` are the tonics for each
+        pitch array.
+        The pitch values are expected to be in hertz.
+        """
+        all_cents = []
+        for data, tonic in zip(pitches, tonics):
             #Histogram
             valid_pitch = data[:, 1]
-            tonic = tonics[i]
             valid_pitch = [1200*np.log2(i/tonic) for i in valid_pitch if i > 0]
             if octave_folded:
                 valid_pitch = map(lambda x: int(x % 1200), valid_pitch)
@@ -108,7 +116,7 @@ class Raaga:
 
         #The following is for plotting xticks at proper peak locations
         locs = np.arange(0, 1200, 100)
-        labels = ["Sa", "Ri1", "Ri2/Ga1", "Ri3/Ga2", "Ga3", "Ma1", "Ma2", "Pa", "Da1", "Da2/Ni1", "Da3/Ni2", "Ni3"]
+        labels = ["Sa", "Ri1", "Ri2\nGa1", "Ri3\nGa2", "Ga3", "Ma1", "Ma2", "Pa", "Da1", "Da2\nNi1", "Da3\nNi2", "Ni3"]
         label_map = {}
         for i in xrange(len(locs)):
             label_map[locs[i]] = labels[i]
@@ -123,13 +131,13 @@ class Raaga:
         y = gaussian_filter(y, smoothness)
         plt.ioff()
         fig = plt.figure()
-        fig.set_size_inches(2, 2)
+        fig.set_size_inches(5, 4.5)
         fig.set_dpi(300)
 
         plt.plot(x, y, "k-")
         plt.xlim(-50, 1150)
 
-        plt.xticks(actual_locs, actual_labels, fontsize=6)
+        plt.xticks(actual_locs, actual_labels, fontsize=10)
         plt.yticks([])
 
         plt.savefig(filepath, bbox_inches="tight")

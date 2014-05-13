@@ -14,14 +14,14 @@
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
 
-import compmusic.essentia
+import compmusic.extractors
 import subprocess
 
 import tempfile
 import os
 import wave
 
-class Mp3ToWav(compmusic.essentia.EssentiaModule):
+class Mp3ToWav(compmusic.extractors.ExtractorModule):
     __version__ = "0.5"
     __sourcetype__ = "mp3"
     __slug__ = "wav"
