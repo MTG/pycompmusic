@@ -144,7 +144,7 @@ def get_layas():
 def get_laya(lid):
     """ Get specific information about a laya.
     Arguments:
-      tid: A laya id
+      lid: A laya id
     Returns: id, name, recordings
     """
     return conn._dunya_query_json("api/hindustani/laya/%s" % str(lid))
