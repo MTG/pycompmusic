@@ -22,8 +22,8 @@ def get_recording(rmbid):
     """ Get specific information about a recording. 
     Arguments:
       rmbid: A recording mbid
-    Returns: mbid, title, artists, raag, taal, work
-             artists includes performance relationships attached
+    Returns: mbid, title, artists, raags, taals, layas, forms and works
+             artists include performance relationships attached
              to the recording, the release, and the release artists.
     """
     return conn._dunya_query_json("api/hindustani/recording/%s" % rmbid)
@@ -65,7 +65,7 @@ def get_release(cmbid):
     """ Get specific information about a release. 
     Arguments:
       cmbid: A release mbid
-    Returns: mbid, title, artists, tracks
+    Returns: mbid, title, artists, tracks, release artists
              artists includes performance relationships attached
              to the recordings, the release, and the release artists.
     """
@@ -86,7 +86,7 @@ def get_work(wmbid):
     """ Get specific information about a work.
     Arguments:
       wmbid: A work mbid
-    Returns: mbid, title, composer, raags, taals, recordings
+    Returns: mbid, title, recordings
     """
     return conn._dunya_query_json("api/hindustani/work/%s" % wmbid)
 
@@ -105,9 +105,9 @@ def get_raag(rid):
     """ Get specific information about a raag.
     Arguments:
       rid: A raag id
-    Returns: id, name, artists, works, composers
-             artists includes artists with recording- and release-
-             level relationships to a recording with this raag
+    Returns: id, name, artists, recordings, composers 
+             artists includes artists with recording-level 
+             relationships to a recording with this raag
     """
     return conn._dunya_query_json("api/hindustani/raag/%s" % str(rid))
 
@@ -126,11 +126,49 @@ def get_taal(tid):
     """ Get specific information about a taal.
     Arguments:
       tid: A taal id
-    Returns: id, name, artists, works, composers
-             artists includes artists with recording- and release-
-             level relationships to a recording with this raag
+    Returns: id, name, recordings, composers
     """
     return conn._dunya_query_json("api/hindustani/taal/%s" % str(tid))
+    
+def get_layas():
+    """ Get a list of Hindustani layas in the database.
+    This function will automatically page through API results.
+    Returns: A list of dictionaries containing laya information.
+    {"id": laya id,
+     "name": name of the laya 
+    }
+    For additional information about each laya use the
+    `get_laya` method. """
+    return conn._get_paged_json("api/hindustani/laya")
+
+def get_laya(lid):
+    """ Get specific information about a laya.
+    Arguments:
+      lid: A laya id
+    Returns: id, name, recordings
+    """
+    return conn._dunya_query_json("api/hindustani/laya/%s" % str(lid))
+
+def get_forms():
+    """ Get a list of Hindustani forms in the database.
+    This function will automatically page through API results.
+    Returns: A list of dictionaries containing form information.
+    {"id": form  id,
+     "name": name of the form 
+    }
+    For additional information about each form use the
+    `get_form` method. """
+    return conn._get_paged_json("api/hindustani/form")
+
+def get_form(fid):
+    """ Get specific information about a form.
+    Arguments:
+      fid: A form id
+    Returns: id, name, artists, recordings
+             artists includes artists with recording- and release-
+             level relationships to a recording with this form
+    """
+    return conn._dunya_query_json("api/hindustani/form/%s" % str(fid))
 
 def get_instruments():
     """ Get a list of Hindustani instruments in the database.
