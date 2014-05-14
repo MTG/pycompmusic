@@ -80,16 +80,44 @@ class CTonicExtract(compmusic.extractors.ExtractorModule):
 
 class TonicVote(compmusic.extractors.ExtractorModule):
     """ Vote on tonics to filter out small errors by the tonic identification script
-    Unfortunately because we don't know if an mbid comes from hindustani or
-    carnatic we need 2 subclasses.
-    Annoyingly, this means we need 2 slugs. 
-    Another option would be to check a recording id against both databases and
-    use just that one, but that's a little more complex to implement.
     """
-    __version__ = "0.1"
+    __version__ = "0.2"
     __sourcetype__ = "mp3"
+    __slug__ = "votedtonic"
 
     __output__ = {"tonic": {"extension": "dat", "mimetype": "text/plain"}}
+
+    def _hindustani_artists_for_recording(self, recordingid):
+        recording = hindustani.models.Recording.objects.get(mbid=recordingid)
+        artists = recording.release_set.get().artists.all()
+        return [a.mbid for a in artists]
+
+    def _hindustani_recordings_for_artist(self, artistid):
+        recordings = []
+        artist = hindustani.models.Artist.objects.get(mbid=artistid)
+        for r in artist.primary_concerts.all():
+            for t in r.tracks.all():
+                recordings.append(t.mbid)
+        return recordings
+
+
+    def _carnatic_artists_for_recording(self, recordingid):
+        recording = carnatic.get_recording(recordingid)
+        concertid = recording["concert"]["mbid"]
+        concert = carnatic.get_concert(concertid)
+        artists = concert["concert_artists"]
+        return [a["mbid"] for a in artists]
+
+    def _carnatic_recordings_for_artist(self, artistid):
+        recordings = []
+        artist = carnatic.get_artist(artistid)
+        releases = artist["concerts"]
+        for r in releases:
+            release = carnatic.get_concert(r["mbid"])
+            tracks = release["tracks"]
+            for t in tracks:
+                recordings.append(t["mbid"])
+        return recordings
 
     def find_nearest_index(self, arr, value):
         """
@@ -125,16 +153,26 @@ class TonicVote(compmusic.extractors.ExtractorModule):
             return json.loads(tonics)
 
         if tonics is None: 
-            recordings = self._recordings_for_artist(artistid)
+            if self.collection_id == "f96e7215-b2bd-4962-b8c9-2b40c17a1ec6":
+                recordings = self._carnatic_recordings_for_artist(artistid)
+            elif self.collection_id == "213347a9-e786-4297-8551-d61788c85c80":
+                recordings = self._hindustani_recordings_for_artist(artistid)
             tonics = []
             for r in recordings:
+                # TODO: We might not have a ctonic, just a regular tonic.
+                # Should check for both
                 tonic = dunya.file_for_document(r, "ctonic", "tonic")
                 tonics.append( (r, float(tonic)) )
             self.set_key(key, json.dumps(tonics), 3600)
         return tonics
 
     def run(self, fname):
-        artists = self._artists_for_recording(self.musicbrainz_id)
+        if self.collection_id == "f96e7215-b2bd-4962-b8c9-2b40c17a1ec6":
+            artists = self._carnatic_artists_for_recording(self.musicbrainz_id)
+        elif self.collection_id == "213347a9-e786-4297-8551-d61788c85c80":
+            artists = self._hindustani_artists_for_recording(self.musicbrainz_id)
+        else:
+            raise Exception("Not an expected carnatic or hindustani collection id")
 
         thistonic = dunya.file_for_document(self.musicbrainz_id, "ctonic", "tonic")
         thistonic = float(thistonic)
@@ -149,38 +187,11 @@ class TonicVote(compmusic.extractors.ExtractorModule):
         return {"tonic": str(thistonic)}
 
 class HindustaniTonicVote(TonicVote):
+    """ Old class definition here so webapp doesn't break before we delete it """
     __slug__ = "hindustanivotedtonic"
 
-    def _artists_for_recording(self, recordingid):
-        recording = hindustani.models.Recording.objects.get(mbid=recordingid)
-        artists = recording.release_set.get().artists.all()
-        return [a.mbid for a in artists]
-
-    def _recordings_for_artist(self, artistid):
-        recordings = []
-        artist = hindustani.models.Artist.objects.get(mbid=artistid)
-        for r in artist.primary_concerts.all():
-            for t in r.tracks.all():
-                recordings.append(t.mbid)
-        return recordings
-
 class CarnaticTonicVote(TonicVote):
+    """ Old class definition here so webapp doesn't break before we delete it """
     __slug__ = "carnaticvotedtonic"
 
-    def _artists_for_recording(self, recordingid):
-        recording = carnatic.get_recording(recordingid)
-        concertid = recording["concert"]["mbid"]
-        concert = carnatic.get_concert(concertid)
-        artists = concert["concert_artists"]
-        return [a["mbid"] for a in artists]
 
-    def _recordings_for_artist(self, artistid):
-        recordings = []
-        artist = carnatic.get_artist(artistid)
-        releases = artist["concerts"]
-        for r in releases:
-            release = carnatic.get_concert(r["mbid"])
-            tracks = release["tracks"]
-            for t in tracks:
-                recordings.append(t["mbid"])
-        return recordings

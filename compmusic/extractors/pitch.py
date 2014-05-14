@@ -31,7 +31,7 @@ class PitchExtract(compmusic.extractors.ExtractorModule):
     __sourcetype__ = "mp3"
     __slug__ = "pitch"
 
-    __depends__ = "tonic"
+    __depends__ = "votedtonic"
     __output__ = {"pitch": {"extension": "json", "mimetype": "application/json"}}
 
     def setup(self):
@@ -68,7 +68,7 @@ class PitchExtract(compmusic.extractors.ExtractorModule):
 
 
 class NormalisedPitchExtract(compmusic.extractors.ExtractorModule):
-    __version__ = "0.4"
+    __version__ = "0.5"
     __sourcetype__ = "mp3"
     __slug__ = "normalisedpitch"
 
@@ -99,7 +99,7 @@ class NormalisedPitchExtract(compmusic.extractors.ExtractorModule):
     def run(self, fname):
         eps = np.finfo(np.float).eps
         pitch = util.docserver_get_json(self.musicbrainz_id, "pitch", "pitch")
-        tonic = util.docserver_get_contents(self.musicbrainz_id, "ctonic", "tonic")
+        tonic = util.docserver_get_contents(self.musicbrainz_id, "votedtonic", "tonic")
         tonic = float(tonic)
 
         nppitch = np.array(pitch)
