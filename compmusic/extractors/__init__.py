@@ -91,13 +91,14 @@ class ExtractorModule(object):
         """
         pass
 
-    def process_document(self, docid, sourcefileid, musicbrainzid, fname):
+    def process_document(self, collectionid, docid, sourcefileid, musicbrainzid, fname):
         """ Set up some class state and call run. This should
         never be called publicly """
         self.document_id = docid
         self.logger.set_documentid(docid)
         self.logger.set_sourcefileid(sourcefileid)
         self.musicbrainz_id = musicbrainzid
+        self.collection_id = collectionid
         return self.run(fname)
 
     def run(self, fname):
