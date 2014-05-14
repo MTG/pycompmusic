@@ -30,6 +30,7 @@ from compmusic import dunya
 #from compmusic import hindustani
 import hindustani
 from compmusic.dunya import carnatic
+import requests
 dunya.set_token("69ed3d824c4c41f59f0bc853f696a7dd80707779")
 
 class TonicExtract(compmusic.extractors.ExtractorModule):
@@ -161,8 +162,11 @@ class TonicVote(compmusic.extractors.ExtractorModule):
             for r in recordings:
                 # TODO: We might not have a ctonic, just a regular tonic.
                 # Should check for both
-                tonic = dunya.file_for_document(r, "ctonic", "tonic")
-                tonics.append( (r, float(tonic)) )
+                try:
+                    tonic = dunya.file_for_document(r, "ctonic", "tonic")
+                    tonics.append( (r, float(tonic)) )
+                except requests.exceptions.HTTPError:
+                    pass
             self.set_key(key, json.dumps(tonics), 3600)
         return tonics
 
