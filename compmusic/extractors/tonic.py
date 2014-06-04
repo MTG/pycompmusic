@@ -34,7 +34,7 @@ import requests
 dunya.set_token("69ed3d824c4c41f59f0bc853f696a7dd80707779")
 
 class TonicExtract(compmusic.extractors.ExtractorModule):
-    __version__ = "0.1"
+    __version__ = "0.2"
     __sourcetype__ = "mp3"
     __slug__ = "tonic"
 
