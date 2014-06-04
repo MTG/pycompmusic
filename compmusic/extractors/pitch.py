@@ -27,7 +27,7 @@ import intonation
 from docserver import util
 
 class PitchExtract(compmusic.extractors.ExtractorModule):
-    __version__ = "0.4"
+    __version__ = "noguessunv"
     __sourcetype__ = "mp3"
     __slug__ = "pitch"
 
@@ -41,7 +41,7 @@ class PitchExtract(compmusic.extractors.ExtractorModule):
         self.add_settings(HopSize=196,
                           FrameSize=2048,
                           BinResolution=10,
-                          GuessUnvoiced=True,
+                          GuessUnvoiced=False,
                           CentsPerBin=1)
 
 
@@ -68,7 +68,7 @@ class PitchExtract(compmusic.extractors.ExtractorModule):
 
 
 class NormalisedPitchExtract(compmusic.extractors.ExtractorModule):
-    __version__ = "0.5"
+    __version__ = "0.6"
     __sourcetype__ = "mp3"
     __slug__ = "normalisedpitch"
 
@@ -98,8 +98,8 @@ class NormalisedPitchExtract(compmusic.extractors.ExtractorModule):
 
     def run(self, fname):
         eps = np.finfo(np.float).eps
-        pitch = util.docserver_get_json(self.musicbrainz_id, "pitch", "pitch")
-        tonic = util.docserver_get_contents(self.musicbrainz_id, "votedtonic", "tonic")
+        pitch = util.docserver_get_json(self.musicbrainz_id, "pitch", "pitch", version="noguessunv")
+        tonic = util.docserver_get_contents(self.musicbrainz_id, "votedtonic", "tonic", version="0.2")
         tonic = float(tonic)
 
         nppitch = np.array(pitch)
