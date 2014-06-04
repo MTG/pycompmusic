@@ -82,7 +82,7 @@ class CTonicExtract(compmusic.extractors.ExtractorModule):
 class TonicVote(compmusic.extractors.ExtractorModule):
     """ Vote on tonics to filter out small errors by the tonic identification script
     """
-    __version__ = "0.2"
+    __version__ = "0.3"
     __sourcetype__ = "mp3"
     __slug__ = "votedtonic"
 
@@ -178,7 +178,7 @@ class TonicVote(compmusic.extractors.ExtractorModule):
         else:
             raise Exception("Not an expected carnatic or hindustani collection id")
 
-        thistonic = dunya.file_for_document(self.musicbrainz_id, "ctonic", "tonic")
+        thistonic = dunya.file_for_document(self.musicbrainz_id, "tonic", "tonic")
         thistonic = float(thistonic)
         if len(artists) == 1:
             aid = artists[0]
