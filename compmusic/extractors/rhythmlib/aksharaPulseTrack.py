@@ -28,7 +28,7 @@ import scipy.stats as scistats
 import essentia.standard as ess
 import essentia as es
 
-from compmusic.essentia import log
+from compmusic.extractors import log
 
 # Main things to do
 # 1. Segment audio into alapana and kriti: Look at the Mridangam base
