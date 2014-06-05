@@ -85,6 +85,9 @@ def mb_recording_id(tag):
     return None
 
 def file_metadata(fname):
+    """ Get the file metadata for an mp3 file.
+    The argument is expected to be an mp3 file. No checking is done
+    """
     if eyed3api == "old":
         audfile = eyeD3.Mp3AudioFile(fname)
         duration = audfile.play_time
@@ -92,7 +95,9 @@ def file_metadata(fname):
         title = audfile.tag.getTitle()
         release = audfile.tag.getAlbum()
     elif eyed3api == "new":
-        audfile = eyed3.load(fname)
+        # We load the file directly instead of using .load() because
+        # load calls magic(), which is not threadsafe.
+        audfile = eyed3.mp3.Mp3AudioFile(fname)
         duration = audfile.info.time_secs
         artist = audfile.tag.artist
         title = audfile.tag.title
