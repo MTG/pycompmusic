@@ -48,7 +48,7 @@ class TonicExtract(compmusic.extractors.ExtractorModule):
         return {"tonic": str(tonic)}
 
 class CTonicExtract(compmusic.extractors.ExtractorModule):
-    __version__ = "0.2"
+    __version__ = "0.3"
     __sourcetype__ = "mp3"
     __slug__ = "ctonic"
 
@@ -63,19 +63,30 @@ class CTonicExtract(compmusic.extractors.ExtractorModule):
             return tonic
         return None
 
+#    def run(self, fname):
+#
+#        yamltonic = self.get_from_file(self.musicbrainz_id)
+#        if yamltonic:
+#            print "Got tonic from a yaml file"
+#            tonic = yamltonic
+#        else:
+#            print "Need to calculate the tonic from scratch"
+#            wavfname = util.docserver_get_filename(self.musicbrainz_id, "wav", "wave")
+#            proclist = ["/srv/dunya/PitchCandExt_O3", "-m", "T", "-t", "V", "-i", wavfname]
+#            p = subprocess.Popen(proclist, stdout=subprocess.PIPE)
+#            output = p.communicate()
+#            tonic = output[0]
+#
+#        return {"tonic": str(tonic)}
+
+
     def run(self, fname):
 
-        yamltonic = self.get_from_file(self.musicbrainz_id)
-        if yamltonic:
-            print "Got tonic from a yaml file"
-            tonic = yamltonic
-        else:
-            print "Need to calculate the tonic from scratch"
-            wavfname = util.docserver_get_filename(self.musicbrainz_id, "wav", "wave")
-            proclist = ["/srv/dunya/PitchCandExt_O3", "-m", "T", "-t", "V", "-i", wavfname]
-            p = subprocess.Popen(proclist, stdout=subprocess.PIPE)
-            output = p.communicate()
-            tonic = output[0]
+        wavfname = util.docserver_get_filename(self.musicbrainz_id, "wav", "wave")
+        proclist = ["/srv/dunya/PitchCandExt_O3", "-m", "T", "-t", "V", "-i", wavfname]
+        p = subprocess.Popen(proclist, stdout=subprocess.PIPE)
+        output = p.communicate()
+        tonic = output[0]
 
         return {"tonic": str(tonic)}
 
