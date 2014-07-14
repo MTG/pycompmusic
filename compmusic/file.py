@@ -20,6 +20,7 @@ import logging
 eyed3api = None
 try:
     import eyed3
+    import eyed3.mp3
     eyed3.utils.log.log.setLevel(logging.ERROR)
     eyed3api = "new"
 except ImportError:
