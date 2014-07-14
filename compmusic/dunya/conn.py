@@ -12,10 +12,23 @@ class ConnectionError(Exception):
     pass
 
 def set_hostname(hostname):
+    """ Change the hostname of the dunya API endpoint.
+
+    Arguments:
+        hostname: The new dunya hostname to set
+    
+    """
     global HOSTNAME
     HOSTNAME = hostname
 
 def set_token(token):
+    """ Set an access token. You must call this before you can make
+    any other calls.
+
+    Arguments:
+        token: your access token
+
+    """
     global TOKEN
     TOKEN = token
 
