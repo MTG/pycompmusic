@@ -97,7 +97,6 @@ class NormalisedPitchExtract(compmusic.extractors.ExtractorModule):
         return normalised_pitch
 
     def run(self, fname):
-        eps = np.finfo(np.float).eps
         pitch = util.docserver_get_json(self.musicbrainz_id, "pitch", "pitch", version="noguessunv")
         tonic = util.docserver_get_contents(self.musicbrainz_id, "votedtonic", "tonic", version="0.2")
         tonic = float(tonic)
