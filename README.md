@@ -56,3 +56,16 @@ You need to do the same with essentia:
 Now you can install the rest of the dependencies:
 
     pip install -r requirements
+
+Documentation
+=============
+
+There are sphinx docs available in the `docs` directory. To compile them, run
+`make html` from the root directory.
+You need to be able to import each module in order to be able to do the autodocs.
+This means that you will need all the dependencies available in the python path.
+One way to do this is to use python from a virtualenv directly:
+
+    env/bin/python /usr/bin/sphinx-build -b html -d build/doctrees docs build/html
+
+Or install sphinx in the virtualenv
