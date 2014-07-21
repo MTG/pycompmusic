@@ -15,7 +15,10 @@
 # this program.  If not, see http://www.gnu.org/licenses/
 
 import log
-import redis
+try:
+    import redis
+except ImportError:
+    pass
 
 class Settings(dict):
     __getattr__ = dict.__getitem__
@@ -64,7 +67,7 @@ class ExtractorModule(object):
         self.add_settings(**kwargs)
         self.setup()
         self.redis = None
-        if "redis_host" in self.settings:
+        if "redis_host" in self.settings and 'redis' in globals():
             self.redis = redis.StrictRedis(host=self.settings["redis_host"])
 
     def get_key(self, k):
