@@ -477,8 +477,9 @@ def create_wave_images(input_filename, output_filename_w, output_filename_s, ima
 
     for x in range(image_width):
 
-        if progress_callback and x % (image_width/10) == 0:
-            progress_callback((x*100)/image_width)
+        if image_width >= 10:
+            if progress_callback and x % (image_width/10) == 0:
+                progress_callback((x*100)/image_width)
 
         seek_point = int(x * samples_per_pixel)
         next_seek_point = int((x + 1) * samples_per_pixel)
