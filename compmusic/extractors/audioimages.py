@@ -92,18 +92,16 @@ class AudioImages(compmusic.extractors.ExtractorModule):
             specdata = []
 
             sumframes = 0
-            remaining_frames = 0
             while sumframes < totalframes:
                 if sumframes + framesperimage > totalframes :
                     remaining_frames = (totalframes - sumframes)
                     options.image_width = options.image_width * remaining_frames / framesperimage
+                else:
+                    remaining_frames = framesperimage
 
                 fp, smallname = tempfile.mkstemp(".wav")
                 os.close(fp)
-                if remaining_frames > 0:
-                    data = wvFile.readframes(remaining_frames)
-                else :
-                    data = wvFile.readframes(framesperimage)
+                data = wvFile.readframes(remaining_frames)
                 wavout = wave.open(smallname, "wb")
                 # This will set nframes, but writeframes resets it
                 wavout.setparams(wvFile.getparams())
