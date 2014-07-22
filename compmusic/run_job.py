@@ -54,17 +54,14 @@ def load_module(modulepath):
 def save_data(module, data):
     output = module.__output__
     mbid = module.musicbrainz_id
-    for key, data_list in data.items():
+    for key, d in data.items():
         ext = output[key]["extension"]
-        if output[key].get("parts", False):
-            for i in range(len(data_list)):
-                fname = "%s-%s-%s.%s" % (mbid, key, i, ext)
-                print "Writing output for type %s to %s" % (key, fname)
-                open(fname, "wb").write(data_list[i])
-        else:
-            fname = "%s-%s.%s" % (mbid, key, ext)
+        if output[key].get("parts", False) is False:
+            d = [d]
+        for i in range(len(d)):
+            fname = "%s-%s-%s.%s" % (mbid, key, i, ext)
             print "Writing output for type %s to %s" % (key, fname)
-            open(fname, "wb").write(data_list)
+            open(fname, "wb").write(d[i])
 
 def run_file(module, filename, mbid=None):
     if not mbid:
