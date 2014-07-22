@@ -22,24 +22,13 @@ import re
 import logging
 logging.basicConfig(level=logging.INFO)
 
-#sys.path.insert(0, os.path.join(
-#        os.path.dirname(os.path.abspath(__file__)), ".."))
-#from dunya import settings
-#from django.core.management import setup_environ
-#setup_environ(settings)
-
-#from carnatic.models import Raaga, Taala
-
-reraaga = re.compile(r"\braa?gam?[0-9]*\b")
-retaala = re.compile(r"\btaa?lam?[0-9]*\b")
-retaal = re.compile(r"\btaa?la?[0-9]*\b")
-reraag = re.compile(r"\braa?ga?[0-9]*\b")
-resection = re.compile(r"\bsection[0-9]*\b")
-remakam = re.compile(r"\bmakam\b")
-reusul = re.compile(r"\busul\b")
-reform = re.compile(r"\bform[0-9]*\b")
-rehindustaniform = re.compile(r"\bform([0-9])?:? ?(.*)\b")
-relaya = re.compile(r"\blaya([0-9])?:? ?(.*)\b")
+reraaga = r"\braa?gam?[0-9]*\b"
+retaala = r"\btaa?lam?[0-9]*\b"
+retaal = r"\btaa?la?[0-9]*\b"
+reraag = r"\braa?ga?[0-9]*\b"
+resection = r"\bsection[0-9]*\b"
+rehindustaniform = r"\bform([0-9])?:? ?(.*)\b"
+relaya = r"\blaya([0-9])?:? ?(.*)\b"
 
 
 def has_raaga(tag):
@@ -68,14 +57,17 @@ def has_section(tag):
 
 def has_makam(tag):
     """ Makam tag """
+    remakam = r"\bmakam([0-9]|\b)"
     return re.search(remakam, tag) is not None
 
 def has_usul(tag):
     """ Makam usul tag """
+    reusul = r"\busul([0-9]|\b)"
     return re.search(reusul, tag) is not None
 
 def has_makam_form(tag):
     """ Makam form """
+    reform = r"\bform([0-9]|\b)"
     return re.search(reform, tag) is not None
 
 def has_hindustani_form(tag):
@@ -94,71 +86,77 @@ def parse_taala(taala):
     taala = re.sub(retaala, "", taala)
     return taala.strip()
 
+
 def parse_makam(makam):
     makam = makam.strip()
-    makam = re.sub(r" ?: ?", " ", makam)
-    makam = re.sub(remakam, "", makam)
-    return makam.strip()
+    remakam = r"\bmakam ?([0-9])? ?:? ?(.*)\b"
+    return _parse_num_and_value(remakam, makam)
+
+def _parse_num_and_value(expression, target):
+
+    # use re.U flag to make \b match unicode char classess too
+    match = re.search(expression, target, re.U)
+    if match:
+        number = match.group(1)
+        if number:
+            number = int(number)
+        else:
+            number = 0
+        val = match.group(2)
+        return (number, val)
+    else:
+        return (None, None)
 
 def parse_usul(usul):
     usul = usul.strip()
-    usul = re.sub(r" ?: ?", " ", usul)
-    usul = re.sub(reusul, "", usul)
-    return usul.strip()
+    reusul = r"\busul ?([0-9])? ?:? ?(.*)\b"
+    return _parse_num_and_value(reusul, usul)
 
 def parse_makam_form(form):
     form = form.strip()
-    form = re.sub(r" ?: ?", " ", form)
-    form = re.sub(reform, "", form)
-    return form.strip()
+    reform = r"\bform ?([0-9])? ?:? ?(.*)\b"
+    return _parse_num_and_value(reform, form)
 
 
 def parse_raag(raag):
     raag = raag.strip()
-    reraag = re.compile(r"\braa?ga?([0-9])?:? ?(.*)\b")
-    match = re.search(reraag, raag)
-    if match:
-        number = match.group(1)
-        if number:
-            number = int(number)
-        mraag = match.group(2)
-        return (number, mraag)
-    else:
-        return (None, None)
+    reraag = r"\braa?ga?([0-9])?:? ?(.*)\b"
+    return _parse_num_and_value(reraag, raag)
 
 def parse_taal(taal):
-    retaal = re.compile(r"\btaa?la?([0-9])?:? ?(.*)\b")
+    retaal = r"\btaa?la?([0-9])?:? ?(.*)\b"
     taal = taal.strip()
-    match = re.search(retaal, taal)
-    if match:
-        number = match.group(1)
-        if number:
-            number = int(number)
-        mtaal = match.group(2)
-        return (number, mtaal)
-    else:
-        return (None, None)
+    return _parse_num_and_value(retaal, taal)
 
 def parse_hindustani_form(form):
     form = form.strip()
-    match = re.search(rehindustaniform, form)
-    if match:
-        number = match.group(1)
-        if number:
-            number = int(number)
-        form = match.group(2)
-        return (number, form)
-    else:
-        return (None, None)
+    return _parse_num_and_value(rehindustaniform, form)
 
 def parse_laya(laya):
     laya = laya.strip()
-    match = re.search(relaya, laya)
-    if match:
-        number = match.group(1)
-        if number:
-            number = int(number)
-        laya = match.group(2)
-        return (number, laya)
-    else:
-        return (None, None)
+    return _parse_num_and_value(relaya, laya)
+
+def group_makam_tags(makams, forms, usuls):
+    makams.sort(key=lambda i: i[0])
+    forms.sort(key=lambda i: i[0])
+    usuls.sort(key=lambda i: i[0])
+    max_size = max(makams[-1][0], forms[-1][0], usuls[-1][0])
+
+    ret = []
+    for i in range(max_size+1):
+        m = makams[0] if makams else (None, None)
+        f = forms[0] if forms else (None, None)
+        u = usuls[0] if usuls else (None, None)
+        thisr = {}
+        if m[0] == i:
+            thisr["makam"] = m[1]
+            makams = makams[1:]
+        if f[0] == i:
+            thisr["form"] = f[1]
+            forms = forms[1:]
+        if u[0] == i:
+            thisr["usul"] = u[1]
+            usuls = usuls[1:]
+
+        ret.append(thisr)
+    return ret
