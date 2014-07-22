@@ -71,11 +71,14 @@ class AudioImages(compmusic.extractors.ExtractorModule):
         zoomlevels = [4, 8, 16, 32]           	      # seconds
         options = coll.namedtuple('options', 'image_height fft_size image_width')
         options.image_height = panelHeight
-        options.image_width = panelWidth
         options.fft_size = 31
 
         ret = {}
         for zoom in zoomlevels:
+            # At the beginning of each zoom level we reset the image_width
+            # since we are modifying it at the end of the last zoom level
+            options.image_width = panelWidth
+
             wvFile = wave.Wave_read(wavfname)
             framerate = wvFile.getframerate()
             totalframes = wvFile.getnframes()
@@ -89,10 +92,18 @@ class AudioImages(compmusic.extractors.ExtractorModule):
             specdata = []
 
             sumframes = 0
+            remaining_frames = 0
             while sumframes < totalframes:
+                if sumframes + framesperimage > totalframes :
+                    remaining_frames = (totalframes - sumframes)
+                    options.image_width = options.image_width * remaining_frames / framesperimage
+
                 fp, smallname = tempfile.mkstemp(".wav")
                 os.close(fp)
-                data = wvFile.readframes(framesperimage)
+                if remaining_frames > 0:
+                    data = wvFile.readframes(remaining_frames)
+                else :
+                    data = wvFile.readframes(framesperimage)
                 wavout = wave.open(smallname, "wb")
                 # This will set nframes, but writeframes resets it
                 wavout.setparams(wvFile.getparams())
