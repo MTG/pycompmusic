@@ -61,6 +61,32 @@ def get_artist(ambid):
     """
     return conn._dunya_query_json("api/makam/artist/%s" % ambid)
 
+def get_composers():
+    """ Get a list of makam composers in the database.
+    This function will automatically page through API results.
+
+    returns: A list of dictionaries containing composers information::
+
+        {"mbid": Musicbrainz composer id,
+        "name": Name of the composer}
+
+    For additional information about each composer use :func:`get_composer`
+
+    """
+    return conn._get_paged_json("api/makam/composer")
+
+def get_composer(cmbid):
+    """ Get specific information about an composer.
+
+    :param cmbid: A composer mbid
+    :returns: mbid, name, works, lyric_works
+
+         ``works`` contains a list of works that the composer has written.
+         ``lyric_works`` are works where they were lyricist.
+
+    """
+    return conn._dunya_query_json("api/makam/composer/%s" % cmbid)
+
 def get_releases():
     """ Get a list of makam releases in the database.
     This function will automatically page through API results.
@@ -138,6 +164,80 @@ def get_instrument(iid):
 
     """
     return conn._dunya_query_json("api/makam/instrument/%s" % str(iid))
+
+def get_forms():
+    """ Get a list of makam forms in the database.
+    This function will automatically page through API results.
+
+    returns: A list of dictionaries containing form information::
+
+        {"id": form id,
+         "name": Name of the form
+        }
+
+    For additional information about each form use :func:`get_form`
+
+    """
+    return conn._get_paged_json("api/makam/form")
+
+def get_form(fid):
+    """ Get specific information about a form.
+
+    :param fid: A form id
+    :returns: id, name, works.
+    """
+    return conn._dunya_query_json("api/makam/form/%s" % str(fid))
+
+def get_makams():
+    """ Get a list of makam makams in the database.
+    This function will automatically page through API results.
+
+    returns: A list of dictionaries containing makam information::
+
+        {"id": makam id,
+         "name": Name of the makam
+        }
+
+    For additional information about each makam use :func:`get_makam`
+
+    """
+    return conn._get_paged_json("api/makam/makam")
+
+def get_makam(mid):
+    """ Get specific information about a makam.
+
+    :param mid: A makam id
+    :returns: id, name, works, taksims, gazels.
+
+    the ``taksims`` and ``gazels`` lists are of recordings.
+    """
+    return conn._dunya_query_json("api/makam/makam/%s" % str(mid))
+
+def get_usuls():
+    """ Get a list of makam usuls in the database.
+    This function will automatically page through API results.
+
+    returns: A list of dictionaries containing usul information::
+
+        {"id": usul id,
+         "name": Name of the usul
+        }
+
+    For additional information about each usul use :func:`get_usul`
+
+    """
+    return conn._get_paged_json("api/makam/usul")
+
+def get_usul(uid):
+    """ Get specific information about a usul.
+
+    :param uid: An usul id
+    :returns: id, name, works, taksims, gazels.
+
+    the ``taksims`` and ``gazels`` lists are of recordings. They are
+    only valid for the usul ``serbest``
+    """
+    return conn._dunya_query_json("api/makam/usul/%s" % str(uid))
 
 def download_mp3(recordingid, location):
     """Download the mp3 of a document and save it to the specificed directory.
