@@ -1,16 +1,16 @@
 # Copyright 2013,2014 Music Technology Group - Universitat Pompeu Fabra
-# 
+#
 # This file is part of Dunya
-# 
+#
 # Dunya is free software: you can redistribute it and/or modify it under the
 # terms of the GNU Affero General Public License as published by the Free Software
 # Foundation (FSF), either version 3 of the License, or (at your option) any later
 # version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT ANY
 # WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
 
@@ -45,7 +45,8 @@ def get_releases_in_collection(collection):
     while offset < count:
         log.debug("offset", offset)
         url = "http://musicbrainz.org/ws/2/collection/%s/releases?offset=%d" % (collection, offset)
-        xml = urllib2.urlopen(url).read()
+        req = urllib2.Request(url, headers={"User-Agent": "Dunya/0.1 python-musicbrainzngs"})
+        xml = urllib2.urlopen(req).read()
         count, ids = ws_ids(xml)
         releases.extend(ids)
         offset += 25
