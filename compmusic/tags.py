@@ -140,7 +140,9 @@ def group_makam_tags(makams, forms, usuls):
     makams.sort(key=lambda i: i[0])
     forms.sort(key=lambda i: i[0])
     usuls.sort(key=lambda i: i[0])
-    max_size = max(makams[-1][0], forms[-1][0], usuls[-1][0])
+    max_size = max(makams[-1][0] if makams else 0,
+            forms[-1][0] if forms else 0,
+            usuls[-1][0] if usuls else 0)
 
     ret = []
     for i in range(max_size+1):
