@@ -76,8 +76,8 @@ def _get_image_from_tree(tree):
         if hasattr(node, "name"):
             name = node.name.strip()
             if name.startswith("Infobox musical artist"):
-                img = node.get("image")
-                if img:
+                if node.has("image"):
+                    img = node.get("image")
                     return img.value.strip()
     return None
 
