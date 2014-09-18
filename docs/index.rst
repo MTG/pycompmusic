@@ -6,6 +6,15 @@ research project.
 The main two components are feature extractors, and a wrapper to the
 Dunya API.
 
+Module-specific APIs
+--------------------
+
+:doc:`carnatic`
+
+:doc:`hindustani`
+
+:doc:`makam`
+
 Dunya API
 ---------
 
@@ -15,23 +24,6 @@ Dunya API
     :show-inheritance:
 
 .. automodule:: compmusic.dunya.docserver
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Carnatic API
-------------
-
-.. automodule:: compmusic.dunya.carnatic
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-Hindustani API
---------------
-
-.. automodule:: compmusic.dunya.hindustani
     :members:
     :undoc-members:
     :show-inheritance:
