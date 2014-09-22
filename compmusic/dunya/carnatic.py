@@ -6,9 +6,12 @@ logger = logging.getLogger("dunya")
 import conn
 import docserver
 
-def get_recordings():
+def get_recordings(with_bootlegs=False):
     """ Get a list of carnatic recordings in the database.
     This function will automatically page through API results.
+
+    :param with_bootlegs: If True and you are authenticated as a staff user
+        include recordings from bootleg concerts
 
     returns: A list of dictionaries containing recording information::
 
@@ -17,12 +20,16 @@ def get_recordings():
         }
 
     For additional information about each recording use :func:`get_recording`.
-    
+
     """
-    return conn._get_paged_json("api/carnatic/recording")
+    if with_bootlegs:
+        bootleg = "?with_bootlegs=True"
+    else:
+        bootleg = ""
+    return conn._get_paged_json("api/carnatic/recording%s" % (bootleg, ))
 
 def get_recording(rmbid):
-    """ Get specific information about a recording. 
+    """ Get specific information about a recording.
 
     :param rmbid: A recording mbid
 
@@ -44,14 +51,16 @@ def get_artists():
         "name": Name of the artist}
 
     For additional information about each artist use :func:`get_artist`
-    
+
     """
     return conn._get_paged_json("api/carnatic/artist")
 
-def get_artist(ambid):
+def get_artist(ambid, with_bootlegs=False):
     """ Get specific information about an artist.
 
     :param ambid: An artist mbid
+    :param with_bootlegs: If True and you are authenticated as a staff user
+        include bootleg concerts and recordings in the returned data
     :returns: mbid, name, concerts, instruments, recordings.
 
          ``concerts``, ``instruments`` and ``recordings`` include
@@ -59,11 +68,18 @@ def get_artist(ambid):
          relationships, as well as release artists
 
     """
-    return conn._dunya_query_json("api/carnatic/artist/%s" % ambid)
+    if with_bootlegs:
+        bootleg = "?with_bootlegs=True"
+    else:
+        bootleg = ""
+    return conn._dunya_query_json("api/carnatic/artist/%s%s" % (ambid, bootleg))
 
-def get_concerts():
+def get_concerts(with_bootlegs=False):
     """ Get a list of Carnatic concerts in the database.
     This function will automatically page through API results.
+
+    :param with_bootlegs: If True and you are authenticated as a staff user
+        include bootleg concerts
 
     returns: A list of dictionaries containing concert information::
 
@@ -74,10 +90,14 @@ def get_concerts():
     For additional information about each concert use :func:`get_concert`
 
     """
-    return conn._get_paged_json("api/carnatic/concert")
+    if with_bootlegs:
+        bootleg = "?with_bootlegs=True"
+    else:
+        bootleg = ""
+    return conn._get_paged_json("api/carnatic/concert%s" % (bootleg, ))
 
 def get_concert(cmbid):
-    """ Get specific information about a concert. 
+    """ Get specific information about a concert.
 
     :param cmbid: A concert mbid
     :returns: mbid, title, artists, tracks.
@@ -103,14 +123,20 @@ def get_works():
     """
     return conn._get_paged_json("api/carnatic/work")
 
-def get_work(wmbid):
+def get_work(wmbid, with_bootlegs=False):
     """ Get specific information about a work.
 
     :param wmbid: A work mbid
-    :returns: mbid, title, composer, raagas, taalas, recordings
+    :param with_bootlegs: If True and you are authenticated as a staff user
+        include bootleg recordings in the returned data
+    :returns: mbid, title, composers, raagas, taalas, recordings
 
     """
-    return conn._dunya_query_json("api/carnatic/work/%s" % wmbid)
+    if with_bootlegs:
+        bootleg = "?with_bootlegs=True"
+    else:
+        bootleg = ""
+    return conn._dunya_query_json("api/carnatic/work/%s%s" % (wmbid, bootleg))
 
 def get_raagas():
     """ Get a list of Carnatic raagas in the database.
@@ -123,7 +149,7 @@ def get_raagas():
         }
 
     For additional information about each raaga use :func:`get_raaga`
-    
+
     """
     return conn._get_paged_json("api/carnatic/raaga")
 
@@ -151,7 +177,7 @@ def get_taalas():
         }
 
     For additional information about each taala use :func:`get_taala`.
-    
+
     """
     return conn._get_paged_json("api/carnatic/taala")
 
