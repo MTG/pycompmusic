@@ -28,7 +28,7 @@ from pylab import plt
 class PitchExtractMakam(compmusic.extractors.ExtractorModule):
 	__version__ = "0.1"
 	__sourcetype__ = "mp3"
-	__slug__ = "pitch"
+	__slug__ = "makampitch"
 
 #    __depends__ = ""
 	__output__ = {"pitch": {"extension": "json", "mimetype": "application/json"}}
