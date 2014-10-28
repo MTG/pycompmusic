@@ -158,7 +158,7 @@ class TonicVote(compmusic.extractors.ExtractorModule):
 
         return tonic
 
-    def _get_tonic(recordingid):
+    def _get_tonic(self, recordingid):
         # Return the ctonic if it's been computed, otherwise the
         # regular one.
         try:
