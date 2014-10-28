@@ -108,7 +108,7 @@ class TonicVote(compmusic.extractors.ExtractorModule):
         recordings = []
         artist = hindustani.models.Artist.objects.get(mbid=artistid)
         for r in artist.primary_concerts.all():
-            for t in r.tracks.all():
+            for t in r.recordings.all():
                 recordings.append(t.mbid)
         return recordings
 
