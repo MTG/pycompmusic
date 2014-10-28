@@ -1,16 +1,16 @@
 # Copyright 2013,2014 Music Technology Group - Universitat Pompeu Fabra
-# 
+#
 # This file is part of Dunya
-# 
+#
 # Dunya is free software: you can redistribute it and/or modify it under the
 # terms of the GNU Affero General Public License as published by the Free Software
 # Foundation (FSF), either version 3 of the License, or (at your option) any later
 # version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT ANY
 # WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
 
@@ -158,26 +158,37 @@ class TonicVote(compmusic.extractors.ExtractorModule):
 
         return tonic
 
+    def _get_tonic(recordingid):
+        # Return the ctonic if it's been computed, otherwise the
+        # regular one.
+        try:
+            tonic = dunya.file_for_document(recordingid, "ctonic", "tonic")
+            return tonic
+        except requests.exceptions.HTTPError:
+            pass
+        try:
+            tonic = dunya.file_for_document(recordingid, "tonic", "tonic")
+            return tonic
+        except requests.exceptions.HTTPError:
+            pass
+        return None
+
     def get_tonics_for_artist(self, artistid):
         key = "artist-tonics-%s" % artistid
         tonics = self.get_key(key)
         if tonics:
             return json.loads(tonics)
 
-        if tonics is None: 
+        if tonics is None:
             if self.collection_id == "f96e7215-b2bd-4962-b8c9-2b40c17a1ec6":
                 recordings = self._carnatic_recordings_for_artist(artistid)
             elif self.collection_id == "213347a9-e786-4297-8551-d61788c85c80":
                 recordings = self._hindustani_recordings_for_artist(artistid)
             tonics = []
             for r in recordings:
-                # TODO: We might not have a ctonic, just a regular tonic.
-                # Should check for both
-                try:
-                    tonic = dunya.file_for_document(r, "ctonic", "tonic")
+                tonic = self._get_tonic(r)
+                if tonic:
                     tonics.append( (r, float(tonic)) )
-                except requests.exceptions.HTTPError:
-                    pass
             self.set_key(key, json.dumps(tonics), 3600)
         return tonics
 
@@ -189,9 +200,9 @@ class TonicVote(compmusic.extractors.ExtractorModule):
         else:
             raise Exception("Not an expected carnatic or hindustani collection id")
 
-        thistonic = dunya.file_for_document(self.musicbrainz_id, "tonic", "tonic")
-        thistonic = float(thistonic)
-        if len(artists) == 1:
+        thistonic = self._get_tonic(self.musicbrainz_id)
+        if len(artists) == 1 and thistonic:
+            thistonic = float(thistonic)
             aid = artists[0]
 
             tonics = self.get_tonics_for_artist(aid)
