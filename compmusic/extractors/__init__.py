@@ -1,20 +1,21 @@
 # Copyright 2013,2014 Music Technology Group - Universitat Pompeu Fabra
-# 
+#
 # This file is part of Dunya
-# 
+#
 # Dunya is free software: you can redistribute it and/or modify it under the
 # terms of the GNU Affero General Public License as published by the Free Software
 # Foundation (FSF), either version 3 of the License, or (at your option) any later
 # version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT ANY
 # WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
 
 import log
+from warnings import warn
 try:
     import redis
 except ImportError:
@@ -28,7 +29,7 @@ class ExtractorModule(object):
 
     Logging:
     Inside a subclass, use self.logger to log a message.
-    Inside an external module you can use 
+    Inside an external module you can use
        from compmusic.extractors import log
        logger = log.get_logger("module_slug")
     where module_slug is the value defined in __slug__, below
@@ -69,21 +70,27 @@ class ExtractorModule(object):
         self.redis = None
         if "redis_host" in self.settings and 'redis' in globals():
             self.redis = redis.StrictRedis(host=self.settings["redis_host"])
+        # This cache is used for a single process when redis is not installed
+        self.cache = {}
 
     def get_key(self, k):
-        if not self.redis:
-            raise Exception("Redis not configured")
         key = "%s-%s-%s" % (self.__slug__, self.__version__, k)
-        return self.redis.get(key)
+        if not self.redis:
+            warn("Redis not configured, assuming running locally and using local cache")
+            return self.cache.get(key)
+        else:
+            return self.redis.get(key)
 
     def set_key(self, k, val, timeout=None):
-        if not self.redis:
-            raise Exception("Redis not configured")
         key = "%s-%s-%s" % (self.__slug__, self.__version__, k)
-        if timeout:
-            self.redis.setex(key, timeout, val)
+        if not self.redis:
+            warn("Redis not configured, assuming running locally and using local cache")
+            self.cache[key] = val
         else:
-            self.redis.set(key, val)
+            if timeout:
+                self.redis.setex(key, timeout, val)
+            else:
+                self.redis.set(key, val)
 
     def setup(self):
         """ Override this if you want to do some pre-setup after
