@@ -99,6 +99,9 @@ class TonicVote(compmusic.extractors.ExtractorModule):
 
     __output__ = {"tonic": {"extension": "dat", "mimetype": "text/plain"}}
 
+    carn_colls = ["f8bf7d1e-70d2-44f6-a3cb-5a6ded00be1f", "f96e7215-b2bd-4962-b8c9-2b40c17a1ec6"]
+    hind_colls = ["213347a9-e786-4297-8551-d61788c85c80"]
+
     def _hindustani_artists_for_recording(self, recordingid):
         recording = hindustani.models.Recording.objects.get(mbid=recordingid)
         artists = recording.release_set.get().artists.all()
@@ -180,10 +183,9 @@ class TonicVote(compmusic.extractors.ExtractorModule):
             return json.loads(tonics)
 
         if tonics is None:
-            carn_colls = ["f8bf7d1e-70d2-44f6-a3cb-5a6ded00be1f", "f96e7215-b2bd-4962-b8c9-2b40c17a1ec6"]
-            if self.collection_id in carn_colls:
+            if self.collection_id in self.carn_colls:
                 recordings = self._carnatic_recordings_for_artist(artistid)
-            elif self.collection_id == "213347a9-e786-4297-8551-d61788c85c80":
+            elif self.collection_id in self.hind_colls:
                 recordings = self._hindustani_recordings_for_artist(artistid)
             tonics = []
             for r in recordings:
@@ -194,9 +196,9 @@ class TonicVote(compmusic.extractors.ExtractorModule):
         return tonics
 
     def run(self, fname):
-        if self.collection_id == "f96e7215-b2bd-4962-b8c9-2b40c17a1ec6":
+        if self.collection_id in self.carn_colls:
             artists = self._carnatic_artists_for_recording(self.musicbrainz_id)
-        elif self.collection_id == "213347a9-e786-4297-8551-d61788c85c80":
+        elif self.collection_id in self.hind_colls:
             artists = self._hindustani_artists_for_recording(self.musicbrainz_id)
         else:
             raise Exception("Not an expected carnatic or hindustani collection id")
