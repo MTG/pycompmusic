@@ -180,7 +180,8 @@ class TonicVote(compmusic.extractors.ExtractorModule):
             return json.loads(tonics)
 
         if tonics is None:
-            if self.collection_id == "f96e7215-b2bd-4962-b8c9-2b40c17a1ec6":
+            carn_colls = ["f8bf7d1e-70d2-44f6-a3cb-5a6ded00be1f", "f96e7215-b2bd-4962-b8c9-2b40c17a1ec6"]
+            if self.collection_id in carn_colls:
                 recordings = self._carnatic_recordings_for_artist(artistid)
             elif self.collection_id == "213347a9-e786-4297-8551-d61788c85c80":
                 recordings = self._hindustani_recordings_for_artist(artistid)
