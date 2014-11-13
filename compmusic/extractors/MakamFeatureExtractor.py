@@ -24,13 +24,12 @@ from numpy import size
 from numpy import array
 from numpy import vstack
 from numpy import transpose
-from numpy import savetxt
+#from numpy import savetxt
 
 class PitchExtractMakam(compmusic.extractors.ExtractorModule):
     __version__ = "0.3"
     __sourcetype__ = "mp3"
     __slug__ = "makampitch"
-
 #    __depends__ = ""
     __output__ = {"pitch": {"extension": "json", "mimetype": "application/json"}}
 
@@ -98,7 +97,7 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
 	time_stamps = [s*self.settings.hopSize/float(self.settings.sampleRate) for s in xrange(0,len(pitch))]
 
 	out = transpose(vstack((time_stamps, pitch, pitch_salience)))
-	savetxt('test_new.txt', out, delimiter="\t")
+	#savetxt('test_new.txt', out, delimiter="\t")
         return {'pitch': out}
 
     def ContourSelection(self,pitchContours,contourSaliences,startTimes,duration):
@@ -115,7 +114,6 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
 	startSamples_noOverlap = []
 	contourSaliences_noOverlap = []
 	lens_noOverlap = []
-	acc_idx = []
 	while pitchContours: # terminate when all the contours are checked
 		#print len(pitchContours)
 		# get the lengths of the pitchContours
@@ -131,35 +129,10 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
 		lens_noOverlap.append(lens.pop(long_idx))
 
 		# accumulate the filled samples
-		[acc_idx.append(s) for s in xrange(startSamples_noOverlap[-1], startSamples_noOverlap[-1] + lens_noOverlap[-1])]
+		acc_idx = range(startSamples_noOverlap[-1], startSamples_noOverlap[-1] + lens_noOverlap[-1])
 
 		# remove overlaps
-		rmv_idx = []
-		for i in xrange(0, len(startSamples)):
-			#print '_' + str(i) 
-			# create the sample index vector for the checked pitch contour 
-			curr_samp_idx = range(startSamples[i], startSamples[i] + lens[i])
-			
-			# get the non-overlapping samples
-			curr_samp_idx_noOverlap = sorted(list(set(curr_samp_idx) - set(acc_idx)))
-			
-			if curr_samp_idx_noOverlap: 
-				# update the startSample
-				startSamples[i] = curr_samp_idx_noOverlap[0]
-				
-				# remove all overlapping values
-				keep_idx = [curr_samp_idx.index(c) for c in curr_samp_idx_noOverlap]
-				pitchContours[i] = array(pitchContours[i])[keep_idx]
-				contourSaliences[i] = array(contourSaliences[i])[keep_idx]
-			else: # totally overlapping
-				rmv_idx.append(i)
-		
-		# remove totally overlapping pitch contours
-		rmv_idx = sorted(rmv_idx, reverse=True)
-		for r in rmv_idx:
-			pitchContours.pop(r)
-			contourSaliences.pop(r)
-			startSamples.pop(r)
+		[startSamples, pitchContours, contourSaliences] = self.RemoveOverlaps(startSamples, pitchContours, contourSaliences, lens, acc_idx)
 
 	# accumulate pitch and salience
    	pitch = array([0.] * (numSamples))
@@ -172,3 +145,38 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
 		salience[startSample:endSample] = contourSaliences_noOverlap[i]
 		
         return pitch, salience.tolist()
+
+
+    def RemoveOverlaps(self, startSamples, pitchContours, contourSaliences, lens, acc_idx):
+	# remove overlaps
+	rmv_idx = []
+	for i in xrange(0, len(startSamples)):
+		#print '_' + str(i) 
+		# create the sample index vector for the checked pitch contour 
+		curr_samp_idx = range(startSamples[i], startSamples[i] + lens[i])
+		
+		# get the non-overlapping samples
+		curr_samp_idx_noOverlap = (list(set(curr_samp_idx) - set(acc_idx)))
+		
+		if curr_samp_idx_noOverlap:			
+			
+			temp = min(curr_samp_idx_noOverlap)
+			keep_idx = range(temp-startSamples[i], (max(curr_samp_idx_noOverlap)-startSamples[i])+1)
+
+			# remove all overlapping values
+			pitchContours[i] = array(pitchContours[i])[keep_idx]
+			contourSaliences[i] = array(contourSaliences[i])[keep_idx]
+			# update the startSample
+			startSamples[i] = temp
+		else: # totally overlapping
+			rmv_idx.append(i)
+	
+	# remove totally overlapping pitch contours
+	rmv_idx = sorted(rmv_idx, reverse=True)
+	for r in rmv_idx:
+		pitchContours.pop(r)
+		contourSaliences.pop(r)
+		startSamples.pop(r)
+	
+	return startSamples, pitchContours, contourSaliences
+
