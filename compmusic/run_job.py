@@ -12,6 +12,7 @@ import logging
 import json
 import compmusic
 from compmusic import extractors
+import numpy as np
 
 logger = logging.getLogger("extractor")
 #ch = logging.StreamHandler()
@@ -77,18 +78,24 @@ def load_module(modulepath):
     else:
         return None
 
+class NumPyArangeEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()  # or map(int, obj)
+        return json.JSONEncoder.default(self, obj)
+
 def save_data(module, data):
-    output = module.__output__
+    modulemeta = module.__output__
     mbid = module.musicbrainz_id
     for key, d in data.items():
-        ext = output[key]["extension"]
-        if output[key].get("parts", False) is False:
+        ext = modulemeta[key]["extension"]
+        if modulemeta[key].get("parts", False) is False:
             d = [d]
         for i in range(len(d)):
             fname = "%s-%s-%s.%s" % (mbid, key, i, ext)
             print "Writing output for type %s to %s" % (key, fname)
-            if output[key]["mimetype"] == "application/json":
-                output = json.dumps(d[i])
+            if modulemeta[key]["mimetype"] == "application/json":
+                output = json.dumps(d[i], cls=NumPyArangeEncoder)
             else:
                 output = d[i]
             open(fname, "wb").write(output)
