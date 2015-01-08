@@ -39,7 +39,7 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
                           sampleRate = 44100,
                           binResolution = 7.5, 
                           guessUnvoiced = True,
-                          type = 'hann',
+                          filterType = 'hann',
                           minFrequency = 20,
                           maxFrequency = 20000,
                           maxPeaks = 100,
@@ -48,7 +48,7 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
                           peakDistributionThreshold = 1.4)
 
     def run(self, fname):
-        run_windowing = Windowing(type=self.settings.type, zeroPadding = 3 * self.settings.frameSize) # Hann window with x4 zero padding
+        run_windowing = Windowing(filterType=self.settings.filterType, zeroPadding = 3 * self.settings.frameSize) # Hann window with x4 zero padding
         run_spectrum = Spectrum(size=self.settings.frameSize * 4)
 
         run_spectral_peaks = SpectralPeaks(minFrequency=self.settings.minFrequency,
