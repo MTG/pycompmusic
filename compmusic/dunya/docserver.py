@@ -1,16 +1,16 @@
 # Copyright 2013,2014 Music Technology Group - Universitat Pompeu Fabra
-# 
+#
 # This file is part of Dunya
-# 
+#
 # Dunya is free software: you can redistribute it and/or modify it under the
 # terms of the GNU Affero General Public License as published by the Free Software
 # Foundation (FSF), either version 3 of the License, or (at your option) any later
 # version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT ANY
 # WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
 
@@ -36,7 +36,7 @@ def document(recordingid):
 
     :param recordingid: Musicbrainz recording ID
     :returns: a list of filetypes in the database for this recording
-      
+
     """
     path = "document/by-id/%s" % recordingid
     recording = conn._dunya_query_json(path)
@@ -51,7 +51,7 @@ def file_for_document(recordingid, thetype, subtype=None, part=None, version=Non
     :param part: the file part if the module has one
     :param version: a specific version, otherwise the most recent one will be used
     :returns: The contents of the most recent version of the derived file
-      
+
     """
     path = "document/by-id/%s/%s" % (recordingid, thetype)
     args = {}
@@ -62,6 +62,9 @@ def file_for_document(recordingid, thetype, subtype=None, part=None, version=Non
     if version:
         args["v"] = version
     return conn._dunya_query_file(path, **args)
+
+def get_mp3(recordingid):
+    return file_for_document(recordingid, "mp3")
 
 def get_document_as_json(recordingid, thetype, subtype=None, part=None, version=None):
     """ Get a derived filetype and load it as json.

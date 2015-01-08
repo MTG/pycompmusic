@@ -24,20 +24,25 @@ from numpy import size
 from numpy import array
 from numpy import vstack
 from numpy import transpose
+import scipy.io
+import cStringIO
 #from numpy import savetxt
 
 class PitchExtractMakam(compmusic.extractors.ExtractorModule):
-    __version__ = "0.3"
+    __version__ = "0.4"
     __sourcetype__ = "mp3"
     __slug__ = "makampitch"
 #    __depends__ = ""
-    __output__ = {"pitch": {"extension": "json", "mimetype": "application/json"}}
+    __output__ = {"pitch": {"extension": "json", "mimetype": "application/json"},
+                  "matlab": {"extension": "mat", "mimetype": "application/octet-stream"},
+                  "settings": {"extension": "json", "mimetype": "application/json"}
+                  }
 
     def setup(self):
         self.add_settings(hopSize = 128,
                           frameSize = 2048,
                           sampleRate = 44100,
-                          binResolution = 7.5, 
+                          binResolution = 7.5,
                           guessUnvoiced = True,
                           filterType = 'hann',
                           minFrequency = 20,
@@ -89,7 +94,7 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
               pool['allframes_salience_peaks_contourSaliences'])
 
         [pitch, pitch_salience] = self.ContourSelection(contours_bins,contours_contourSaliences,contours_start_times,duration)
-	
+
 	# cent to Hz conversion
         pitch = [0. if p == 0 else 55.*(2.**(((self.settings.binResolution*(p)))/1200)) for p in pitch]
 
@@ -98,7 +103,12 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
 
 	out = transpose(vstack((time_stamps, pitch, pitch_salience)))
 	#savetxt('test_new.txt', out, delimiter="\t")
-        return {'pitch': out}
+        matout = cStringIO.StringIO()
+        matob = {"pitch": out.tolist()}
+        scipy.io.savemat(matout, matob)
+        return {'pitch': out,
+                'matlab': matout.getvalue(),
+                'settings': self.settings}
 
     def ContourSelection(self,pitchContours,contourSaliences,startTimes,duration):
         sampleRate = self.settings.sampleRate
@@ -109,7 +119,7 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
 
 	#Start points of the contours in samples
 	startSamples = [int(round(startTimes[i] * sampleRate/float(hopSize))) for i in xrange(0,len(startTimes))]
-	
+
 	pitchContours_noOverlap = []
 	startSamples_noOverlap = []
 	contourSaliences_noOverlap = []
@@ -143,7 +153,7 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
 
 		pitch[startSample:endSample] = pitchContours_noOverlap[i]
 		salience[startSample:endSample] = contourSaliences_noOverlap[i]
-		
+
         return pitch, salience.tolist()
 
 
@@ -151,15 +161,15 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
 	# remove overlaps
 	rmv_idx = []
 	for i in xrange(0, len(startSamples)):
-		#print '_' + str(i) 
-		# create the sample index vector for the checked pitch contour 
+		#print '_' + str(i)
+		# create the sample index vector for the checked pitch contour
 		curr_samp_idx = range(startSamples[i], startSamples[i] + lens[i])
-		
+
 		# get the non-overlapping samples
 		curr_samp_idx_noOverlap = (list(set(curr_samp_idx) - set(acc_idx)))
-		
-		if curr_samp_idx_noOverlap:			
-			
+
+		if curr_samp_idx_noOverlap:
+
 			temp = min(curr_samp_idx_noOverlap)
 			keep_idx = range(temp-startSamples[i], (max(curr_samp_idx_noOverlap)-startSamples[i])+1)
 
@@ -170,13 +180,13 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
 			startSamples[i] = temp
 		else: # totally overlapping
 			rmv_idx.append(i)
-	
+
 	# remove totally overlapping pitch contours
 	rmv_idx = sorted(rmv_idx, reverse=True)
 	for r in rmv_idx:
 		pitchContours.pop(r)
 		contourSaliences.pop(r)
 		startSamples.pop(r)
-	
+
 	return startSamples, pitchContours, contourSaliences
 
