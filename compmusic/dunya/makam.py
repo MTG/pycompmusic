@@ -262,6 +262,7 @@ def download_mp3(recordingid, location):
     contents = docserver.get_mp3(recordingid)
     path = os.path.join(location, name)
     open(path, "wb").write(contents)
+    return path
 
 def download_release(releaseid, location):
     """Download the mp3s of all recordings in a release and save
