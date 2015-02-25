@@ -275,11 +275,15 @@ def download_release(releaseid, location):
     if not os.path.exists(location):
         raise Exception("Location %s doesn't exist; can't save" % location)
 
-    release = get_release(release_id)
+    release = get_release(releaseid)
     artists = " and ".join([a["name"] for a in release["release_artists"]])
     releasename = release["title"]
     releasedir = os.path.join(location, "%s - %s" % (artists, releasename))
-    for r in release["tracks"]:
+
+    if not os.path.exists(releasedir):
+        os.makedirs(releasedir)
+
+    for r in release["recordings"]:
         rid = r["mbid"]
         title = r["title"]
         contents = docserver.get_mp3(rid)
