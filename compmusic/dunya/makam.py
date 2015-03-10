@@ -1,6 +1,10 @@
 import os
 import requests
 import logging
+
+import unicodedata
+import re
+
 logger = logging.getLogger("dunya")
 
 import conn
@@ -239,49 +243,72 @@ def get_usul(uid):
     """
     return conn._dunya_query_json("api/makam/usul/%s" % str(uid))
 
-def download_mp3(recordingid, location):
+def download_mp3(recordingid, location, slugify = False):
     """Download the mp3 of a document and save it to the specificed directory.
 
     :param recordingid: The MBID of the recording
     :param location: Where to save the mp3 to
-
+    :param slugify: Boolean specifying whether to slugify the filepath or not
     """
     if not os.path.exists(location):
         raise Exception("Location %s doesn't exist; can't save" % location)
 
     recording = get_recording(recordingid)
     title = recording["title"]
+    title = slugify_tr(title) if slugify else title
+
     rels = recording["releases"]
     if rels:
         release = get_release(rels[0]["mbid"])
         artists = " and ".join([a["name"] for a in release["release_artists"]])
-        name = "%s - %s.mp3" % (artists, title)
+        artists = slugify_tr(artists) if slugify else title
+        
+        name = "%s_%s.mp3" % (artists, title)
     else:
         name = "%s.mp3" % title
 
     contents = docserver.get_mp3(recordingid)
     path = os.path.join(location, name)
     open(path, "wb").write(contents)
+    return path
 
-def download_release(releaseid, location):
+def download_release(releaseid, location, slugify = False):
     """Download the mp3s of all recordings in a release and save
     them to the specificed directory.
 
     :param release: The MBID of the release
     :param location: Where to save the mp3s to
-
+    :param slugify: Boolean specifying whether to slugify the filepath or not
     """
     if not os.path.exists(location):
         raise Exception("Location %s doesn't exist; can't save" % location)
 
-    release = get_release(release_id)
+    release = get_release(releaseid)
     artists = " and ".join([a["name"] for a in release["release_artists"]])
+    artists = slugify_tr(artists) if slugify else artists
+
     releasename = release["title"]
-    releasedir = os.path.join(location, "%s - %s" % (artists, releasename))
-    for r in release["tracks"]:
+    releasename = slugify_tr(releasename) if slugify else releasename
+    releasedir = os.path.join(location, "%s_%s" % (artists, releasename))
+
+    if not os.path.exists(releasedir):
+        os.makedirs(releasedir)
+
+    for r in release["recordings"]:
         rid = r["mbid"]
         title = r["title"]
+        title = slugify_tr(title) if slugify else title
+
+        track = r["track"]
         contents = docserver.get_mp3(rid)
-        name = "%s - %s.mp3" % (artists, title)
+        name = "%d_%s_%s.mp3" % (track, artists, title)
         path = os.path.join(releasedir, name)
         open(path, "wb").write(contents)
+
+def slugify_tr(value):  
+    
+    value_slug = value.replace(u'\u0131', 'i')
+    value_slug = unicodedata.normalize('NFKD', value_slug).encode('ascii', 'ignore').decode('ascii')
+    value_slug = re.sub('[^\w\s-]', '', value_slug).strip()
+    
+    return re.sub('[-\s]+', '-', value_slug)
