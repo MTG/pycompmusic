@@ -171,7 +171,7 @@ def get_forms():
 
     returns: A list of dictionaries containing form information::
 
-        {"id": form id,
+        {"uuid": form uuid,
          "name": Name of the form
         }
 
@@ -183,8 +183,8 @@ def get_forms():
 def get_form(fid):
     """ Get specific information about a form.
 
-    :param fid: A form id
-    :returns: id, name, works.
+    :param fid: A form id or uuid
+    :returns: uuid, name, works.
     """
     return conn._dunya_query_json("api/makam/form/%s" % str(fid))
 
@@ -194,7 +194,7 @@ def get_makams():
 
     returns: A list of dictionaries containing makam information::
 
-        {"id": makam id,
+        {"uuid": makam uuid,
          "name": Name of the makam
         }
 
@@ -206,8 +206,8 @@ def get_makams():
 def get_makam(mid):
     """ Get specific information about a makam.
 
-    :param mid: A makam id
-    :returns: id, name, works, taksims, gazels.
+    :param mid: A makam id or uuid
+    :returns: uuid, name, works, taksims, gazels.
 
     the ``taksims`` and ``gazels`` lists are of recordings.
     """
@@ -219,7 +219,7 @@ def get_usuls():
 
     returns: A list of dictionaries containing usul information::
 
-        {"id": usul id,
+        {"uuid": usul uuid,
          "name": Name of the usul
         }
 
@@ -231,8 +231,8 @@ def get_usuls():
 def get_usul(uid):
     """ Get specific information about a usul.
 
-    :param uid: An usul id
-    :returns: id, name, works, taksims, gazels.
+    :param uid: An usul id or uuid
+    :returns: uuid, name, works, taksims, gazels.
 
     the ``taksims`` and ``gazels`` lists are of recordings. They are
     only valid for the usul ``serbest``

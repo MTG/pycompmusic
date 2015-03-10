@@ -142,9 +142,9 @@ def get_raagas():
     """ Get a list of Carnatic raagas in the database.
     This function will automatically page through API results.
 
-    returns: A list of dictionaries containing raaga information::
+    returns: A list of dictionaries containing raaga information:
 
-        {"id": raaga id,
+        {"uuid": raaga uuid,
          "name": name of the raaga
         }
 
@@ -156,9 +156,9 @@ def get_raagas():
 def get_raaga(rid):
     """ Get specific information about a raaga.
 
-    :param rid: A raaga id
+    :param rid: A raaga id or uuid
 
-    :returns: id, name, artists, works, composers.
+    :returns: uuid, name, artists, works, composers.
 
          ``artists`` includes artists with recording- and release-
          level relationships to a recording with this raaga
@@ -172,7 +172,7 @@ def get_taalas():
 
     returns: A list of dictionaries containing taala information::
 
-        {"id": taala id,
+        {"uuid": taala uuid,
          "name": name of the taala
         }
 
@@ -184,8 +184,8 @@ def get_taalas():
 def get_taala(tid):
     """ Get specific information about a taala.
 
-    :param tid: A taala id
-    :returns: id, name, artists, works, composers.
+    :param tid: A taala id or uuid
+    :returns: uuid, name, artists, works, composers.
 
          ``artists`` includes artists with recording- and release-
          level relationships to a recording with this raaga

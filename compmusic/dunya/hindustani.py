@@ -23,7 +23,7 @@ def get_recordings():
     return conn._get_paged_json("api/hindustani/recording")
 
 def get_recording(rmbid):
-    """ Get specific information about a recording. 
+    """ Get specific information about a recording.
 
     Arguments:
     :param rmbid: A recording mbid
@@ -82,7 +82,7 @@ def get_releases():
     return conn._get_paged_json("api/hindustani/release")
 
 def get_release(cmbid):
-    """ Get specific information about a release. 
+    """ Get specific information about a release.
 
     :param cmbid: A release mbid
     :returns: mbid, title, artists, tracks, release artists
@@ -123,7 +123,7 @@ def get_raags():
 
     returns: A list of dictionaries containing raag information::
 
-        {"id": raag id,
+        {"uuid": raag uuid,
          "name": name of the raag
         }
 
@@ -135,10 +135,10 @@ def get_raags():
 def get_raag(rid):
     """ Get specific information about a raag.
     Arguments:
-    :param rid: A raag id
-    :returns: id, name, artists, recordings, composers 
+    :param rid: A raag id or uuid
+    :returns: uuid, name, artists, recordings, composers
 
-             ``artists`` includes artists with recording-level 
+             ``artists`` includes artists with recording-level
              relationships to a recording with this raag
 
     """
@@ -150,24 +150,24 @@ def get_taals():
 
     returns: A list of dictionaries containing taal information::
 
-        {"id": taal id,
+        {"uuid": taal uuid,
          "name": name of the taal
         }
 
     For additional information about each taal use :func:`get_taal`.
-    
+
     """
     return conn._get_paged_json("api/hindustani/taal")
 
 def get_taal(tid):
     """ Get specific information about a taal.
 
-    :param tid: A taal id
-    :returns: id, name, recordings, composers
+    :param tid: A taal id or uuid
+    :returns: uuid, name, recordings, composers
 
     """
     return conn._dunya_query_json("api/hindustani/taal/%s" % str(tid))
-    
+
 def get_layas():
     """ Get a list of Hindustani layas in the database.
     This function will automatically page through API results.
@@ -175,18 +175,18 @@ def get_layas():
     returns: A list of dictionaries containing laya information::
 
         {"id": laya id,
-         "name": name of the laya 
+         "name": name of the laya
         }
 
     For additional information about each laya use :func:`get_laya`.
-    
+
     """
     return conn._get_paged_json("api/hindustani/laya")
 
 def get_laya(lid):
     """ Get specific information about a laya.
 
-    :param lid: A laya id
+    :param lid: A laya id or uuid
     :returns: id, name, recordings
 
     """
@@ -198,8 +198,8 @@ def get_forms():
 
     returns: A list of dictionaries containing form information::
 
-        {"id": form  id,
-         "name": name of the form 
+        {"uuid": form  uuid,
+         "name": name of the form
         }
 
     For additional information about each form use :func:`get_form`
@@ -210,8 +210,8 @@ def get_forms():
 def get_form(fid):
     """ Get specific information about a form.
 
-    :param fid: A form id
-    :returns: id, name, artists, recordings.
+    :param fid: A form id or uuid
+    :returns: uuid, name, artists, recordings.
 
          ``artists`` includes artists with recording- and release-
          level relationships to a recording with this form
