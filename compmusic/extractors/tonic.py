@@ -99,8 +99,13 @@ class TonicVote(compmusic.extractors.ExtractorModule):
 
     __output__ = {"tonic": {"extension": "dat", "mimetype": "text/plain"}}
 
-    carn_colls = ["f8bf7d1e-70d2-44f6-a3cb-5a6ded00be1f", "f96e7215-b2bd-4962-b8c9-2b40c17a1ec6"]
-    hind_colls = ["213347a9-e786-4297-8551-d61788c85c80"]
+    carn_colls = ["f8bf7d1e-70d2-44f6-a3cb-5a6ded00be1f", # Bootleg carnatic
+            "f96e7215-b2bd-4962-b8c9-2b40c17a1ec6", # Dunya carnatic
+            "a163c8f2-b75f-4655-86be-1504ea2944c2" # Carnatic CC
+            ]
+    hind_colls = ["213347a9-e786-4297-8551-d61788c85c80", # Hindustani
+            "6adc54c6-6605-4e57-8230-b85f1de5be2b" # Hindustani CC
+            ]
 
     def _hindustani_artists_for_recording(self, recordingid):
         recording = hindustani.models.Recording.objects.get(mbid=recordingid)
