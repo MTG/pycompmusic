@@ -16,7 +16,7 @@ def set_hostname(hostname):
 
     Arguments:
         hostname: The new dunya hostname to set
-    
+
     """
     global HOSTNAME
     HOSTNAME = hostname
@@ -51,6 +51,17 @@ def _dunya_url_query(url):
     g = requests.get(url, headers=headers)
     g.raise_for_status()
     return g
+
+def _dunya_post(url, data=None, files=None):
+    data = data or {}
+    files = files or {}
+    logger.debug("post to '%s'"%url)
+    if not TOKEN:
+        raise ConnectionError("You need to authenticate with `set_token`")
+    headers = {"Authorization": "Token %s" % TOKEN}
+    p = requests.post(url, headers=headers, data=data, files=files)
+    p.raise_for_status()
+    return p
 
 def _make_url(path, **kwargs):
     if not kwargs:

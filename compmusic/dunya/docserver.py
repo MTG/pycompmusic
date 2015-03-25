@@ -16,6 +16,7 @@
 
 import conn
 import json
+import os
 
 def get_collections():
     """Get a list of all collections in the server."""
@@ -41,6 +42,31 @@ def document(recordingid):
     path = "document/by-id/%s" % recordingid
     recording = conn._dunya_query_json(path)
     return recording
+
+def create_document(collection, document, title=None):
+    path = "/document/by-id/%s" % document
+    data = {"collection": collection}
+    if title:
+        data["title"] = title
+    url = conn._make_url(path)
+    req = conn._dunya_post(url, data=data)
+    return req.json()
+
+def add_sourcetype(document, filetype, file):
+    """ If file is a string and refers to a file on disk, the contents
+        of the file is read and send, otherwise it is sent as-is """
+    path = "/document/by-id/%s/add/%s" % (document, filetype)
+    if isinstance(file, basestring) and os.path.exists(file):
+        f = open(file, "rb")
+    else:
+        f = file
+    files = {"file": f}
+    url = conn._make_url(path)
+    req = conn._dunya_post(url, files=files)
+    return req.json()
+
+def create_and_upload_document(collection, document, filetype, title, file):
+    pass
 
 def file_for_document(recordingid, thetype, subtype=None, part=None, version=None):
     """Get the most recent derived file given a filetype.
