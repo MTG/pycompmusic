@@ -5,9 +5,12 @@ from BeautifulSoup import BeautifulSoup
 import requests
 
 
-def get_session():
+def get_session(credentials):
+	"""
+	credentials is a dictionary with keys 'username' and 'password'.
+	"""
     login_url = 'https://www.swarganga.org/index.php'
-    payload = {'uname': 'gopala.koduri@gmail.com', 'psswd': 'compmusic123', 'remember': 'on',
+    payload = {'uname': credentials['username'], 'psswd': credentials['password'], 'remember': 'on',
                'x': '52', 'y': '24', 'verifylogin': '1', 'redirect': 'https://www.swarganga.org/index.php'}
     s = requests.Session()
     s.post(login_url, data=payload)
