@@ -101,12 +101,20 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
     # generate time stamps
     time_stamps = [s*self.settings.hopSize/float(self.settings.sampleRate) for s in xrange(0,len(pitch))]
 
+    # [time pitch salience] matrix
     out = transpose(vstack((time_stamps, pitch, pitch_salience)))
-    #savetxt('test_new.txt', out, delimiter="\t")
-    matout = cStringIO.StringIO()
-    matob = {"pitch": out.tolist()}
 
+    # matlab 
+    matout = cStringIO.StringIO()
+    matob = {'pitch': out.tolist(), 
+             'version':self.__version__, 
+             'slug':self.__slug__, 
+             'source': fname,
+             'essentiaVersion': essentia.__version__}
+
+    matob.update(self.settings)
     scipy.io.savemat(matout, matob)
+
     return {'pitch': out,
             'matlab': matout.getvalue(),
             'settings': self.settings}
