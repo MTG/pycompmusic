@@ -24,9 +24,10 @@ from numpy import size
 from numpy import array
 from numpy import vstack
 from numpy import transpose
+
+import json
 import scipy.io
 import cStringIO
-#from numpy import savetxt
 
 class PitchExtractMakam(compmusic.extractors.ExtractorModule):
   __version__ = "0.5"
@@ -103,21 +104,25 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
 
     # [time pitch salience] matrix
     out = transpose(vstack((time_stamps, pitch, pitch_salience)))
+    out = out.tolist()
+    
+    # settings
+    settings = self.settings
+    settings.update({'version':self.__version__, 
+            'slug':self.__slug__, 
+            'source': fname,
+            'essentiaVersion': essentia.__version__})
 
     # matlab 
     matout = cStringIO.StringIO()
-    matob = {'pitch': out.tolist(), 
-             'version':self.__version__, 
-             'slug':self.__slug__, 
-             'source': fname,
-             'essentiaVersion': essentia.__version__}
+    matob = {'pitch': out}
+    matob.update(settings)
 
-    matob.update(self.settings)
     scipy.io.savemat(matout, matob)
 
-    return {'pitch': out,
+    return {'pitch': json.dumps(out),
             'matlab': matout.getvalue(),
-            'settings': self.settings}
+            'settings': json.dumps(settings)}
 
   def ContourSelection(self,pitchContours,contourSaliences,startTimes,duration):
     sampleRate = self.settings.sampleRate
