@@ -104,6 +104,13 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
             pool['allframes_salience_peaks_bins'],
             pool['allframes_salience_peaks_contourSaliences'])
 
+    # WARNING: As of 3 April 2015, the values in "contours_start_times" leads the audio
+    # by 1024 + 128 samples if the read audio is in mp3 format as explained in 
+    # https://github.com/MTG/essentia/issues/246. This roots because of the typical
+    # encoder/decoder problems. For now We are advancing the values in "contours_start_times"
+    # by 1152 samples. Uncomment the next line if this problem is fixed.
+    contours_start_times = [c + (1024+128)/self.settings.sampleRate for c in contours_start_times]
+
     # run the simplified contour selection
     [pitch, pitch_salience] = self.ContourSelection(contours_bins,contours_contourSaliences,contours_start_times,duration)
 
