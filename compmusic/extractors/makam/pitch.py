@@ -52,8 +52,6 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
                       frameSize = 2048,
                       sampleRate = 44100,
                       binResolution = 7.5,
-                      guessUnvoiced = True,
-                      filterType = 'hann',
                       minFrequency = 20,
                       maxFrequency = 20000,
                       maxPeaks = 100,
