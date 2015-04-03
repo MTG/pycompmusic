@@ -64,7 +64,7 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
                 'In Proceedings of 3rd International Conference on Audio Technologies ' \
                 'for Music and Media, Ankara, Turkey.'
 
-    run_windowing = Windowing(type=self.settings.filterType, zeroPadding = 3 * self.settings.frameSize) # Hann window with x4 zero padding
+    run_windowing = Windowing(zeroPadding = 3 * self.settings.frameSize) # Hann window with x4 zero padding
     run_spectrum = Spectrum(size=self.settings.frameSize * 4)
 
     run_spectral_peaks = SpectralPeaks(minFrequency=self.settings.minFrequency,
