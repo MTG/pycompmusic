@@ -61,6 +61,11 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
                       peakDistributionThreshold = 1.4)
 
   def run(self, fname):
+    citation = u'Atlı, H. S., Uyar, B., Şentürk, S., Bozkurt, B., and Serra, X. ' \
+                '(2014). Audio feature extraction for exploring Turkish makam music. ' \
+                'In Proceedings of 3rd International Conference on Audio Technologies ' \
+                'for Music and Media, Ankara, Turkey.'
+
     run_windowing = Windowing(type=self.settings.filterType, zeroPadding = 3 * self.settings.frameSize) # Hann window with x4 zero padding
     run_spectrum = Spectrum(size=self.settings.frameSize * 4)
 
@@ -120,7 +125,8 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
             'slug':self.__slug__, 
             'source': fname,
             'essentiaVersion': essentia.__version__,
-            'pitchUnit': 'Hz'})
+            'pitchUnit': 'Hz',
+            'citation': citation})
 
     # matlab 
     matout = cStringIO.StringIO()
