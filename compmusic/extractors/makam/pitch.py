@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright 2013,2014 Music Technology Group - Universitat Pompeu Fabra
 #
 # This file is part of Dunya
@@ -13,6 +14,13 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
+#
+# If you are using this extractor please cite the following paper:
+#
+# Atlı, H. S., Uyar, B., Şentürk, S., Bozkurt, B., and Serra, X. (2014). Audio 
+# feature extraction for exploring Turkish makam music. In Proceedings of 3rd 
+# International Conference on Audio Technologies for Music and Media, Ankara, 
+# Turkey.
 
 import compmusic.extractors
 
@@ -50,7 +58,6 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
                       maxFrequency = 20000,
                       maxPeaks = 100,
                       magnitudeThreshold = 0,
-                      orderBy = "magnitude",
                       peakDistributionThreshold = 1.4)
 
   def run(self, fname):
@@ -62,7 +69,7 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
             maxPeaks = self.settings.maxPeaks,
             sampleRate = self.settings.sampleRate,
             magnitudeThreshold = self.settings.magnitudeThreshold,
-            orderBy = self.settings.orderBy)
+            orderBy = 'magnitude')
 
     run_pitch_salience_function = PitchSalienceFunction(binResolution=self.settings.binResolution) # converts unit to cents, 55 Hz is taken as the default reference
     run_pitch_salience_function_peaks = PitchSalienceFunctionPeaks(binResolution=self.settings.binResolution)
@@ -94,6 +101,7 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
             pool['allframes_salience_peaks_bins'],
             pool['allframes_salience_peaks_contourSaliences'])
 
+    # run the simplified contour selection
     [pitch, pitch_salience] = self.ContourSelection(contours_bins,contours_contourSaliences,contours_start_times,duration)
 
     # cent to Hz conversion
@@ -111,7 +119,8 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
     settings.update({'version':self.__version__, 
             'slug':self.__slug__, 
             'source': fname,
-            'essentiaVersion': essentia.__version__})
+            'essentiaVersion': essentia.__version__,
+            'pitchUnit': 'Hz'})
 
     # matlab 
     matout = cStringIO.StringIO()
