@@ -109,7 +109,7 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
     # https://github.com/MTG/essentia/issues/246. This roots because of the typical
     # encoder/decoder problems. For now We are advancing the values in "contours_start_times"
     # by 1152 samples. Uncomment the next line if this problem is fixed.
-    contours_start_times = [c + (1024+128)/self.settings.sampleRate for c in contours_start_times]
+    contours_start_times = [c + (1024+128)/float(self.settings.sampleRate) for c in contours_start_times]
 
     # run the simplified contour selection
     [pitch, pitch_salience] = self.ContourSelection(contours_bins,contours_contourSaliences,contours_start_times,duration)
