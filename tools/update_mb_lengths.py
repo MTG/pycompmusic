@@ -54,7 +54,7 @@ def update_lenghts(release_mbid, lengths_dic):
         
         tracks = []
         for t in medium['tracks']:
-            length = None
+            length = t['length']
             if t['recording']['gid'] in lengths_dic:
                 length = lengths_dic[t['recording']['gid']]
             artists = []
