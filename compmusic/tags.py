@@ -28,8 +28,12 @@ retaal = r"\btaa?la?[0-9]*\b"
 reraag = r"\braa?ga?[0-9]*\b"
 resection = r"\bsection[0-9]*\b"
 rehindustaniform = r"\bform([0-9])?:? ?(.*)\b"
+recarnaticform = r"\bform([0-9])?:? ?(.*)\b"
 relaya = r"\blaya([0-9])?:? ?(.*)\b"
 
+def has_carnatic_form(tag):
+    """ Carnatic form tag """
+    return re.search(recarnaticform, tag) is not None
 
 def has_raaga(tag):
     """ Carnatic raaga tag """
@@ -131,6 +135,10 @@ def parse_taal(taal):
 def parse_hindustani_form(form):
     form = form.strip()
     return _parse_num_and_value(rehindustaniform, form)
+
+def parse_carnatic_form(form):
+    form = form.strip()
+    return _parse_num_and_value(recarnaticform, form)
 
 def parse_laya(laya):
     laya = laya.strip()
