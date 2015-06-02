@@ -59,10 +59,12 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
                       peakDistributionThreshold = 1.4)
 
   def run(self, fname):
-    citation = u'Atlı, H. S., Uyar, B., Şentürk, S., Bozkurt, B., and Serra, X. ' \
-                '(2014). Audio feature extraction for exploring Turkish makam music. ' \
-                'In Proceedings of 3rd International Conference on Audio Technologies ' \
-                'for Music and Media, Ankara, Turkey.'
+    citation = u"""
+            Atlı, H. S., Uyar, B., Şentürk, S., Bozkurt, B., and Serra, X.
+            (2014). Audio feature extraction for exploring Turkish makam music.
+            In Proceedings of 3rd International Conference on Audio Technologies
+            for Music and Media, Ankara, Turkey.
+            """
 
     run_windowing = Windowing(zeroPadding = 3 * self.settings.frameSize) # Hann window with x4 zero padding
     run_spectrum = Spectrum(size=self.settings.frameSize * 4)
@@ -103,13 +105,6 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
     contours_bins, contours_contourSaliences, contours_start_times, duration = run_pitch_contours(
             pool['allframes_salience_peaks_bins'],
             pool['allframes_salience_peaks_contourSaliences'])
-
-    # WARNING: As of 3 April 2015, the values in "contours_start_times" leads the audio
-    # by 1024 + 128 samples if the read audio is in mp3 format as explained in 
-    # https://github.com/MTG/essentia/issues/246. This roots because of the typical
-    # encoder/decoder problems. For now We are advancing the values in "contours_start_times"
-    # by 1152 samples. Uncomment the next line if this problem is fixed.
-    contours_start_times = [c + (1024+128)/float(self.settings.sampleRate) for c in contours_start_times]
 
     # run the simplified contour selection
     [pitch, pitch_salience] = self.ContourSelection(contours_bins,contours_contourSaliences,contours_start_times,duration)
@@ -188,8 +183,15 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
       startSample = startSamples_noOverlap[i]
       endSample = startSamples_noOverlap[i] + len(pitchContours_noOverlap[i])
 
-      pitch[startSample:endSample] = pitchContours_noOverlap[i]
-      salience[startSample:endSample] = contourSaliences_noOverlap[i]
+      try: 
+        pitch[startSample:endSample] = pitchContours_noOverlap[i]
+        salience[startSample:endSample] = contourSaliences_noOverlap[i]
+
+      except ValueError:
+        print "The last pitch contour exceeds the audio length. Trimming..."
+
+        pitch[startSample:] = pitchContours_noOverlap[i][:len(pitch)-startSample]
+        salience[startSample:] = contourSaliences_noOverlap[i][:len(pitch)-startSample]
 
     return pitch, salience.tolist()
 
