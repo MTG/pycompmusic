@@ -60,5 +60,22 @@ def get_collection_name(collection):
     name = list(list(tree)[0])[0]
     return name.text
 
-def metadata_for_release(releaseid):
-    """ Get the title """
+def get_recordings_from_release(release):
+    rel = mb.get_release_by_id(release, includes=["recordings"])["release"]
+    recordings = []
+    for m in rel.get("medium-list", []):
+        for t in m.get("track-list", []):
+            recordings.append(t["recording"]["id"])
+    return recordings
+
+def get_tags_from_recording(recording):
+    rec = mb.get_recording_by_id(recording, includes=["tags"])["recording"]
+    return rec.get("tag-list", [])
+
+def get_works_from_recording(recording):
+    rec = mb.get_recording_by_id(recording, includes=["work-rels"])["recording"]
+    return rec.get("work-relation-list", [])
+
+def get_work_attributes(workid):
+    work = mb.get_work_by_id(workid)["work"]
+    return work.get("attribute-list", [])
