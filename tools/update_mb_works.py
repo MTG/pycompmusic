@@ -33,7 +33,7 @@ username = '####'
 login_url = '/login'
 work_url = '/work/%s/edit'
 
-auth_token = "8ac576b8e313e56a599a844f9333729aeaa605b1"
+auth_token = "###"
 symbtrmu2_url = 'http://dunya.compmusic.upf.edu/document/by-id/%s/symbtrmu2'
 dunya_fuzzy_url = 'http://dunya.compmusic.upf.edu/api/makam/fuzzy'
 
