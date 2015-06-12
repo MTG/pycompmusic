@@ -24,7 +24,7 @@ import sys
 import compmusic
 import musicbrainzngs as mb
 mb.set_useragent("Dunya", "0.1")
-mb.set_rate_limit(False)
+mb.set_rate_limit(True)
 mb.set_hostname("musicbrainz.org")
 
 domain = "https://musicbrainz.org"
@@ -37,6 +37,7 @@ auth_token = "###"
 symbtrmu2_url = 'http://dunya.compmusic.upf.edu/document/by-id/%s/symbtrmu2'
 dunya_fuzzy_url = 'http://dunya.compmusic.upf.edu/api/makam/fuzzy'
 
+mb_cache = {}
 
 def get_symbtrmu2(work_mbid):
     # Get symbtrmu2 file and extract makam, form and usul
@@ -188,7 +189,8 @@ def get_session_id():
     return ""
 
 def update_mb_work(work_mbid, makam, form, usul, output_file):
-    global domain, work_url
+    global domain, work_url, mb_cache
+    
     print "Updating MB work %s, generating session id" % work_mbid
     session = get_session_id()
     
@@ -202,18 +204,21 @@ def update_mb_work(work_mbid, makam, form, usul, output_file):
     res_json = match_obj.group(1)
     work = json.loads(res_json)
     
-    match_obj = re.search(r'.*allowedValues: (.*),\n', html)
-    res_json = match_obj.group(1)
-    values = json.loads(res_json)
+    if len(mb_cache) == 0:
+        match_obj = re.search(r'.*allowedValues: (.*),\n', html)
+        res_json = match_obj.group(1)
+        values = json.loads(res_json)
+
+        for i in values['children']:
+            mb_cache[i['value'].encode("utf-8")] = i['id']
 
     makam_id, form_id, usul_id = (None, None, None)
-    for i in values['children']:
-        if i['value'].encode("utf-8") == makam:
-            makam_id = i['id']
-        elif i['value'].encode("utf-8") == form:
-            form_id = i['id']
-        elif i['value'].encode("utf-8") == usul:
-            usul_id = i['id']
+    if makam in mb_cache:
+        makam_id = mb_cache[makam]
+    if form in mb_cache:
+        form_id = mb_cache[form]
+    if usul in mb_cache:
+        usul_id = mb_cache[usul]
 
     if not makam_id:
         raise ElementNotFoundException("Makam %s not present in Musicbrainz" % makam)
