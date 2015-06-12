@@ -191,20 +191,17 @@ def get_session_id():
 def update_mb_work(work_mbid, makam, form, usul, output_file):
     global domain, work_url, mb_cache
     
-    print "Updating MB work %s, generating session id" % work_mbid
-    session = get_session_id()
-    
-    print "Retrieving id of makam, form and usul by parsing html "
-    request = urllib2.Request(domain + (work_url % work_mbid))
-    request.add_header("Cookie",'musicbrainz_server_session=' + session)
-    opener = urllib2.build_opener()
-    res = opener.open(request)
-    html = res.read()
-    match_obj = re.search(r'.*sourceData: (.*),\n', html)
-    res_json = match_obj.group(1)
-    work = json.loads(res_json)
-    
     if len(mb_cache) == 0:
+        print "Updating MB work %s, generating session id" % work_mbid
+        session = get_session_id()
+
+        print "Retrieving id of makam, form and usul by parsing html "
+        request = urllib2.Request(domain + (work_url % work_mbid))
+        request.add_header("Cookie",'musicbrainz_server_session=' + session)
+        opener = urllib2.build_opener()
+        res = opener.open(request)
+        html = res.read()
+
         match_obj = re.search(r'.*allowedValues: (.*),\n', html)
         res_json = match_obj.group(1)
         values = json.loads(res_json)
@@ -231,28 +228,13 @@ def update_mb_work(work_mbid, makam, form, usul, output_file):
     # 16 -> Form
     # 17 -> Usul
     data = {
-        "edit-work.name": work['name'].encode("utf-8"),
-        "edit-work.comment": "",
-        "edit-work.type_id": "",
-        "edit-work.language_id": "",
-        "edit-work.iswcs.0": "",
         "edit-work.attributes.0.type_id": 15,
         "edit-work.attributes.0.value": makam_id,
         "edit-work.attributes.1.type_id": 16,
         "edit-work.attributes.1.value": form_id,
         "edit-work.attributes.2.type_id": 17,
         "edit-work.attributes.2.value": usul_id,
-        "edit-work.edit_note": ""
         } 
-    
-    for i, r in list(enumerate(work['relationships'])):
-        data["edit-work.rel.%d.relationship_id" % i] = r['id']
-        data["edit-work.rel.%d.target" % i] = r['target']['gid']
-        if r['direction'] == 'backward':
-            data["edit-work.rel.%d.backward" % i] = 1
-        else:
-            data["edit-work.rel.%d.backward" % i] = 0
-        data["edit-work.rel.%d.link_type_id" % i] = r['linkTypeID']
     
     # Make update
     
