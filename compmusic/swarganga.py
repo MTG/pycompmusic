@@ -6,9 +6,10 @@ import requests
 
 
 def get_session(credentials):
-	"""
-	credentials is a dictionary with keys 'username' and 'password'.
-	"""
+    """
+    credentials is a dictionary with keys 'username' and 'password'.
+    """
+
     login_url = 'https://www.swarganga.org/index.php'
     payload = {'uname': credentials['username'], 'psswd': credentials['password'], 'remember': 'on',
                'x': '52', 'y': '24', 'verifylogin': '1', 'redirect': 'https://www.swarganga.org/index.php'}
@@ -116,7 +117,7 @@ def get_taala(url, session=None):
         taala_info[tds[0].text.lower()] = tds[1].text
         taala_info[tds[2].text.lower()] = tds[3].text
 
-    #TODO Bols are to be obtained calling a javascript function
+    # TODO Bols are to be obtained calling a javascript function
     # ind = 0
     # for tr in trs:
     #     ind += 1
