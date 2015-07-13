@@ -232,6 +232,20 @@ def get_usuls():
     """
     return conn._get_paged_json("api/makam/usul")
 
+def get_symbtrs():
+    """ Get a list of musicbrainz id - symbtr mappings in the database.
+    This function will automatically page through API results.
+
+    returns: A list of dictionaries containing symbtr information::
+
+        {"uuid": musicbrainz uuid (could be a work id or a recording id),
+         "name": Name of the symbtr track
+        }
+
+    """
+    return conn._get_paged_json("api/makam/symbtr")
+
+
 def get_usul(uid):
     """ Get specific information about a usul.
 
@@ -262,7 +276,7 @@ def download_mp3(recordingid, location, slugify = False):
         release = get_release(rels[0]["mbid"])
         artists = " and ".join([a["name"] for a in release["release_artists"]])
         artists = slugify_tr(artists) if slugify else title
-        
+
         name = "%s_%s.mp3" % (artists, title)
     else:
         name = "%s.mp3" % title
@@ -305,10 +319,10 @@ def download_release(releaseid, location, slugify = False):
         path = os.path.join(releasedir, name)
         open(path, "wb").write(contents)
 
-def slugify_tr(value):  
-    
+def slugify_tr(value):
+
     value_slug = value.replace(u'\u0131', 'i')
     value_slug = unicodedata.normalize('NFKD', value_slug).encode('ascii', 'ignore').decode('ascii')
     value_slug = re.sub('[^\w\s-]', '', value_slug).strip()
-    
+
     return re.sub('[-\s]+', '-', value_slug)
