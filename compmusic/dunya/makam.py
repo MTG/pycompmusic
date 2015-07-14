@@ -257,7 +257,7 @@ def get_usul(uid):
     """
     return conn._dunya_query_json("api/makam/usul/%s" % str(uid))
 
-def download_mp3(recordingid, location, slugify = False):
+def download_mp3(recordingid, location, slugify=False):
     """Download the mp3 of a document and save it to the specificed directory.
 
     :param recordingid: The MBID of the recording
@@ -270,6 +270,7 @@ def download_mp3(recordingid, location, slugify = False):
     recording = get_recording(recordingid)
     title = recording["title"]
     title = slugify_tr(title) if slugify else title
+    title = title.replace("/", "_")
 
     rels = recording["releases"]
     if rels:
@@ -277,7 +278,7 @@ def download_mp3(recordingid, location, slugify = False):
         artists = " and ".join([a["name"] for a in release["release_artists"]])
         artists = slugify_tr(artists) if slugify else title
 
-        name = "%s_%s.mp3" % ("%s_%s.mp3" % (artists, title)).replace('/', '_')
+        name = "%s_%s.mp3" % (artists, title)
     else:
         name = "%s.mp3" % title
 
@@ -286,7 +287,7 @@ def download_mp3(recordingid, location, slugify = False):
     open(path, "wb").write(contents)
     return path
 
-def download_release(releaseid, location, slugify = False):
+def download_release(releaseid, location, slugify=False):
     """Download the mp3s of all recordings in a release and save
     them to the specificed directory.
 
@@ -312,6 +313,7 @@ def download_release(releaseid, location, slugify = False):
         rid = r["mbid"]
         title = r["title"]
         title = slugify_tr(title) if slugify else title
+        title = title.replace("/", "_")
 
         track = r["track"]
         contents = docserver.get_mp3(rid)
