@@ -30,7 +30,7 @@ def get_recording(rmbid):
 
     :param rmbid: A recording mbid
 
-    :returns: mbid, title, artists, raaga, taala, work.
+    :returns: mbid, title, releases, performers, work.
 
          ``artists`` includes performance relationships
          attached to the recording, the release, and the release artists.
@@ -56,7 +56,7 @@ def get_artist(ambid):
     """ Get specific information about an artist.
 
     :param ambid: An artist mbid
-    :returns: mbid, name, releases, instruments, recordings.
+    :returns: mbid, name, releases, instruments.
 
          ``releases``, ``instruments`` and ``recordings`` include
          information from recording- and release-level
@@ -137,7 +137,7 @@ def get_work(wmbid):
     """ Get specific information about a work.
 
     :param wmbid: A work mbid
-    :returns: mbid, title, composer, raagas, taalas, recordings
+    :returns: mbid, title, composers, makams, forms, usuls, recordings
 
     """
     return conn._dunya_query_json("api/makam/work/%s" % wmbid)
