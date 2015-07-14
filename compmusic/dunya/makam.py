@@ -277,7 +277,7 @@ def download_mp3(recordingid, location, slugify = False):
         artists = " and ".join([a["name"] for a in release["release_artists"]])
         artists = slugify_tr(artists) if slugify else title
 
-        name = "%s_%s.mp3" % (artists, title)
+        name = "%s_%s.mp3" % ("%s_%s.mp3" % (artists, title)).replace('/', '_')
     else:
         name = "%s.mp3" % title
 
