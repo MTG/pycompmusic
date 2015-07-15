@@ -276,7 +276,7 @@ def download_mp3(recordingid, location, slugify=False):
     if rels:
         release = get_release(rels[0]["mbid"])
         artists = " and ".join([a["name"] for a in release["release_artists"]])
-        artists = slugify_tr(artists) if slugify else title
+        artists = slugify_tr(artists) if slugify else artists
 
         name = "%s_%s.mp3" % (artists, title)
     else:
