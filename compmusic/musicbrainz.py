@@ -17,6 +17,7 @@
 from log import log
 import urllib2
 import xml.etree.ElementTree as etree
+import time
 
 import musicbrainzngs as mb
 mb.set_useragent("Dunya", "0.1")
@@ -27,6 +28,8 @@ MUSICBRAINZ_COLLECTION_CARNATIC = ""
 MUSICBRAINZ_COLLECTION_HINDUSTANI = ""
 MUSICBRAINZ_COLLECTION_MAKAM = ""
 
+headers={"User-Agent": "Dunya/0.1 python-musicbrainzngs"}
+
 def ws_ids(xml):
     ids = []
     tree = etree.fromstring(xml)
@@ -36,26 +39,34 @@ def ws_ids(xml):
     return (count, ids)
 
 
-def get_releases_in_collection(collection):
-    """Get a list of the releases in the specified musicbrainz collection"""
-
-    releases = []
+def _get_items_in_collection(collectionid, collectiontype):
+    items = []
     count = 25
     offset = 0
     while offset < count:
         log.debug("offset", offset)
-        url = "http://musicbrainz.org/ws/2/collection/%s/releases?offset=%d" % (collection, offset)
-        req = urllib2.Request(url, headers={"User-Agent": "Dunya/0.1 python-musicbrainzngs"})
+        url = "https://beta.musicbrainz.org/ws/2/collection/%s/%s?offset=%d" % (collectionid, collectiontype, offset)
+        req = urllib2.Request(url, headers=headers)
         xml = urllib2.urlopen(req).read()
         count, ids = ws_ids(xml)
-        releases.extend(ids)
+        items.extend(ids)
         offset += 25
-    return releases
+        time.sleep(0.5)
+    return items
+
+def get_releases_in_collection(collection):
+    """Get a list of the releases in the specified musicbrainz collection"""
+    return _get_items_in_collection(collection, "releases")
+
+def get_works_in_collection(collection):
+    """Get a list of the works in the specified musicbrainz collection"""
+    return _get_items_in_collection(collection, "works")
 
 def get_collection_name(collection):
     """ Get the name of a collection """
     url = "http://musicbrainz.org/ws/2/collection/%s/releases" % (collection, )
-    xml = urllib2.urlopen(url).read()
+    req = urllib2.Request(url, headers=headers)
+    xml = urllib2.urlopen(req).read()
     tree = etree.fromstring(xml)
     name = list(list(tree)[0])[0]
     return name.text
