@@ -30,7 +30,7 @@ def get_recording(rmbid):
 
     :param rmbid: A recording mbid
 
-    :returns: mbid, title, artists, raaga, taala, work.
+    :returns: mbid, title, releases, performers, work.
 
          ``artists`` includes performance relationships
          attached to the recording, the release, and the release artists.
@@ -56,7 +56,7 @@ def get_artist(ambid):
     """ Get specific information about an artist.
 
     :param ambid: An artist mbid
-    :returns: mbid, name, releases, instruments, recordings.
+    :returns: mbid, name, releases, instruments.
 
          ``releases``, ``instruments`` and ``recordings`` include
          information from recording- and release-level
@@ -137,7 +137,7 @@ def get_work(wmbid):
     """ Get specific information about a work.
 
     :param wmbid: A work mbid
-    :returns: mbid, title, composer, raagas, taalas, recordings
+    :returns: mbid, title, composers, makams, forms, usuls, recordings
 
     """
     return conn._dunya_query_json("api/makam/work/%s" % wmbid)
@@ -232,6 +232,20 @@ def get_usuls():
     """
     return conn._get_paged_json("api/makam/usul")
 
+def get_symbtrs():
+    """ Get a list of musicbrainz id - symbtr mappings in the database.
+    This function will automatically page through API results.
+
+    returns: A list of dictionaries containing symbtr information::
+
+        {"uuid": musicbrainz uuid (could be a work id or a recording id),
+         "name": Name of the symbtr track
+        }
+
+    """
+    return conn._get_paged_json("api/makam/symbtr")
+
+
 def get_usul(uid):
     """ Get specific information about a usul.
 
@@ -243,7 +257,7 @@ def get_usul(uid):
     """
     return conn._dunya_query_json("api/makam/usul/%s" % str(uid))
 
-def download_mp3(recordingid, location, slugify = False):
+def download_mp3(recordingid, location, slugify=False):
     """Download the mp3 of a document and save it to the specificed directory.
 
     :param recordingid: The MBID of the recording
@@ -256,13 +270,14 @@ def download_mp3(recordingid, location, slugify = False):
     recording = get_recording(recordingid)
     title = recording["title"]
     title = slugify_tr(title) if slugify else title
+    title = title.replace("/", "_")
 
     rels = recording["releases"]
     if rels:
         release = get_release(rels[0]["mbid"])
         artists = " and ".join([a["name"] for a in release["release_artists"]])
-        artists = slugify_tr(artists) if slugify else title
-        
+        artists = slugify_tr(artists) if slugify else artists
+
         name = "%s_%s.mp3" % (artists, title)
     else:
         name = "%s.mp3" % title
@@ -272,7 +287,7 @@ def download_mp3(recordingid, location, slugify = False):
     open(path, "wb").write(contents)
     return path
 
-def download_release(releaseid, location, slugify = False):
+def download_release(releaseid, location, slugify=False):
     """Download the mp3s of all recordings in a release and save
     them to the specificed directory.
 
@@ -298,6 +313,7 @@ def download_release(releaseid, location, slugify = False):
         rid = r["mbid"]
         title = r["title"]
         title = slugify_tr(title) if slugify else title
+        title = title.replace("/", "_")
 
         track = r["track"]
         contents = docserver.get_mp3(rid)
@@ -305,10 +321,10 @@ def download_release(releaseid, location, slugify = False):
         path = os.path.join(releasedir, name)
         open(path, "wb").write(contents)
 
-def slugify_tr(value):  
-    
+def slugify_tr(value):
+
     value_slug = value.replace(u'\u0131', 'i')
     value_slug = unicodedata.normalize('NFKD', value_slug).encode('ascii', 'ignore').decode('ascii')
     value_slug = re.sub('[^\w\s-]', '', value_slug).strip()
-    
+
     return re.sub('[-\s]+', '-', value_slug)
