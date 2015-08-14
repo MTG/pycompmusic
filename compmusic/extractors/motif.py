@@ -25,7 +25,6 @@ class MotiveExtract(compmusic.extractors.ExtractorModule):
     __slug__ = "motive"
 
     def run(self, fname):
-        
         audio = essentia.standard.MonoLoader(filename=fname)()
         # sankalp to finish
 

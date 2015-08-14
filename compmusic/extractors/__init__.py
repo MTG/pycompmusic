@@ -61,6 +61,12 @@ class ExtractorModule(object):
     """
     __output__ = None
 
+    """
+    The many_files flag indicates if the `run` method receives one file or many files
+    as input
+    """
+    __many_files__ = None
+
     def __init__(self, **kwargs):
         """Set up the logger, and run a setup method if it's been defined."""
         self.logger = log.get_logger(self.__slug__, self.__version__)
@@ -101,15 +107,18 @@ class ExtractorModule(object):
         """
         pass
 
-    def process_document(self, collectionid, docid, sourcefileid, musicbrainzid, fname):
+    def process_document(self, docid, sourcefileid, musicbrainzid, fname):
         """ Set up some class state and call run. This should
         never be called publicly """
-        self.document_id = docid
-        self.logger.set_documentid(docid)
-        self.logger.set_sourcefileid(sourcefileid)
-        self.musicbrainz_id = musicbrainzid
-        self.collection_id = collectionid
-        return self.run(fname)
+        try:
+            self.document_id = docid
+            self.logger.set_documentid(docid)
+            self.logger.set_sourcefileid(sourcefileid)
+            self.musicbrainz_id = musicbrainzid
+            return self.run(fname)
+        except Exception, e:
+            self.logger.error(e)
+            raise e
 
     def run(self, fname):
         """Overwrite this to process a file. If you need the document ID then it's available at
