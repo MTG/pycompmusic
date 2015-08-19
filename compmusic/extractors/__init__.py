@@ -65,7 +65,7 @@ class ExtractorModule(object):
     The many_files flag indicates if the `run` method receives one file or many files
     as input
     """
-    __many_files__ = None
+    __many_files__ = False
 
     def __init__(self, **kwargs):
         """Set up the logger, and run a setup method if it's been defined."""
@@ -130,3 +130,4 @@ class ExtractorModule(object):
         """Add some global settings"""
         for k, v in kwargs.items():
             self.settings[k] = v
+
