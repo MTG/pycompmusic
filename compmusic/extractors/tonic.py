@@ -154,7 +154,7 @@ class TonicVote(compmusic.extractors.ExtractorModule):
             return json.loads(tonics)
 
         if tonics is None:
-            recordings = self._recordings_for_artist(artistid)d
+            recordings = self._recordings_for_artist(artistid)
             tonics = []
             for r in recordings:
                 tonic = self._get_tonic(r)
