@@ -47,6 +47,8 @@ class AudioImages(compmusic.extractors.ExtractorModule):
             "smallfull": {"extension": "png", "mimetype": "image/png"}
         }
 
+    __zoom_levels__ =  [4, 8, 16, 32]
+
     def make_mini(self, wavfname):
         smallfulloptions = coll.namedtuple('options', 'image_height fft_size image_width')
         smallfulloptions.fft_size = 4096
@@ -68,7 +70,7 @@ class AudioImages(compmusic.extractors.ExtractorModule):
 
         panelWidth = 900		              # pixels
         panelHeight = 255		              # pixels
-        zoomlevels = [4, 8, 16, 32]           	      # seconds
+        zoomlevels = self.__zoom_levels__      	      # seconds
         options = coll.namedtuple('options', 'image_height fft_size image_width')
         options.image_height = panelHeight
         options.fft_size = 31
@@ -129,4 +131,21 @@ class AudioImages(compmusic.extractors.ExtractorModule):
             os.unlink(wavfname)
 
         return ret
+
+
+class MakamAudioImage(AudioImages):
+    __version__ = "0.1"
+    __sourcetype__ = "mp3"
+    __slug__ = "makamaudioimages"
+
+    __depends__ = "wav"
+
+    __output__ = {
+            "waveform32": {"extension": "png", "mimetype": "image/png", "parts": True},
+            "spectrum32": {"extension": "png", "mimetype": "image/png", "parts": True},
+            "smallfull": {"extension": "png", "mimetype": "image/png"}
+        }
+
+    __zoom_levels__ =  [32]
+
 
