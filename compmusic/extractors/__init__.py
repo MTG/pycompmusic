@@ -66,7 +66,9 @@ class ExtractorModule(object):
     as input
     """
     __many_files__ = False
-
+    
+    hostname = "(unknown)"
+    
     def __init__(self, **kwargs):
         """Set up the logger, and run a setup method if it's been defined."""
         self.logger = log.get_logger(self.__slug__, self.__version__)
@@ -115,6 +117,7 @@ class ExtractorModule(object):
             self.logger.set_documentid(docid)
             self.logger.set_sourcefileid(sourcefileid)
             self.musicbrainz_id = musicbrainzid
+            self.logger.info("Worker %s" % self.hostname)
             return self.run(fname)
         except Exception, e:
             self.logger.error(e)
