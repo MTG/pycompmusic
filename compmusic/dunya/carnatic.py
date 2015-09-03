@@ -6,13 +6,9 @@ logger = logging.getLogger("dunya")
 import conn
 import docserver
 
-def get_recordings(collections=None):
+def get_recordings():
     """ Get a list of carnatic recordings in the database.
     This function will automatically page through API results.
-
-    :param collections: This parameter is optional, list of mbid of
-        collections that must be included in the query
-        If None then includes all collections
 
     returns: A list of dictionaries containing recording information::
 
@@ -23,12 +19,7 @@ def get_recordings(collections=None):
     For additional information about each recording use :func:`get_recording`.
 
     """
-    extra_headers = None
-    if collections:
-        extra_headers = {}
-        extra_headers['HTTP_DUNYA_COLLECTION'] = ','.join(collections)
-    
-    return conn._get_paged_json("api/carnatic/recording", extra_headers=extra_headers)
+    return conn._get_paged_json("api/carnatic/recording")
 
 def get_recording(rmbid):
     """ Get specific information about a recording.
@@ -43,14 +34,9 @@ def get_recording(rmbid):
     """
     return conn._dunya_query_json("api/carnatic/recording/%s" % rmbid)
 
-def get_artists(collections=None):
+def get_artists():
     """ Get a list of Carnatic artists in the database.
     This function will automatically page through API results.
-
-    :param collections: This parameter is optional, list of mbid of
-        collections that must be included in the query
-        If None then includes all collections
-
 
     returns: A list of dictionaries containing artist information::
 
@@ -60,21 +46,14 @@ def get_artists(collections=None):
     For additional information about each artist use :func:`get_artist`
 
     """
-    extra_headers = None
-    if collections:
-        extra_headers = {}
-        extra_headers['HTTP_DUNYA_COLLECTION'] = ','.join(collections)
-    
-    return conn._get_paged_json("api/carnatic/artist", extra_headers=extra_headers)
+   
+    return conn._get_paged_json("api/carnatic/artist")
 
-def get_artist(ambid, collections=None):
+def get_artist(ambid):
     """ Get specific information about an artist.
 
     :param ambid: An artist mbid
-    :param collections: This parameter is optional, list of mbid of
-        collections that must be included in the query
-        If None then includes all collections
-
+    
     :returns: mbid, name, concerts, instruments, recordings.
 
          ``concerts``, ``instruments`` and ``recordings`` include
@@ -82,23 +61,11 @@ def get_artist(ambid, collections=None):
          relationships, as well as release artists
 
     """
-    extra_headers = None
-    if collections:
-        extra_headers = {}
-        extra_headers['HTTP_DUNYA_COLLECTION'] = ','.join(collections)
+    return conn._dunya_query_json("api/carnatic/artist/%s" % (ambid))
 
-    return conn._dunya_query_json("api/carnatic/artist/%s" % (ambid), extra_headers=extra_headers)
-
-def get_concerts(collections=None):
+def get_concerts():
     """ Get a list of Carnatic concerts in the database.
     This function will automatically page through API results.
-
-    :param with_bootlegs: If True and you are authenticated as a staff user
-        include bootleg concerts
-    :param collections: This parameter is optional, list of mbid of
-        collections that must be included in the query
-        If None then includes all collections
-
 
     returns: A list of dictionaries containing concert information::
 
@@ -109,11 +76,7 @@ def get_concerts(collections=None):
     For additional information about each concert use :func:`get_concert`
 
     """
-    extra_headers = None
-    if collections:
-        extra_headers = {}
-        extra_headers['HTTP_DUNYA_COLLECTION'] = ','.join(collections)
-    return conn._get_paged_json("api/carnatic/concert", extra_headers=extra_headers)
+    return conn._get_paged_json("api/carnatic/concert")
 
 def get_concert(cmbid):
     """ Get specific information about a concert.
@@ -142,22 +105,14 @@ def get_works():
     """
     return conn._get_paged_json("api/carnatic/work")
 
-def get_work(wmbid, collections=None):
+def get_work(wmbid):
     """ Get specific information about a work.
 
     :param wmbid: A work mbid
-    :param collections: This parameter is optional, list of mbid of
-        collections that must be included in the query
-        If None then includes all collections
-
-    :returns: mbid, title, composers, raagas, taalas, recordings
+        :returns: mbid, title, composers, raagas, taalas, recordings
 
     """
-    extra_headers = None
-    if collections:
-        extra_headers = {}
-        extra_headers['HTTP_DUNYA_COLLECTION'] = ','.join(collections)
-    return conn._dunya_query_json("api/carnatic/work/%s" % (wmbid), extra_headers=extra_headers)
+    return conn._dunya_query_json("api/carnatic/work/%s" % (wmbid))
 
 def get_raagas():
     """ Get a list of Carnatic raagas in the database.
