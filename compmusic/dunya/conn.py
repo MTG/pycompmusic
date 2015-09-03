@@ -7,7 +7,6 @@ logger = logging.getLogger("dunya")
 
 HOSTNAME = "dunya.compmusic.upf.edu"
 TOKEN = None
-COLLECTIONS = None
 
 class ConnectionError(Exception):
     pass
@@ -21,18 +20,6 @@ def set_hostname(hostname):
     """
     global HOSTNAME
     HOSTNAME = hostname
-
-def set_collections(collections):
-    """ Set a list of collections mbid to restrict the queries.
-    You must call this before you can make any other calls, otherwise 
-    they won't be restricted.
-
-    Arguments:
-        collections: list of collections mbids
-
-    """
-    global COLLECTIONS
-    COLLECTIONS = collections
 
 
 def set_token(token):
@@ -51,20 +38,22 @@ def _get_paged_json(path, **kwargs):
     logger.debug("initial paged to %s", nxt)
     ret = []
     while nxt:
-        res = _dunya_url_query(nxt)
+        extra_headers = kwargs.get('extra_headers', None)
+        res = _dunya_url_query(nxt, extra_headers=extra_headers)
         res = res.json()
         ret.extend(res.get("results", []))
         nxt = res.get("next")
     return ret
 
-def _dunya_url_query(url):
+def _dunya_url_query(url, extra_headers=None):
     logger.debug("query to '%s'"%url)
     if not TOKEN:
         raise ConnectionError("You need to authenticate with `set_token`")
+    
     headers = {"Authorization": "Token %s" % TOKEN}
-    if COLLECTIONS:
-        collections = ','.join(COLLECTIONS)
-        headers['HTTP_DUNYA_COLLECTION'] = collections
+    if extra_headers:
+        headers.update(extra_headers)
+    
     g = requests.get(url, headers=headers)
     g.raise_for_status()
     return g

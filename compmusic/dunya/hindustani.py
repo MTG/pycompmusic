@@ -7,6 +7,27 @@ logger = logging.getLogger("dunya")
 import conn
 import docserver
 
+COLLECTIONS = None
+
+def set_collections(collections):
+    """ Set a list of collections mbid to restrict the queries.
+    You must call this before you can make any other calls, otherwise 
+    they won't be restricted.
+
+    Arguments:
+        collections: list of collections mbids
+
+    """
+    global COLLECTIONS
+    COLLECTIONS = collections
+
+def _get_collections():
+    extra_headers = None
+    if COLLECTIONS:
+        extra_headers = {}
+        extra_headers['HTTP_DUNYA_COLLECTION'] = ','.join(collections)
+    return extra_headers
+
 def get_recordings():
     """ Get a list of hindustani recordings in the database.
     This function will automatically page through API results.
@@ -20,7 +41,8 @@ def get_recordings():
     For additional information about each recording use :func:`get_recording`.
 
     """
-    return conn._get_paged_json("api/hindustani/recording")
+    extra_headers = _get_collections()
+    return conn._get_paged_json("api/hindustani/recording", extra_headers=extra_headers)
 
 def get_recording(rmbid):
     """ Get specific information about a recording.
@@ -34,7 +56,8 @@ def get_recording(rmbid):
          to the recording, the release, and the release artists.
 
     """
-    return conn._dunya_query_json("api/hindustani/recording/%s" % rmbid)
+    extra_headers = _get_collections()
+    return conn._dunya_query_json("api/hindustani/recording/%s" % rmbid, extra_headers=extra_headers)
 
 def get_artists():
     """ Get a list of Hindustani artists in the database.
@@ -49,7 +72,8 @@ def get_artists():
     For additional information about each artist use :func:`get_artist`.
 
     """
-    return conn._get_paged_json("api/hindustani/artist")
+    extra_headers = _get_collections()
+    return conn._get_paged_json("api/hindustani/artist", extra_headers=extra_headers)
 
 def get_artist(ambid):
     """ Get specific information about an artist.
@@ -64,7 +88,8 @@ def get_artist(ambid):
              relationships, as well as release artists
 
     """
-    return conn._dunya_query_json("api/hindustani/artist/%s" % ambid)
+    extra_headers = _get_collections()
+    return conn._dunya_query_json("api/hindustani/artist/%s" % ambid, extra_headers=extra_headers)
 
 def get_releases():
     """ Get a list of Hindustani releases in the database.
@@ -79,7 +104,8 @@ def get_releases():
     For additional information about each release use :func:`get_release`.
 
     """
-    return conn._get_paged_json("api/hindustani/release")
+    extra_headers = _get_collections()
+    return conn._get_paged_json("api/hindustani/release", extra_headers=extra_headers)
 
 def get_release(cmbid):
     """ Get specific information about a release.
@@ -91,7 +117,8 @@ def get_release(cmbid):
          to the recordings, the release, and the release artists.
 
     """
-    return conn._dunya_query_json("api/hindustani/release/%s" % cmbid)
+    extra_headers = _get_collections()
+    return conn._dunya_query_json("api/hindustani/release/%s" % cmbid, extra_headers=extra_headers)
 
 def get_works():
     """ Get a list of Hindustani works in the database.
@@ -106,7 +133,8 @@ def get_works():
     For additional information about each work use :func:`get_work`.
 
     """
-    return conn._get_paged_json("api/hindustani/work")
+    extra_headers = _get_collections()
+    return conn._get_paged_json("api/hindustani/work", extra_headers=extra_headers)
 
 def get_work(wmbid):
     """ Get specific information about a work.
@@ -115,7 +143,8 @@ def get_work(wmbid):
     :returns: mbid, title, recordings
 
     """
-    return conn._dunya_query_json("api/hindustani/work/%s" % wmbid)
+    extra_headers = _get_collections()
+    return conn._dunya_query_json("api/hindustani/work/%s" % wmbid, extra_headers=extra_headers)
 
 def get_raags():
     """ Get a list of Hindustani raags in the database.

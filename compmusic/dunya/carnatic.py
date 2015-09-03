@@ -6,6 +6,28 @@ logger = logging.getLogger("dunya")
 import conn
 import docserver
 
+COLLECTIONS = None
+
+def set_collections(collections):
+    """ Set a list of collections mbid to restrict the queries.
+    You must call this before you can make any other calls, otherwise 
+    they won't be restricted.
+
+    Arguments:
+        collections: list of collections mbids
+
+    """
+    global COLLECTIONS
+    COLLECTIONS = collections
+
+def _get_collections():
+    extra_headers = None
+    if COLLECTIONS:
+        extra_headers = {}
+        extra_headers['HTTP_DUNYA_COLLECTION'] = ','.join(COLLECTIONS)
+    return extra_headers
+
+
 def get_recordings():
     """ Get a list of carnatic recordings in the database.
     This function will automatically page through API results.
@@ -19,7 +41,8 @@ def get_recordings():
     For additional information about each recording use :func:`get_recording`.
 
     """
-    return conn._get_paged_json("api/carnatic/recording")
+    extra_headers = _get_collections()
+    return conn._get_paged_json("api/carnatic/recording", extra_headers=extra_headers)
 
 def get_recording(rmbid):
     """ Get specific information about a recording.
@@ -32,7 +55,8 @@ def get_recording(rmbid):
          attached to the recording, the release, and the release artists.
 
     """
-    return conn._dunya_query_json("api/carnatic/recording/%s" % rmbid)
+    extra_headers = _get_collections()
+    return conn._dunya_query_json("api/carnatic/recording/%s" % rmbid, extra_headers=extra_headers)
 
 def get_artists():
     """ Get a list of Carnatic artists in the database.
@@ -47,7 +71,8 @@ def get_artists():
 
     """
    
-    return conn._get_paged_json("api/carnatic/artist")
+    extra_headers = _get_collections()
+    return conn._get_paged_json("api/carnatic/artist", extra_headers=extra_headers)
 
 def get_artist(ambid):
     """ Get specific information about an artist.
@@ -61,7 +86,8 @@ def get_artist(ambid):
          relationships, as well as release artists
 
     """
-    return conn._dunya_query_json("api/carnatic/artist/%s" % (ambid))
+    extra_headers = _get_collections()
+    return conn._dunya_query_json("api/carnatic/artist/%s" % (ambid), extra_headers=extra_headers)
 
 def get_concerts():
     """ Get a list of Carnatic concerts in the database.
@@ -76,7 +102,8 @@ def get_concerts():
     For additional information about each concert use :func:`get_concert`
 
     """
-    return conn._get_paged_json("api/carnatic/concert")
+    extra_headers = _get_collections()
+    return conn._get_paged_json("api/carnatic/concert", extra_headers=extra_headers)
 
 def get_concert(cmbid):
     """ Get specific information about a concert.
@@ -88,7 +115,8 @@ def get_concert(cmbid):
          to the recordings, the release, and the release artists.
 
     """
-    return conn._dunya_query_json("api/carnatic/concert/%s" % cmbid)
+    extra_headers = _get_collections()
+    return conn._dunya_query_json("api/carnatic/concert/%s" % cmbid, extra_headers=extra_headers)
 
 def get_works():
     """ Get a list of Carnatic works in the database.
@@ -104,6 +132,7 @@ def get_works():
 
     """
     return conn._get_paged_json("api/carnatic/work")
+    extra_headers = _get_collections()
 
 def get_work(wmbid):
     """ Get specific information about a work.
@@ -113,6 +142,7 @@ def get_work(wmbid):
 
     """
     return conn._dunya_query_json("api/carnatic/work/%s" % (wmbid))
+    extra_headers = _get_collections()
 
 def get_raagas():
     """ Get a list of Carnatic raagas in the database.
