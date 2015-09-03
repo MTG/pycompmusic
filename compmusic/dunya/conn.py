@@ -37,17 +37,20 @@ def _get_paged_json(path, **kwargs):
     logger.debug("initial paged to %s", nxt)
     ret = []
     while nxt:
-        res = _dunya_url_query(nxt)
+        extra_headers = kwargs.get('extra_headers', None)
+        res = _dunya_url_query(nxt, extra_headers=extra_headers)
         res = res.json()
         ret.extend(res.get("results", []))
         nxt = res.get("next")
     return ret
 
-def _dunya_url_query(url):
+def _dunya_url_query(url, extra_headers=None):
     logger.debug("query to '%s'"%url)
     if not TOKEN:
         raise ConnectionError("You need to authenticate with `set_token`")
     headers = {"Authorization": "Token %s" % TOKEN}
+    if extra_headers:
+        headers.update(extra_headers)
     g = requests.get(url, headers=headers)
     g.raise_for_status()
     return g
