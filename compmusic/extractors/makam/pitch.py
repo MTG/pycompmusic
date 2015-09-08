@@ -59,6 +59,7 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
                       maxPeaks = 100,
                       magnitudeThreshold = 0,
                       peakDistributionThreshold = 1.4,
+                      filterPitch = True,
                       confidenceThreshold = 36,
                       minChunkSize = 10,
                       octaveFilter = True)
@@ -123,7 +124,8 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
     pitch_salience = e_array(pitch_salience)
 
     # pitch filter
-    pitch = run_pitch_filter(pitch, pitch_salience)
+    if self.settings.filterPitch:
+      pitch = run_pitch_filter(pitch, pitch_salience)
 
     # generate time stamps
     time_stamps = [s*self.settings.hopSize/float(self.settings.sampleRate) for s in xrange(0,len(pitch))]
