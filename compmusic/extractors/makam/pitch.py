@@ -24,8 +24,10 @@
 
 import compmusic.extractors
 
+from essentia import __version__ as essentia_version
 from essentia import Pool
-from essentia.standard import *
+from essentia import array as e_array
+import essentia.standard as estd
 
 from math import ceil
 from numpy import size
@@ -38,7 +40,7 @@ import scipy.io
 import cStringIO
 
 class PitchExtractMakam(compmusic.extractors.ExtractorModule):
-  __version__ = "0.5"
+  __version__ = "0.6"
   __sourcetype__ = "mp3"
   __slug__ = "makampitch"
   #    __depends__ = ""
@@ -56,7 +58,10 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
                       maxFrequency = 20000,
                       maxPeaks = 100,
                       magnitudeThreshold = 0,
-                      peakDistributionThreshold = 1.4)
+                      peakDistributionThreshold = 1.4,
+                      confidenceThreshold = 36,
+                      minChunkSize = 10,
+                      octaveFilter = True)
 
   def run(self, fname):
     citation = u"""
@@ -66,28 +71,32 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
             for Music and Media, Ankara, Turkey.
             """
 
-    run_windowing = Windowing(zeroPadding = 3 * self.settings.frameSize) # Hann window with x4 zero padding
-    run_spectrum = Spectrum(size=self.settings.frameSize * 4)
+    run_windowing = estd.Windowing(zeroPadding = 3 * self.settings.frameSize) # Hann window with x4 zero padding
+    run_spectrum = estd.Spectrum(size=self.settings.frameSize * 4)
 
-    run_spectral_peaks = SpectralPeaks(minFrequency=self.settings.minFrequency,
+    run_spectral_peaks = estd.SpectralPeaks(minFrequency=self.settings.minFrequency,
             maxFrequency = self.settings.maxFrequency,
             maxPeaks = self.settings.maxPeaks,
             sampleRate = self.settings.sampleRate,
             magnitudeThreshold = self.settings.magnitudeThreshold,
             orderBy = 'magnitude')
 
-    run_pitch_salience_function = PitchSalienceFunction(binResolution=self.settings.binResolution) # converts unit to cents, 55 Hz is taken as the default reference
-    run_pitch_salience_function_peaks = PitchSalienceFunctionPeaks(binResolution=self.settings.binResolution)
-    run_pitch_contours = PitchContours(hopSize=self.settings.hopSize,
+    run_pitch_salience_function = estd.PitchSalienceFunction(binResolution=self.settings.binResolution) # converts unit to cents, 55 Hz is taken as the default reference
+    run_pitch_salience_function_peaks = estd.PitchSalienceFunctionPeaks(binResolution=self.settings.binResolution)
+    run_pitch_contours = estd.PitchContours(hopSize=self.settings.hopSize,
             binResolution=self.settings.binResolution,
             peakDistributionThreshold = self.settings.peakDistributionThreshold)
-    pool = Pool();
+
+    run_pitch_filter = estd.PitchFilter(confidenceThreshold=self.settings.confidenceThreshold,
+                      minChunkSize=self.settings.minChunkSize,
+                      octaveFilter=self.settings.octaveFilter)
+    pool = Pool()
 
     # load audio and eqLoudness
-    audio = MonoLoader(filename = fname)() # MonoLoader resamples the audio signal to 44100 Hz by default
-    audio = EqualLoudness()(audio)
+    audio = estd.MonoLoader(filename = fname)() # MonoLoader resamples the audio signal to 44100 Hz by default
+    audio = estd.EqualLoudness()(audio)
 
-    for frame in FrameGenerator(audio,frameSize=self.settings.frameSize, hopSize=self.settings.hopSize):
+    for frame in estd.FrameGenerator(audio,frameSize=self.settings.frameSize, hopSize=self.settings.hopSize):
       frame = run_windowing(frame)
       spectrum = run_spectrum(frame)
       peak_frequencies, peak_magnitudes = run_spectral_peaks(spectrum)
@@ -110,13 +119,17 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
     [pitch, pitch_salience] = self.ContourSelection(contours_bins,contours_contourSaliences,contours_start_times,duration)
 
     # cent to Hz conversion
-    pitch = [0. if p == 0 else 55.*(2.**(((self.settings.binResolution*(p)))/1200)) for p in pitch]
+    pitch = e_array([0. if p == 0 else 55.*(2.**(((self.settings.binResolution*(p)))/1200)) for p in pitch])
+    pitch_salience = e_array(pitch_salience)
+
+    # pitch filter
+    pitch = run_pitch_filter(pitch, pitch_salience)
 
     # generate time stamps
     time_stamps = [s*self.settings.hopSize/float(self.settings.sampleRate) for s in xrange(0,len(pitch))]
 
     # [time pitch salience] matrix
-    out = transpose(vstack((time_stamps, pitch, pitch_salience)))
+    out = transpose(vstack((time_stamps, pitch.tolist(), pitch_salience.tolist())))
     out = out.tolist()
     
     # settings
@@ -124,7 +137,7 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
     settings.update({'version':self.__version__, 
             'slug':self.__slug__, 
             'source': fname,
-            'essentiaVersion': essentia.__version__,
+            'essentiaVersion': essentia_version,
             'pitchUnit': 'Hz',
             'citation': citation})
 
@@ -193,7 +206,7 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
         pitch[startSample:] = pitchContours_noOverlap[i][:len(pitch)-startSample]
         salience[startSample:] = contourSaliences_noOverlap[i][:len(pitch)-startSample]
 
-    return pitch, salience.tolist()
+    return pitch, salience
 
   def RemoveOverlaps(self, startSamples, pitchContours, contourSaliences, lens, acc_idx):
     # remove overlaps
