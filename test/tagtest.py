@@ -58,7 +58,7 @@ class MakamTagTest(unittest.TestCase):
         t = "form 1: peşrev"
         self.assertEqual(True, tags.has_makam_form(t))
         self.assertEqual((1, "peşrev"), tags.parse_makam_form(t))
-        
+
         t = "form: Rumelitürküsü"
         self.assertEqual(True, tags.has_makam_form(t))
         self.assertEqual((0, "Rumelitürküsü"), tags.parse_makam_form(t))
@@ -151,6 +151,13 @@ class CarnaticTagTest(unittest.TestCase):
     def test_taala(self):
         t = "taala sankeerna jati triputa"
         self.assertEqual("sankeerna jati triputa", tags.parse_taala(t))
+
+        t = "taala adi (tishra nade)"
+        self.assertEqual("adi (tishra nade)", tags.parse_taala(t))
+
+    def test_form(self):
+        t = "form: keertana (devara nama)"
+        self.assertEqual((0, "keertana (devara nama)"), tags.parse_carnatic_form(t))
 
 class HindustaniTagTest(unittest.TestCase):
     def test_raag(self):

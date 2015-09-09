@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 # Copyright 2013,2014 Music Technology Group - Universitat Pompeu Fabra
-# 
+#
 # This file is part of Dunya
-# 
+#
 # Dunya is free software: you can redistribute it and/or modify it under the
 # terms of the GNU Affero General Public License as published by the Free Software
 # Foundation (FSF), either version 3 of the License, or (at your option) any later
 # version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT ANY
 # WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
 
@@ -27,8 +27,8 @@ retaala = r"\btaa?lam?[0-9]*\b"
 retaal = r"\btaa?la?[0-9]*\b"
 reraag = r"\braa?ga?[0-9]*\b"
 resection = r"\bsection[0-9]*\b"
-rehindustaniform = r"\bform([0-9])?:? ?(.*)\b"
-recarnaticform = r"\bform([0-9])?:? ?(.*)\b"
+rehindustaniform = r"\bform([0-9])?:? ?(.*)$"
+recarnaticform = r"\bform([0-9])?:? ?(.+)$"
 relaya = r"\blaya([0-9])?:? ?(.*)\b"
 
 def has_carnatic_form(tag):
