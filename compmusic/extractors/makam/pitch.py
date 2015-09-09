@@ -50,19 +50,18 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
                 }
 
   def setup(self):
-    self.add_settings(hopSize = 128,
-                      frameSize = 2048,
+    self.add_settings(hopSize = 128, # default hopSize of PredominantMelody
+                      frameSize = 2048, # default frameSize of PredominantMelody
                       sampleRate = 44100,
-                      binResolution = 7.5,
-                      minFrequency = 20,
-                      maxFrequency = 20000,
-                      maxPeaks = 100,
-                      magnitudeThreshold = 0,
-                      peakDistributionThreshold = 1.4,
-                      filterPitch = True,
-                      confidenceThreshold = 36,
-                      minChunkSize = 10,
-                      octaveFilter = True)
+                      binResolution = 7.5, # ~1/3 Hc; recommended for makams
+                      minFrequency = 55, # default minimum of PitchSalienceFunction
+                      maxFrequency = 1760, # default maximum of PitchSalienceFunction
+                      magnitudeThreshold = 0, # default of SpectralPeaks; 0 dB?
+                      peakDistributionThreshold = 1.4, # default in PitchContours is 0.9; we need higher in makams
+                      filterPitch = True, # call PitchFilter 
+                      confidenceThreshold = 36, # default confidenceThreshold for pitchFilter
+                      minChunkSize = 50, # number of minimum allowed samples of a chunk in PitchFilter; ~145 ms with 128 sample hopSize & 44100 Fs
+                      octaveFilter = True) # correct octave errors in PitchFilter
 
   def run(self, fname):
     citation = u"""
@@ -75,22 +74,21 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
     run_windowing = estd.Windowing(zeroPadding = 3 * self.settings.frameSize) # Hann window with x4 zero padding
     run_spectrum = estd.Spectrum(size=self.settings.frameSize * 4)
 
-    run_spectral_peaks = estd.SpectralPeaks(minFrequency=self.settings.minFrequency,
-            maxFrequency = self.settings.maxFrequency,
-            maxPeaks = self.settings.maxPeaks,
-            sampleRate = self.settings.sampleRate,
+    run_spectral_peaks = estd.SpectralPeaks(sampleRate = self.settings.sampleRate,
             magnitudeThreshold = self.settings.magnitudeThreshold,
             orderBy = 'magnitude')
 
     run_pitch_salience_function = estd.PitchSalienceFunction(binResolution=self.settings.binResolution) # converts unit to cents, 55 Hz is taken as the default reference
-    run_pitch_salience_function_peaks = estd.PitchSalienceFunctionPeaks(binResolution=self.settings.binResolution)
+    run_pitch_salience_function_peaks = estd.PitchSalienceFunctionPeaks(binResolution=self.settings.binResolution,
+            minFrequency=self.settings.minFrequency,
+            maxFrequency = self.settings.maxFrequency)
     run_pitch_contours = estd.PitchContours(hopSize=self.settings.hopSize,
             binResolution=self.settings.binResolution,
             peakDistributionThreshold = self.settings.peakDistributionThreshold)
 
     run_pitch_filter = estd.PitchFilter(confidenceThreshold=self.settings.confidenceThreshold,
-                      minChunkSize=self.settings.minChunkSize,
-                      octaveFilter=self.settings.octaveFilter)
+            minChunkSize=self.settings.minChunkSize,
+            octaveFilter=self.settings.octaveFilter)
     pool = Pool()
 
     # load audio and eqLoudness
