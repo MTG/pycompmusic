@@ -74,7 +74,8 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
     run_windowing = estd.Windowing(zeroPadding = 3 * self.settings.frameSize) # Hann window with x4 zero padding
     run_spectrum = estd.Spectrum(size=self.settings.frameSize * 4)
 
-    run_spectral_peaks = estd.SpectralPeaks(sampleRate = self.settings.sampleRate,
+    run_spectral_peaks = estd.SpectralPeaks(minFrequency=minFrequency, maxFrequency = maxFrequency,
+            sampleRate = self.settings.sampleRate,
             magnitudeThreshold = self.settings.magnitudeThreshold,
             orderBy = 'magnitude')
 
@@ -188,7 +189,6 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
       # remove overlaps
       [startSamples, pitchContours, contourSaliences] = self.RemoveOverlaps(startSamples, pitchContours, contourSaliences, lens, acc_idx)
       
-
     # accumulate pitch and salience
     pitch = array([0.] * (numSamples))
     salience = array([0.] * (numSamples))
