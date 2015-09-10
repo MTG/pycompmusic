@@ -60,8 +60,7 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
                       peakDistributionThreshold = 1.4, # default in PitchContours is 0.9; we need higher in makams
                       filterPitch = True, # call PitchFilter 
                       confidenceThreshold = 36, # default confidenceThreshold for pitchFilter
-                      minChunkSize = 50, # number of minimum allowed samples of a chunk in PitchFilter; ~145 ms with 128 sample hopSize & 44100 Fs
-                      octaveFilter = True) # correct octave errors in PitchFilter
+                      minChunkSize = 50) # number of minimum allowed samples of a chunk in PitchFilter; ~145 ms with 128 sample hopSize & 44100 Fs
 
   def run(self, fname):
     citation = u"""
@@ -89,8 +88,7 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
             peakDistributionThreshold = self.settings.peakDistributionThreshold)
 
     run_pitch_filter = estd.PitchFilter(confidenceThreshold=self.settings.confidenceThreshold,
-            minChunkSize=self.settings.minChunkSize,
-            octaveFilter=self.settings.octaveFilter)
+            minChunkSize=self.settings.minChunkSize)
     pool = Pool()
 
     # load audio and eqLoudness
