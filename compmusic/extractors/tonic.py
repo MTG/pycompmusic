@@ -22,15 +22,12 @@ import subprocess
 
 import tempfile
 import os
-from docserver import util
 import yaml
 import json
 
 from compmusic import dunya
-#from compmusic import hindustani
-import hindustani
+from compmusic.dunya import hindustani
 from compmusic.dunya import carnatic
-import requests
 dunya.set_token("69ed3d824c4c41f59f0bc853f696a7dd80707779")
 
 class TonicExtract(compmusic.extractors.ExtractorModule):
@@ -62,23 +59,6 @@ class CTonicExtract(compmusic.extractors.ExtractorModule):
             return tonic
         return None
 
-#    def run(self, fname):
-#
-#        yamltonic = self.get_from_file(self.musicbrainz_id)
-#        if yamltonic:
-#            print "Got tonic from a yaml file"
-#            tonic = yamltonic
-#        else:
-#            print "Need to calculate the tonic from scratch"
-#            wavfname = util.docserver_get_filename(self.musicbrainz_id, "wav", "wave")
-#            proclist = ["/srv/dunya/PitchCandExt_O3", "-m", "T", "-t", "V", "-i", wavfname]
-#            p = subprocess.Popen(proclist, stdout=subprocess.PIPE)
-#            output = p.communicate()
-#            tonic = output[0]
-#
-#        return {"tonic": str(tonic)}
-
-
     def run(self, fname):
         wavfname = util.docserver_get_filename(self.musicbrainz_id, "wav", "wave")
         proclist = ["/srv/dunya/PitchCandExt_O3", "-m", "T", "-t", "V", "-i", wavfname]
@@ -91,19 +71,9 @@ class CTonicExtract(compmusic.extractors.ExtractorModule):
 class TonicVote(compmusic.extractors.ExtractorModule):
     """ Vote on tonics to filter out small errors by the tonic identification script
     """
-    __version__ = "0.3"
     __sourcetype__ = "mp3"
-    __slug__ = "votedtonic"
 
     __output__ = {"tonic": {"extension": "dat", "mimetype": "text/plain"}}
-
-    carn_colls = ["f8bf7d1e-70d2-44f6-a3cb-5a6ded00be1f", # Bootleg carnatic
-            "f96e7215-b2bd-4962-b8c9-2b40c17a1ec6", # Dunya carnatic
-            "a163c8f2-b75f-4655-86be-1504ea2944c2" # Carnatic CC
-            ]
-    hind_colls = ["213347a9-e786-4297-8551-d61788c85c80", # Hindustani
-            "6adc54c6-6605-4e57-8230-b85f1de5be2b" # Hindustani CC
-            ]
 
     def find_nearest_index(self, arr, value):
         """
@@ -138,12 +108,12 @@ class TonicVote(compmusic.extractors.ExtractorModule):
         try:
             tonic = dunya.file_for_document(recordingid, "ctonic", "tonic")
             return tonic
-        except requests.exceptions.HTTPError:
+        except dunya.HTTPError:
             pass
         try:
             tonic = dunya.file_for_document(recordingid, "tonic", "tonic")
             return tonic
-        except requests.exceptions.HTTPError:
+        except dunya.HTTPError:
             pass
         return None
 
@@ -180,30 +150,44 @@ class TonicVote(compmusic.extractors.ExtractorModule):
 
 class HindustaniTonicVote(TonicVote):
     __slug__ = "hindustanivotedtonic"
+    __version__ = "0.1"
 
     def _artists_for_recording(self, recordingid):
-        recording = hindustani.models.Recording.objects.get(mbid=recordingid)
-        artists = recording.release_set.get().artists.all()
-        return [a.mbid for a in artists]
+        recording = hindustani.get_recording(recordingid)
+        release = recording.get("release")
+        if release:
+            release = hindustani.get_release(release[0]["mbid"])
+            artists = release["release_artists"]
+            return [a["mbid"] for a in artists]
+        else:
+            return []
 
     def _recordings_for_artist(self, artistid):
         recordings = []
-        artist = hindustani.models.Artist.objects.get(mbid=artistid)
-        for r in artist.primary_concerts.all():
-            for t in r.recordings.all():
-                recordings.append(t.mbid)
+        artist = hindustani.get_artist(artistid)
+        releases = artist["releases"]
+        for r in releases:
+            release = hindustani.get_release(r["mbid"])
+            tracks = release["recordings"]
+            for t in tracks:
+                recordings.append(t["mbid"])
         return recordings
 
 
 class CarnaticTonicVote(TonicVote):
     __slug__ = "carnaticvotedtonic"
+    __version__ = "0.1"
 
     def _artists_for_recording(self, recordingid):
         recording = carnatic.get_recording(recordingid)
-        concertid = recording["concert"]["mbid"]
-        concert = carnatic.get_concert(concertid)
-        artists = concert["concert_artists"]
-        return [a["mbid"] for a in artists]
+        concert = recording.get("concert")
+        if concert:
+            concertid = concert[0]["mbid"]
+            concert = carnatic.get_concert(concertid)
+            artists = concert["concert_artists"]
+            return [a["mbid"] for a in artists]
+        else:
+            return []
 
     def _recordings_for_artist(self, artistid):
         recordings = []
@@ -211,8 +195,8 @@ class CarnaticTonicVote(TonicVote):
         releases = artist["concerts"]
         for r in releases:
             release = carnatic.get_concert(r["mbid"])
-            tracks = release["tracks"]
-            for t in tracks:
+            relrecs = release["recordings"]
+            for t in relrecs:
                 recordings.append(t["mbid"])
         return recordings
 
