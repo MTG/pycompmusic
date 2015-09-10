@@ -8,6 +8,9 @@ logger = logging.getLogger("dunya")
 HOSTNAME = "dunya.compmusic.upf.edu"
 TOKEN = None
 
+class HTTPError(Exception):
+    pass
+
 class ConnectionError(Exception):
     pass
 
@@ -49,13 +52,16 @@ def _dunya_url_query(url, extra_headers=None):
     logger.debug("query to '%s'"%url)
     if not TOKEN:
         raise ConnectionError("You need to authenticate with `set_token`")
-    
+
     headers = {"Authorization": "Token %s" % TOKEN}
     if extra_headers:
         headers.update(extra_headers)
-    
+
     g = requests.get(url, headers=headers)
-    g.raise_for_status()
+    try:
+        g.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        raise HTTPError(e)
     return g
 
 def _dunya_post(url, data=None, files=None):
@@ -66,7 +72,10 @@ def _dunya_post(url, data=None, files=None):
         raise ConnectionError("You need to authenticate with `set_token`")
     headers = {"Authorization": "Token %s" % TOKEN}
     p = requests.post(url, headers=headers, data=data, files=files)
-    p.raise_for_status()
+    try:
+        p.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        raise HTTPError(e)
     return p
 
 def _make_url(path, **kwargs):
