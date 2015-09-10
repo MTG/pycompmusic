@@ -74,7 +74,8 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
     run_windowing = estd.Windowing(zeroPadding = 3 * self.settings.frameSize) # Hann window with x4 zero padding
     run_spectrum = estd.Spectrum(size=self.settings.frameSize * 4)
 
-    run_spectral_peaks = estd.SpectralPeaks(minFrequency=minFrequency, maxFrequency = maxFrequency,
+    run_spectral_peaks = estd.SpectralPeaks(minFrequency=self.settings.minFrequency, 
+            maxFrequency = self.settings.maxFrequency,
             sampleRate = self.settings.sampleRate,
             magnitudeThreshold = self.settings.magnitudeThreshold,
             orderBy = 'magnitude')
