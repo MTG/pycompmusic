@@ -33,8 +33,9 @@ class ScoreAlign(compmusic.extractors.ExtractorModule):
 
     def run(self, fname):
         server_name = socket.gethostname()
-        os.environ["XAPPLRESDIR"] = "/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v82/X11/app-defaults" % server_name
-        os.environ["LD_LIBRARY_PATH"] = "/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v82/runtime/glnxa64:/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v82/bin/glnxa64:/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v82/sys/os/glnxa64:/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v82/sys/java/jre/glnxa64/jre/lib/amd64/native_threads:/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v82/sys/java/jre/glnxa64/jre/lib/amd64/server:/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v82/sys/java/jre/glnxa64/jre/lib/amd64" % ((server_name,) * 6)
-        proc = subprocess.Popen(["/srv/dunya/MyMCC"], stdout=subprocess.PIPE, shell=True)
+        subprocess_env = os.environ.copy()
+        subprocess_env["XAPPLRESDIR"] = "/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v82/X11/app-defaults" % server_name
+        subprocess_env["LD_LIBRARY_PATH"] = "/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v82/runtime/glnxa64:/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v82/bin/glnxa64:/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v82/sys/os/glnxa64:/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v82/sys/java/jre/glnxa64/jre/lib/amd64/native_threads:/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v82/sys/java/jre/glnxa64/jre/lib/amd64/server:/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v82/sys/java/jre/glnxa64/jre/lib/amd64" % ((server_name,) * 6)
+        proc = subprocess.Popen(["/srv/dunya/MyMCC"], stdout=subprocess.PIPE, shell=True, env=subprocess_env)
         (out, err) = proc.communicate()
         return {"test": out}
