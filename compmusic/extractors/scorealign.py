@@ -34,6 +34,7 @@ class ScoreAlign(compmusic.extractors.ExtractorModule):
     def run(self, fname):
         server_name = socket.gethostname()
         subprocess_env = os.environ.copy()
+        subprocess_env["MCR_CACHE_ROOT"] = "/tmp/emptydir"
         subprocess_env["LD_LIBRARY_PATH"] = "/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v85/runtime/glnxa64:/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v85/bin/glnxa64:/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v85/sys/os/glnxa64" % ((server_name,)*3)
         proc = subprocess.Popen(["/srv/dunya/extractTonicTempoTuning ./test/muhayyer--pesrev--devrikebir----tanburi_cemil_bey.txt ./test/132_Muhayyer_Pesrev__Mansur_Ney_.mp3 ./test/predominantMelody.mat"], stdout=subprocess.PIPE, shell=True, env=subprocess_env)
         (out, err) = proc.communicate()
