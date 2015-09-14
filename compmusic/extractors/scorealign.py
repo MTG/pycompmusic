@@ -23,7 +23,7 @@ import wave
 import subprocess
 
 class ScoreAlign(compmusic.extractors.ExtractorModule):
-    __version__ = "0.1"
+    __version__ = "0.2"
     __sourcetype__ = "mp3"
     __slug__ = "scorealign"
 
@@ -34,8 +34,7 @@ class ScoreAlign(compmusic.extractors.ExtractorModule):
     def run(self, fname):
         server_name = socket.gethostname()
         subprocess_env = os.environ.copy()
-        subprocess_env["XAPPLRESDIR"] = "/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v82/X11/app-defaults" % server_name
-        subprocess_env["LD_LIBRARY_PATH"] = "/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v82/runtime/glnxa64:/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v82/bin/glnxa64:/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v82/sys/os/glnxa64:/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v82/sys/java/jre/glnxa64/jre/lib/amd64/native_threads:/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v82/sys/java/jre/glnxa64/jre/lib/amd64/server:/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v82/sys/java/jre/glnxa64/jre/lib/amd64" % ((server_name,) * 6)
-        proc = subprocess.Popen(["/srv/dunya/MyMCC"], stdout=subprocess.PIPE, shell=True, env=subprocess_env)
+        subprocess_env["LD_LIBRARY_PATH"] = "/mnt/compmusic/%s/MATLAB/MATLAB_Runtime/v85/runtime/glnxa64:/mnt/compmusic/%s/MATLAB/MATLAB_Runtime/v85/bin/glnxa64:/mnt/compmusic/%s/MATLAB/MATLAB_Runtime/v85/sys/os/glnxa64" % ((server_name,)*6)
+        proc = subprocess.Popen(["/srv/dunya/extractTonicTempoTuning /tmp/test/muhayyer--pesrev--devrikebir----tanburi_cemil_bey.txt /tmp/test/132_Muhayyer_Pesrev__Mansur_Ney_.mp3 /tmp/test/predominantMelody.mat"], stdout=subprocess.PIPE, shell=True, env=subprocess_env)
         (out, err) = proc.communicate()
         return {"test": out}
