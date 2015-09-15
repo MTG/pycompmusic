@@ -40,6 +40,8 @@ class ExtractorModule(object):
     _version = None
     """The slug of the source file type that this module takes as input"""
     _sourcetype = None
+    
+    _depends = None
     """A handy slug that can be used to refer to this module. Should be unique
     over all modules"""
     _slug = None
