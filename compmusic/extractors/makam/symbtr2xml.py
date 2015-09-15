@@ -124,7 +124,7 @@ def getUsul(usul, file):
     beatType = []
     accents = []
 
-    f = open(fpath)
+    f = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), fpath))
 
     while 1:
         temp_line = f.readline()
@@ -206,9 +206,8 @@ def getAccName(alter):
 
 def getKeySig(piecemakam, keysig):
 
-    print(piecemakam)
 
-    makamTree = etree.parse('makams_usuls/Makamlar.xml')
+    makamTree = etree.parse(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'makams_usuls/Makamlar.xml'))
     xpression = '//dataroot/Makamlar[makam_adi= $makam]/'
     makam_ = piecemakam
 
@@ -286,11 +285,6 @@ class symbtrscore(object):
 
         self.score = None
         self.sections = []
-
-        self.makam = finfo[0]
-        self.form = finfo[1]
-        self.usul = finfo[2]
-        self.name = finfo[3]
 
     def readsymbtrlines(self):
         f = open(self.fpath)
@@ -675,7 +669,7 @@ class symbtrscore(object):
                 except:
                     print('Kod', tempkod, 'but no time information.')
 
-    def writexml(self):
+    def writexml(self, out_file):
         #printing xml file
         f = open(out_file, 'wb')
         f.write(etree.tostring(self.score, pretty_print=True, xml_declaration=True, encoding="UTF-8", standalone=False ,

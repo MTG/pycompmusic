@@ -1,0 +1,159 @@
+name_eng	name	numerator	denominator	clustering
+12212212	1+2+2+1+2+2+1+2	13	8	1+2+2+1+2+2+1+2
+22222221	2+2+2+2+2+2+2+1	15	8	2+2+2+2+2+2+2+1
+223	2+2+3	7	16	2+2+3
+232223	2+3+2+2+2+3	14	8	2+3+2+2+2+3
+262	26/2	26	2	1+1+1+1+1+1+1+1+1+1+1+1+1
+3223323	3+2+2+3+3+2+3	18	8	3+2+2+3+3+2+3
+3334	3+3+3+4	13	4	3+3+3+4
+agiraksak	Aðýraksak	9	4	2+1+1+2+2+1
+agiraksak_9_8	Aðýraksak (9/8)	9	8	4+2+2+4+4+2
+agir_aksaksemai	Aðýr Aksaksemâî	10	4	2+1+2+2+2+1
+agiraydin	Aðýraydýn	9	4	
+agircenber	Aðýrçenber	24	2	
+agircenber_12_1	Aðýrçenber (12/1)	12	1	
+agirdarbifetih	Aðýrdarbýfetih	88	2	
+agirduyek	Aðýrdüyek	8	4	1+2+1+2+2
+agirevfer	Aðýrevfer	9	4	6+2+4+2+4
+agirsenginsemai	Aðýrsenginsemâî	6	2	1+1+1+1+2
+aksak	Aksak	9	8	2+1+1+2+2+1
+aksak_9_4	Aksak (9/4)	9	4	2+1+1+2+2+1
+aksakii	Aksak II	9	8	6+2+4+6
+aksaksemai	Aksaksemâî	10	8	2+1+2+2+2+1
+aksaksemai_5_8	Aksaksemâî (5/8)	5	8	
+aksaksemai_ii	Aksaksemâî II	10	8	
+aksaksemaievferi	Aksaksemâî Evferi	10	8	
+artikaksaksemai	Artýk Aksaksemâî	13	4	
+aydin	Aydýn	9	8	2+2+2+3
+ayindevrirevani	Ayîn Devr-i Revâný	14	8	3+2+2+3+2+2
+azeriyuruksemai	Âzerî Yürüksemâî	6	8	2+1+1+2
+bektasidevrirevani	Bektâþî Devr-i Revâný	13	8	2+1+1+2+2+1+2+1+1
+bektasiraksani	Bektâþî Raksâný	15	8	2+1+2+2+1+2+2+2+1
+bektasiraksi	Bektâþî Raksý	16	8	
+belirsiz	(Belirsiz)	0	1	
+berefsan	Berefþan	32	8	
+berefsan_16_4	Berefþan (16/4)	16	4	
+bestedevrirevani	Beste Devr-i Revâný	26	4	
+bestedevrirevani_ii	Beste Devr-i Revâný II	26	4	
+bulgardarbi	Bulgar Darbý	8	8	1+1+1+2+1+1+1
+cenber	Çenber	24	4	
+cenber_12_2	Çenber (12/2)	12	2	
+cenber_12_4	Çenber (12/4)	12	4	
+cengiharbi	Çeng-i Harbî	10	8	1+1+1+1+1+1+1+1+1+1
+cengiharbi_ii	Çeng-i Harbî II	10	8	
+cevher	Cevher	10	8	
+cifteaksak	Çifteaksak	9	8	4+4+6+4
+cifteduyek	Çiftedüyek	16	4	2+4+2+2+2+2+1+1
+ciftesofyan	Çiftesofyan	9	8	2+2+2+3
+ciftesofyan_9_16	Çiftesofyan (9/16)	9	16	2+2+2+3
+curcuna	Curcuna	10	8	2+1+2+2+2+1
+darb	Darb	6	4	4+8
+darb_3_2	Darb (3/2)	3	2	2+2+2
+darbeyn	Darbeyn	28	4	
+darbifetih	Darb-ý Fetih	88	4	
+darbihuner	Darb-ý Hüner	7	4	
+darbikurdi	Darb-ý Kürdî	32	4	
+darbiturki	Darb-ý Türkî	18	4	
+devriaryan	Devr-i Aryân	7	8	4+6+4
+devrihindi	Devr-i Hindî	7	4	1+1+1+2+2
+devrihindi_7_8	Devr-i Hindî (7/8)	7	8	2+1+2+2
+devrihindi_ii	Devr-i Hindî II	7	8	3+2+2
+devrikebir	Devr-i Kebîr	28	4	
+devrikebir_14_2	Devr-i Kebîr (14/2)	14	2	
+devrikebir_28_8	Devr-i Kebîr (28/8)	28	8	
+devrirevan	Devr-i Revân	14	8	
+devrirevanihindi	Devr-i Revân-ý Hindî	14	8	
+devrisureyya	Devr-i Süreyyâ	10	8	2+1+1+2+2+2
+devrisureyyasofyani	Devr-i Süreyyâ Sofyaný	10	16	5+2+3
+devrituran	Devr-i Turan	7	8	2+2+3
+devrituran_ii	Devr-i Turan II	7	16	4+4+6
+dolap	Dolap	12	8	
+dumen	Dümen	16	16	3+3+2+4+4
+durakevferi	Durak Evferi	21	4	
+duyek	Düyek	8	8	1+2+1+2+2
+duyek_4_4	Düyek (4/4)	4	4	
+duyek_8_16	Düyek (8/16)	16	8	
+duyek_8_4	Düyek (8/4)	8	4	2+4+2+4+4
+evfer	Evfer	9	8	2+1+1+2+1+2
+evsat	Evsât	26	8	
+evsat_26_4	Evsât (26/4)	26	4	
+fahte	Fahte	20	4	
+fer	Fer	16	4	2+1+1+2+2+1+1+1+1+2+1+1
+ferimuhammes_16_2	Fer'i Muhammes (16/2)	16	2	
+ferimuhammes_16_4	Fer'i Muhammes (16/4)	16	4	
+ferimuhammes_16_8	Fer'i Muhammes (16/8)	16	8	
+firengifer	Fireng-i Fer	28	4	
+frenkcin	Frenkçîn	12	8	1+2+1+2+1+1+1+1+1+1
+frenkcin_12_4	Frenkçîn (12/4)	12	4	1+2+1+2+1+1+1+1+1+1
+hafif	Hafîf	32	4	
+hafif_32_2	Hafîf (32/2)	32	2	
+hafif_32_8	Hafîf (32/8)	32	8	
+havi	Hâvî	64	4	
+hezec	Hezeç	22	4	
+hezec	Hezeç	44	4	
+iki-bir	Ýki-Bir	12	8	
+ikizaksak	Ýkiz Aksak	12	8	1+1+1+2+2+2+2+1
+iraksak	Iraksak	9	8	2+4+2+4+6
+katikofti	Katikofti	8	8	1+1+1+2+2+1
+k-curcuna	K. Curcuna	10	8	5+2+3
+k-curcuna_10_16	K. Curcuna (10/16)	10	16	5+2+3
+lenkfahte	Lenk Fahte	10	4	2+3+1+2+1+1
+mevlevievferi	Mevlevî Evferi	9	4	2+1+1+2+1+2
+muasser	Muaþþer	10	4	1+1+1+1+2+2+1+1
+muhammes	Muhammes	32	4	
+muhammes_16_2	Muhammes (16/2)	16	2	
+muhammes_32_8	Muhammes (32/8)	32	8	
+murekkepnimsofyan	Mürekkep Nîmsofyan	12	16	1+1
+murekkepsemai	Mürekkep Semâî/Üçleme	9	8	3+3+3
+murekkepsofyan	Mürekkep Sofyan	12	8	
+musemmen	Müsemmen	8	8	3+2+3
+musemmen_ii	Müsemmen II	8	8	6+6+4
+musemmen_ii_8_16	Müsemmen II (8/16)	8	16	3+3+2+3+3+2
+musemmen_iii_4_16	Müsemmen III (4/16)	4	16	3+2+3
+muzaafdevrikebir	Muzaaf Devr-i Kebîr	28	4	
+nazliduyek	Nazlý Düyek	12	8	1+4+1+3+3
+nimberefsan	Nîmberefþan	16	4	2+1+2+1+2+1+1+1+1+2+1+1
+nimberefsan_16_8	Nîmberefþan (16/8)	16	8	
+nimcember	Nîmçember	12	8	2+1+1+2+2+2+1+1
+nimdevir	Nîmdevir	18	4	
+nimevsat	Nîmevsat	13	8	1+1+1+2+4+4
+nimevsat_13_4	Nîmevsat (13/4)	13	4	1+1+1+2+4+4
+nimhafif	Nîmhafîf	16	4	1+1+2+1+1+2+1+1+1+1+2+1+1
+nimsakil	Nîmsakîl	24	4	
+nimsofyan	Nîmsofyan	2	4	1+1
+nimsofyan_ii	Nîmsofyan II	2	4	4
+oynak	Oynak	9	8	1+1+1+2+2+2
+oynak_9_4	Oynak (9/4)	9	4	2+2+2+4+4+4
+raksaksagi	Raksaksaðý	9	8	2+3+2+2
+raksaksagi_ii	Raksaksaðý II	9	16	4+6+4+4
+raksan	Raksân	15	8	1+1+1+2+1+2+2+2+1+2
+raksan	Raksân	15	8	
+remel	Remel	28	2	
+remel_28_4	Remel (28/4)	28	4	
+sakil	Sakîl	48	4	
+sakil_48_2	Sakîl (48/2)	48	2	
+sarkidevrirevani	Þarký Devr-i Revâný	13	4	1+1+1+2+2+2+2+1+1
+semai	Semâî	3	4	1+1+1
+semai_3_8	Semâî (3/8)	3	8	2+2+2
+senginsemai	Senginsemâî	6	4	1+1+1+1+2
+serbest	(Serbest)	0	0	
+sofyan	Sofyan	4	4	2+1+1
+sofyan_4_2	Sofyan (4/2)	4	2	2+2+2+2
+sofyan_4_8	Sofyan (4/8)	4	8	2+2+2+2
+sofyan_ii	Sofyan II	4	4	2+1+1
+s-turkaksagi	S. Türkaksaðý	5	4	4+4+2
+sureyya	Süreyya	5	8	4+4+2
+tekvurus	Tek Vuruþ	11	8	2+2+1+2+2+2
+tekvurus_11_4	Tek Vuruþ (11/4)	11	4	
+turkaksagi	Türkaksaðý	5	8	2+2+1
+turkaksagi_5_4	Türkaksaðý (5/4)	5	4	2+2+1
+turkaksagi_ii	Türkaksaðý II	5	8	2+1+2
+turkdarbi	Türkdarbý	14	4	1+1+2+2+4+4
+turkmen	Türkmen	18	8	
+yuruksemai	Yürüksemâî	6	8	1+1+1+1+2
+yuruksemai_6_4	Yürüksemâî (6/4)	6	4	2+2+2+2+4
+yuruksemai_ii	Yürüksemâî II	6	8	1+2+1+2
+yuruksemai_ii_6_4	Yürüksemâî II (6/4)	6	4	6+6
+yuruksofyan	Yürüksofyan	2	4	2+1+1
+zafer	Zafer	5	8	
+zencir	Zencîr	4	4	

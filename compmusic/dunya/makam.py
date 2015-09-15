@@ -254,7 +254,7 @@ def get_symbtr(uuid):
     returns: name and id of the symbtr file
 
     """
-    return conn._get_paged_json("api/makam/symbtr/%s" % uuid)
+    return conn._dunya_query_json("api/makam/symbtr/%s" % uuid)
 
 
 

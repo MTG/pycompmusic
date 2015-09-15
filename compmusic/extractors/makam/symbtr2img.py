@@ -26,7 +26,7 @@ import compmusic.extractors
 import symbtr2xml 
 import tempfile
 from subprocess import call
-from os import listdir
+import os
 from os.path import isfile, join
 from compmusic import dunya
 from compmusic.dunya import makam
@@ -42,7 +42,7 @@ class Symbtr2Png(compmusic.extractors.ExtractorModule):
 
 
     def run(self, fpath):
-        symbtr = makam.get_symbtr(self.musicbrainz_id)
+        symbtr = compmusic.dunya.makam.get_symbtr(self.musicbrainz_id)
         fname = symbtr['name']
 
         finfo = fname.split('/')[-1].split('--')
@@ -62,11 +62,11 @@ class Symbtr2Png(compmusic.extractors.ExtractorModule):
         fp, smallname = tempfile.mkstemp(".xml")
         os.close(fp)
 
-        pice = symbtr2xml.symbtrscore(fpath, makam, form, usul, name, composer)
+        piece = symbtr2xml.symbtrscore(fpath, makam, form, usul, name, composer)
         piece.convertsymbtr2xml(smallname)
 
         tmp_dir = tempfile.mkdtemp()
-        call(["mscore", smallname, "-S /srv/dunya/style.mss", "-o %s/%s.png" % (tmp_dir, self.musicbrainz_id)])
+        call(["mscore", smallname, "-S", "/srv/dunya/style.mss", "-o", "%s/%s.png" % (tmp_dir, self.musicbrainz_id)])
        
         ret = {}
         for f in listdir(tmp_dir):
@@ -74,8 +74,8 @@ class Symbtr2Png(compmusic.extractors.ExtractorModule):
                 img_file = open(join(tmp_dir, f))
                 ret['score'].append(img_file.read())
                 img_file.close()
-        
-        os.unlink(tmp_dir)
+                os.remove(join(tmp_dir, f)) 
+        os.rmdir(tmp_dir)
         os.unlink(smallname)
         return ret
 
