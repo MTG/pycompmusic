@@ -245,6 +245,18 @@ def get_symbtrs():
     """
     return conn._get_paged_json("api/makam/symbtr")
 
+def get_symbtr(uuid):
+    """ Get a symbtr file info from id
+    This function will automatically page through API results.
+    
+    :param uuid: A symbtr id
+    
+    returns: name and id of the symbtr file
+
+    """
+    return conn._get_paged_json("api/makam/symbtr/%s" % uuid)
+
+
 
 def get_usul(uid):
     """ Get specific information about a usul.
