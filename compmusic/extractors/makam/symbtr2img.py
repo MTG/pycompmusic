@@ -34,7 +34,7 @@ dunya.set_token("69ed3d824c4c41f59f0bc853f696a7dd80707779")
 
 class Symbtr2Png(compmusic.extractors.ExtractorModule):
     _version = "0.1"
-    _sourcetype = "symbtrtxt"
+    _sourcetype = "txt"
     _slug = "score"
     _output = {
             "score": {"extension": "png", "mimetype": "image/png", "parts": True},
