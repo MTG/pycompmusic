@@ -31,11 +31,11 @@ from compmusic.dunya import carnatic
 dunya.set_token("69ed3d824c4c41f59f0bc853f696a7dd80707779")
 
 class TonicExtract(compmusic.extractors.ExtractorModule):
-    __version__ = "0.2"
-    __sourcetype__ = "mp3"
-    __slug__ = "tonic"
+    _version = "0.2"
+    _sourcetype = "mp3"
+    _slug = "tonic"
 
-    __output__ = {"tonic": {"extension": "dat", "mimetype": "text/plain"}}
+    _output = {"tonic": {"extension": "dat", "mimetype": "text/plain"}}
 
     def run(self, fname):
         audio = essentia.standard.MonoLoader(filename=fname)()
@@ -44,11 +44,11 @@ class TonicExtract(compmusic.extractors.ExtractorModule):
         return {"tonic": str(tonic)}
 
 class CTonicExtract(compmusic.extractors.ExtractorModule):
-    __version__ = "0.3"
-    __sourcetype__ = "mp3"
-    __slug__ = "ctonic"
+    _version = "0.3"
+    _sourcetype = "mp3"
+    _slug = "ctonic"
 
-    __output__ = {"tonic": {"extension": "dat", "mimetype": "text/plain"}}
+    _output = {"tonic": {"extension": "dat", "mimetype": "text/plain"}}
 
     def get_from_file(self, mbid):
         data_root = "/mnt/compmusic/incoming/derived/annotations"
@@ -71,9 +71,9 @@ class CTonicExtract(compmusic.extractors.ExtractorModule):
 class TonicVote(compmusic.extractors.ExtractorModule):
     """ Vote on tonics to filter out small errors by the tonic identification script
     """
-    __sourcetype__ = "mp3"
+    _sourcetype = "mp3"
 
-    __output__ = {"tonic": {"extension": "dat", "mimetype": "text/plain"}}
+    _output = {"tonic": {"extension": "dat", "mimetype": "text/plain"}}
 
     def find_nearest_index(self, arr, value):
         """
@@ -149,8 +149,8 @@ class TonicVote(compmusic.extractors.ExtractorModule):
         return {"tonic": str(thistonic)}
 
 class HindustaniTonicVote(TonicVote):
-    __slug__ = "hindustanivotedtonic"
-    __version__ = "0.1"
+    _slug = "hindustanivotedtonic"
+    _version = "0.1"
 
     def _artists_for_recording(self, recordingid):
         recording = hindustani.get_recording(recordingid)
@@ -175,8 +175,8 @@ class HindustaniTonicVote(TonicVote):
 
 
 class CarnaticTonicVote(TonicVote):
-    __slug__ = "carnaticvotedtonic"
-    __version__ = "0.1"
+    _slug = "carnaticvotedtonic"
+    _version = "0.1"
 
     def _artists_for_recording(self, recordingid):
         recording = carnatic.get_recording(recordingid)

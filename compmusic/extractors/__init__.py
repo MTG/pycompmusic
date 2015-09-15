@@ -32,20 +32,17 @@ class ExtractorModule(object):
     Inside an external module you can use
        from compmusic.extractors import log
        logger = log.get_logger("module_slug")
-    where module_slug is the value defined in __slug__, below
+    where module_slug is the value defined in _slug, below
     """
 
     """The version of your module. String. If it changes then the algorithm
     will run again, but we don't check if it's changed 'up' or 'down'"""
-    __version__ = None
+    _version = None
     """The slug of the source file type that this module takes as input"""
-    __sourcetype__ = None
+    _sourcetype = None
     """A handy slug that can be used to refer to this module. Should be unique
     over all modules"""
-    __slug__ = None
-    """A string or list of slugs of other modules that must be run before
-    this one can be run. We will make sure the data is available for you."""
-    __depends__ = None
+    _slug = None
     """A dictionary of output formats that this runner creates. Of the form:
     {"outputname": {"extension": "json"|"png"|"..etc",
                     "mimetype": "application/json",
@@ -57,21 +54,21 @@ class ExtractorModule(object):
     extension is used as the file extension.
     If parts is True then the data is a list of parts that make up this data.
     omit `parts' to say that there is only one item in the returned data.
-    If __output__ is missing, then the output is expected to be a json dict with no parts.
+    If _output is missing, then the output is expected to be a json dict with no parts.
     """
-    __output__ = None
+    _output = None
 
     """
     The many_files flag indicates if the `run` method receives one file or many files
     as input
     """
-    __many_files__ = False
-    
+    _many_files = False
+
     hostname = "(unknown)"
-    
+
     def __init__(self, **kwargs):
         """Set up the logger, and run a setup method if it's been defined."""
-        self.logger = log.get_logger(self.__slug__, self.__version__)
+        self.logger = log.get_logger(self._slug, self._version)
         self.settings = Settings()
         self.add_settings(**kwargs)
         self.setup()
@@ -82,7 +79,7 @@ class ExtractorModule(object):
         self.cache = {}
 
     def get_key(self, k):
-        key = "%s-%s-%s" % (self.__slug__, self.__version__, k)
+        key = "%s-%s-%s" % (self._slug, self._version, k)
         if not self.redis:
             warn("Redis not configured, assuming running locally and using local cache")
             return self.cache.get(key)
@@ -90,7 +87,7 @@ class ExtractorModule(object):
             return self.redis.get(key)
 
     def set_key(self, k, val, timeout=None):
-        key = "%s-%s-%s" % (self.__slug__, self.__version__, k)
+        key = "%s-%s-%s" % (self._slug, self._version, k)
         if not self.redis:
             warn("Redis not configured, assuming running locally and using local cache")
             self.cache[key] = val

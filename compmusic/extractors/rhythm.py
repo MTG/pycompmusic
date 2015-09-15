@@ -1,16 +1,16 @@
 # Copyright 2013,2014 Music Technology Group - Universitat Pompeu Fabra
-# 
+#
 # This file is part of Dunya
-# 
+#
 # Dunya is free software: you can redistribute it and/or modify it under the
 # terms of the GNU Affero General Public License as published by the Free Software
 # Foundation (FSF), either version 3 of the License, or (at your option) any later
 # version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT ANY
 # WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
 
@@ -19,10 +19,10 @@ import numpy as np
 import rhythmlib as ap
 
 class RhythmExtract(compmusic.extractors.ExtractorModule):
-    __version__ = "0.3"
-    __sourcetype__ = "mp3"
-    __slug__ = "rhythm"
-    __output__ = {"sections": {"extension": "json", "mimetype": "application/json"},
+    _version = "0.3"
+    _sourcetype = "mp3"
+    _slug = "rhythm"
+    _output = {"sections": {"extension": "json", "mimetype": "application/json"},
                     "aksharaPeriod": {"extension": "json", "mimetype": "application/json"},
                     "aksharaTicks": {"extension": "json", "mimetype": "application/json"},
                     "APcurve": {"extension": "json", "mimetype": "application/json"}}

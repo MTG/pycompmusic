@@ -1,16 +1,16 @@
 # Copyright 2013,2014 Music Technology Group - Universitat Pompeu Fabra
-# 
+#
 # This file is part of Dunya
-# 
+#
 # Dunya is free software: you can redistribute it and/or modify it under the
 # terms of the GNU Affero General Public License as published by the Free Software
 # Foundation (FSF), either version 3 of the License, or (at your option) any later
 # version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT ANY
 # WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
 
@@ -24,15 +24,13 @@ import sys
 import essentia.standard
 import intonation
 
-from docserver import util
 
 class PitchExtract(compmusic.extractors.ExtractorModule):
-    __version__ = "noguessunv"
-    __sourcetype__ = "mp3"
-    __slug__ = "pitch"
+    _version = "noguessunv"
+    _sourcetype = "mp3"
+    _slug = "pitch"
 
-    __depends__ = "votedtonic"
-    __output__ = {"pitch": {"extension": "json", "mimetype": "application/json"}}
+    _output = {"pitch": {"extension": "json", "mimetype": "application/json"}}
 
     def setup(self):
         # Hop size is 44100*4/900 because our smallest view is 4 seconds long
@@ -68,13 +66,11 @@ class PitchExtract(compmusic.extractors.ExtractorModule):
 
 
 class NormalisedPitchExtract(compmusic.extractors.ExtractorModule):
-    __version__ = "0.6"
-    __sourcetype__ = "mp3"
-    __slug__ = "normalisedpitch"
+    _version = "0.6"
+    _sourcetype = "mp3"
+    _slug = "normalisedpitch"
 
-    __depends__ = "pitch"
-
-    __output__ = {"packedpitch": {"extension": "dat", "mimetype": "application/octet-stream"},
+    _output = {"packedpitch": {"extension": "dat", "mimetype": "application/octet-stream"},
             "normalisedpitch": {"extension": "json", "mimetype": "application/json"},
             "normalisedhistogram": {"extension": "json", "mimetype": "application/json"},
             "drawhistogram": {"extension": "json", "mimetype": "application/json"}}

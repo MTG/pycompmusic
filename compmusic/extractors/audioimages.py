@@ -1,16 +1,16 @@
 # Copyright 2013,2014 Music Technology Group - Universitat Pompeu Fabra
-# 
+#
 # This file is part of Dunya
-# 
+#
 # Dunya is free software: you can redistribute it and/or modify it under the
 # terms of the GNU Affero General Public License as published by the Free Software
 # Foundation (FSF), either version 3 of the License, or (at your option) any later
 # version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT ANY
 # WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
 
@@ -30,13 +30,11 @@ from StringIO import StringIO
 from docserver import util
 
 class AudioImages(compmusic.extractors.ExtractorModule):
-    __version__ = "0.2"
-    __sourcetype__ = "mp3"
-    __slug__ = "audioimages"
+    _version = "0.2"
+    _sourcetype = "mp3"
+    _slug = "audioimages"
 
-    __depends__ = "wav"
-
-    __output__ = {"waveform4": {"extension": "png", "mimetype": "image/png", "parts": True},
+    _output = {"waveform4": {"extension": "png", "mimetype": "image/png", "parts": True},
             "spectrum4": {"extension": "png", "mimetype": "image/png", "parts": True},
             "waveform8": {"extension": "png", "mimetype": "image/png", "parts": True},
             "spectrum8": {"extension": "png", "mimetype": "image/png", "parts": True},
@@ -47,7 +45,7 @@ class AudioImages(compmusic.extractors.ExtractorModule):
             "smallfull": {"extension": "png", "mimetype": "image/png"}
         }
 
-    __zoom_levels__ =  [4, 8, 16, 32]
+    _zoom_levels_ =  [4, 8, 16, 32]
 
     def make_mini(self, wavfname):
         smallfulloptions = coll.namedtuple('options', 'image_height fft_size image_width')
@@ -64,13 +62,12 @@ class AudioImages(compmusic.extractors.ExtractorModule):
         return smallfullio.getvalue()
 
     def run(self, fname):
-        baseFname, ext = os.path.splitext(os.path.basename(fname))
-
-        wavfname, created = util.docserver_get_wav_filename(self.musicbrainz_id)
+        created = False
+        wavfname = fname
 
         panelWidth = 900		              # pixels
         panelHeight = 255		              # pixels
-        zoomlevels = self.__zoom_levels__      	      # seconds
+        zoomlevels = self._zoom_levels      	      # seconds
         options = coll.namedtuple('options', 'image_height fft_size image_width')
         options.image_height = panelHeight
         options.fft_size = 31
@@ -134,18 +131,16 @@ class AudioImages(compmusic.extractors.ExtractorModule):
 
 
 class MakamAudioImage(AudioImages):
-    __version__ = "0.1"
-    __sourcetype__ = "mp3"
-    __slug__ = "makamaudioimages"
+    _version = "0.1"
+    _sourcetype = "mp3"
+    _slug = "makamaudioimages"
 
-    __depends__ = "wav"
-
-    __output__ = {
+    _output = {
             "waveform32": {"extension": "png", "mimetype": "image/png", "parts": True},
             "spectrum32": {"extension": "png", "mimetype": "image/png", "parts": True},
             "smallfull": {"extension": "png", "mimetype": "image/png"}
         }
 
-    __zoom_levels__ =  [32]
+    _zoom_levels =  [32]
 
 
