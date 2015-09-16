@@ -130,17 +130,4 @@ class AudioImages(compmusic.extractors.ExtractorModule):
         return ret
 
 
-class MakamAudioImage(AudioImages):
-    _version = "0.1"
-    _sourcetype = "mp3"
-    _slug = "makamaudioimages"
-
-    _output = {
-            "waveform32": {"extension": "png", "mimetype": "image/png", "parts": True},
-            "spectrum32": {"extension": "png", "mimetype": "image/png", "parts": True},
-            "smallfull": {"extension": "png", "mimetype": "image/png"}
-        }
-
-    _zoom_levels =  [32]
-
 
