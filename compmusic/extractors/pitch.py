@@ -66,9 +66,8 @@ class PitchExtract(compmusic.extractors.ExtractorModule):
 
 
 class NormalisedPitchExtract(compmusic.extractors.ExtractorModule):
-    _version = "0.6"
+    _abstract = True
     _sourcetype = "mp3"
-    _slug = "normalisedpitch"
 
     _output = {"packedpitch": {"extension": "dat", "mimetype": "application/octet-stream"},
             "normalisedpitch": {"extension": "json", "mimetype": "application/json"},
@@ -94,7 +93,7 @@ class NormalisedPitchExtract(compmusic.extractors.ExtractorModule):
 
     def run(self, fname):
         pitch = util.docserver_get_json(self.musicbrainz_id, "pitch", "pitch", version="noguessunv")
-        tonic = util.docserver_get_contents(self.musicbrainz_id, "votedtonic", "tonic", version="0.2")
+        tonic = util.docserver_get_contents(self.musicbrainz_id, self.tonicname, "tonic", version=self.tonicversion)
         tonic = float(tonic)
 
         nppitch = np.array(pitch)
@@ -115,3 +114,17 @@ class NormalisedPitchExtract(compmusic.extractors.ExtractorModule):
                 "normalisedpitch": drawpitch,
                 "drawhistogram": drawhist,
                 "normalisedhistogram": simhist}
+
+class HindustaniNormalisedPitchExtract(NormalisedPitchExtract):
+    _version = "0.1"
+    _slug = "hindustaninormalisedpitch"
+
+    tonicname = "hindustanivotedtonic"
+    tonicversion = "0.1"
+
+class CarnaticNormalisedPitchExtract(NormalisedPitchExtract):
+    _version = "0.1"
+    _slug = "carnaticnormalisedpitch"
+
+    tonicname = "carnaticvotedtonic"
+    tonicversion = "0.1"
