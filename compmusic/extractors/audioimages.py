@@ -47,7 +47,7 @@ class AudioImages(compmusic.extractors.ExtractorModule):
             "smallfull": {"extension": "png", "mimetype": "image/png"}
         }
 
-    _zoom_levels_ =  [4, 8, 16, 32]
+    _zoom_levels =  [4, 8, 16, 32]
 
     def make_mini(self, wavfname):
         smallfulloptions = coll.namedtuple('options', 'image_height fft_size image_width')
