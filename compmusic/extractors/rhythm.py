@@ -27,7 +27,7 @@ class RhythmExtract(compmusic.extractors.ExtractorModule):
                     "aksharaTicks": {"extension": "json", "mimetype": "application/json"},
                     "APcurve": {"extension": "json", "mimetype": "application/json"}}
 
-    def run(self, fname):
+    def run(self, musicbrainzid, fname):
         params = ap.params
         self.logger.info('Started Processing...')
         self.logger.info(fname)

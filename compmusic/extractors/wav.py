@@ -30,7 +30,7 @@ class Mp3ToWav(compmusic.extractors.ExtractorModule):
                   "length": {"extension": "dat", "mimetype": "text/plain"}
                  }
 
-    def run(self, fname):
+    def run(self, musicbrainzid, fname):
         fp, tmpname = tempfile.mkstemp(".wav")
         os.close(fp)
         proclist = ["lame", "--decode", fname, tmpname]

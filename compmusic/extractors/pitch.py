@@ -45,7 +45,7 @@ class PitchExtract(compmusic.extractors.ExtractorModule):
                           CentsPerBin=1)
 
 
-    def run(self, fname):
+    def run(self, musicbrainzid, fname):
         audioLoader = essentia.standard.EasyLoader(filename=fname)
         monoLoader = essentia.standard.MonoLoader(filename=fname)
         sampleRate = monoLoader.paramValue("sampleRate")
@@ -93,9 +93,9 @@ class NormalisedPitchExtract(compmusic.extractors.ExtractorModule):
         normalised_pitch[indexes] = max_value
         return normalised_pitch
 
-    def run(self, fname):
-        pitch = util.docserver_get_json(self.musicbrainz_id, "pitch", "pitch", version="noguessunv")
-        tonic = util.docserver_get_contents(self.musicbrainz_id, self.tonicname, "tonic", version=self.tonicversion)
+    def run(self, musicbrainzid, fname):
+        pitch = util.docserver_get_json(musicbrainzid, "pitch", "pitch", version="noguessunv")
+        tonic = util.docserver_get_contents(musicbrainzid, self.tonicname, "tonic", version=self.tonicversion)
         tonic = float(tonic)
 
         nppitch = np.array(pitch)

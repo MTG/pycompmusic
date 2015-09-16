@@ -32,7 +32,7 @@ class CbrMp3(compmusic.extractors.ExtractorModule):
 
     _output = {"mp3": {"extension": "mp3", "mimetype": "audio/mpeg"}}
 
-    def run(self, fname):
+    def run(self, musicbrainzid, fname):
         f = eyed3.load(fname)
         vbr, brate = f.info.bit_rate
         #if vbr or brate > 128:

@@ -41,8 +41,8 @@ class Symbtr2Png(compmusic.extractors.ExtractorModule):
     }
 
 
-    def run(self, fpath):
-        symbtr = compmusic.dunya.makam.get_symbtr(self.musicbrainz_id)
+    def run(self, musicbrainzid, fpath):
+        symbtr = compmusic.dunya.makam.get_symbtr(musicbrainzid)
         fname = symbtr['name']
 
         finfo = fname.split('/')[-1].split('--')
@@ -66,7 +66,7 @@ class Symbtr2Png(compmusic.extractors.ExtractorModule):
         piece.convertsymbtr2xml(smallname)
 
         tmp_dir = tempfile.mkdtemp()
-        call(["mscore", smallname, "-S", "/srv/dunya/style.mss", "-o", "%s/%s.png" % (tmp_dir, self.musicbrainz_id)])
+        call(["mscore", smallname, "-S", "/srv/dunya/style.mss", "-o", "%s/%s.png" % (tmp_dir, musicbrainzid)])
        
         ret = {}
         for f in sorted(listdir(tmp_dir)):

@@ -24,7 +24,7 @@ class MotifExtract(compmusic.extractors.ExtractorModule):
     _sourcetype = "mp3"
     _slug = "motif"
 
-    def run(self, fname):
+    def run(self, musicbrainzid, fname):
         audio = essentia.standard.MonoLoader(filename=fname)()
         # sankalp to finish
 

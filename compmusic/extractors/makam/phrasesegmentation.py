@@ -32,7 +32,7 @@ class PhraseSegmentation(compmusic.extractors.ExtractorModule):
             "": {}}
 
 
-    def run(self, fname):
+    def run(self, musicbrainzid, fname):
 
         return {"pitch": thepitch.tolist()}
 

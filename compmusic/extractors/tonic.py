@@ -39,7 +39,7 @@ class TonicExtract(compmusic.extractors.ExtractorModule):
 
     _output = {"tonic": {"extension": "dat", "mimetype": "text/plain"}}
 
-    def run(self, fname):
+    def run(self, musicbrainzid, fname):
         audio = essentia.standard.MonoLoader(filename=fname)()
         tonic = essentia.standard.TonicIndianArtMusic()(audio)
 
@@ -61,8 +61,8 @@ class CTonicExtract(compmusic.extractors.ExtractorModule):
             return tonic
         return None
 
-    def run(self, fname):
-        wavfname = util.docserver_get_filename(self.musicbrainz_id, "wav", "wave")
+    def run(self, musicbrainzid, fname):
+        wavfname = util.docserver_get_filename(musicbrainzid, "wav", "wave")
         proclist = ["/srv/dunya/PitchCandExt_O3", "-m", "T", "-t", "V", "-i", wavfname]
         p = subprocess.Popen(proclist, stdout=subprocess.PIPE)
         output = p.communicate()
@@ -135,10 +135,10 @@ class TonicVote(compmusic.extractors.ExtractorModule):
             self.set_key(key, json.dumps(tonics), 3600)
         return tonics
 
-    def run(self, fname):
-        artists = self._artists_for_recording(self.musicbrainz_id)
+    def run(self, musicbrainzid, fname):
+        artists = self._artists_for_recording(musicbrainzid)
 
-        thistonic = self._get_tonic(self.musicbrainz_id)
+        thistonic = self._get_tonic(musicbrainzid)
         if len(artists) == 1 and thistonic:
             thistonic = float(thistonic)
             aid = artists[0]
