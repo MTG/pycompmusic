@@ -17,9 +17,9 @@
 #
 # If you are using this extractor please cite the following paper:
 #
-# Atlı, H. S., Uyar, B., Şentürk, S., Bozkurt, B., and Serra, X. (2014). Audio 
-# feature extraction for exploring Turkish makam music. In Proceedings of 3rd 
-# International Conference on Audio Technologies for Music and Media, Ankara, 
+# Atlı, H. S., Uyar, B., Şentürk, S., Bozkurt, B., and Serra, X. (2014). Audio
+# feature extraction for exploring Turkish makam music. In Proceedings of 3rd
+# International Conference on Audio Technologies for Music and Media, Ankara,
 # Turkey.
 
 import compmusic.extractors
@@ -40,11 +40,10 @@ import scipy.io
 import cStringIO
 
 class PitchExtractMakam(compmusic.extractors.ExtractorModule):
-  __version__ = "0.6"
-  __sourcetype__ = "mp3"
-  __slug__ = "makampitch"
-  #    __depends__ = ""
-  __output__ = {"pitch": {"extension": "json", "mimetype": "application/json"},
+  _version = "0.6"
+  _sourcetype = "mp3"
+  _slug = "makampitch"
+  _output = {"pitch": {"extension": "json", "mimetype": "application/json"},
                 "matlab": {"extension": "mat", "mimetype": "application/octet-stream"},
                 "settings": {"extension": "json", "mimetype": "application/json"}
                 }
@@ -58,7 +57,7 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
                       maxFrequency = 1760, # default maximum of PitchSalienceFunction
                       magnitudeThreshold = 0, # default of SpectralPeaks; 0 dB?
                       peakDistributionThreshold = 1.4, # default in PitchContours is 0.9; we need higher in makams
-                      filterPitch = True, # call PitchFilter 
+                      filterPitch = True, # call PitchFilter
                       confidenceThreshold = 36, # default confidenceThreshold for pitchFilter
                       minChunkSize = 50) # number of minimum allowed samples of a chunk in PitchFilter; ~145 ms with 128 sample hopSize & 44100 Fs
 
@@ -73,7 +72,7 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
     run_windowing = estd.Windowing(zeroPadding = 3 * self.settings.frameSize) # Hann window with x4 zero padding
     run_spectrum = estd.Spectrum(size=self.settings.frameSize * 4)
 
-    run_spectral_peaks = estd.SpectralPeaks(minFrequency=self.settings.minFrequency, 
+    run_spectral_peaks = estd.SpectralPeaks(minFrequency=self.settings.minFrequency,
             maxFrequency = self.settings.maxFrequency,
             sampleRate = self.settings.sampleRate,
             magnitudeThreshold = self.settings.magnitudeThreshold,
@@ -131,17 +130,17 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
     # [time pitch salience] matrix
     out = transpose(vstack((time_stamps, pitch.tolist(), pitch_salience.tolist())))
     out = out.tolist()
-    
+
     # settings
     settings = self.settings
-    settings.update({'version':self.__version__, 
-            'slug':self.__slug__, 
+    settings.update({'version':self._version,
+            'slug':self._slug,
             'source': fname,
             'essentiaVersion': essentia_version,
             'pitchUnit': 'Hz',
             'citation': citation})
 
-    # matlab 
+    # matlab
     matout = cStringIO.StringIO()
     matob = {'pitch': out}
     matob.update(settings)
@@ -187,7 +186,7 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
 
       # remove overlaps
       [startSamples, pitchContours, contourSaliences] = self.RemoveOverlaps(startSamples, pitchContours, contourSaliences, lens, acc_idx)
-      
+
     # accumulate pitch and salience
     pitch = array([0.] * (numSamples))
     salience = array([0.] * (numSamples))
@@ -195,7 +194,7 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
       startSample = startSamples_noOverlap[i]
       endSample = startSamples_noOverlap[i] + len(pitchContours_noOverlap[i])
 
-      try: 
+      try:
         pitch[startSample:endSample] = pitchContours_noOverlap[i]
         salience[startSample:endSample] = contourSaliences_noOverlap[i]
 
