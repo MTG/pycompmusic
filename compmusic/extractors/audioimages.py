@@ -34,6 +34,8 @@ class AudioImages(compmusic.extractors.ExtractorModule):
     _sourcetype = "mp3"
     _slug = "audioimages"
 
+    __depends = "wav"
+    
     _output = {"waveform4": {"extension": "png", "mimetype": "image/png", "parts": True},
             "spectrum4": {"extension": "png", "mimetype": "image/png", "parts": True},
             "waveform8": {"extension": "png", "mimetype": "image/png", "parts": True},
