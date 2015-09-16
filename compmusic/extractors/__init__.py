@@ -40,7 +40,7 @@ class ExtractorModule(object):
     _version = None
     """The slug of the source file type that this module takes as input"""
     _sourcetype = None
-    
+
     _depends = None
     """A handy slug that can be used to refer to this module. Should be unique
     over all modules"""
@@ -108,6 +108,22 @@ class ExtractorModule(object):
         """
         pass
 
+    def process_collection(self, docid, id_fnames):
+        if not self._many_files:
+            raise Exception("This method can only be used if the extractor supports many files")
+
+        """ Set up some class state and call run. This should
+        never be called publicly """
+        try:
+            self.document_id = docid
+            self.logger.set_documentid(docid)
+            self.logger.info("Worker %s" % self.hostname)
+            return self.run_many(id_fnames)
+        except Exception, e:
+            self.logger.error(e)
+            raise e
+
+
     def process_document(self, docid, sourcefileid, musicbrainzid, fname):
         """ Set up some class state and call run. This should
         never be called publicly """
@@ -117,15 +133,21 @@ class ExtractorModule(object):
             self.logger.set_sourcefileid(sourcefileid)
             self.musicbrainz_id = musicbrainzid
             self.logger.info("Worker %s" % self.hostname)
-            return self.run(fname)
+            return self.run(musicbrainzid, fname)
         except Exception, e:
             self.logger.error(e)
             raise e
 
-    def run(self, fname):
+    def run(self, musicbrainzid, fname):
         """Overwrite this to process a file. If you need the document ID then it's available at
         self.document_id. There is a logger available at self.logger that is written to the
         docserver database."""
+        pass
+
+    def run_many(self, id_fnames):
+        """Overwrite this to process many files.
+        id_fnames is a list of (musicbrainz_id, filename) tuples.
+        There is a logger available at self.logger that is written to the docserver database."""
         pass
 
     def add_settings(self, **kwargs):
