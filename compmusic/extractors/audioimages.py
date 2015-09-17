@@ -63,10 +63,10 @@ class AudioImages(compmusic.extractors.ExtractorModule):
         w2png.genimages(wavfname, smallfullio, smallfullspecio, smallfulloptions)
         return smallfullio.getvalue()
 
-    def run(self, fname):
+    def run(self, musicbrainzid, fname):
         baseFname, ext = os.path.splitext(os.path.basename(fname))
         
-        wavfname, created = util.docserver_get_wav_filename(self.musicbrainz_id)
+        wavfname, created = util.docserver_get_wav_filename(musicbrainz)
 
         panelWidth = 900		              # pixels
         panelHeight = 255		              # pixels
