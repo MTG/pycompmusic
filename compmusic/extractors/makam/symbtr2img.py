@@ -69,7 +69,7 @@ class Symbtr2Png(compmusic.extractors.ExtractorModule):
         call(["mscore", smallname, "-S", "/srv/dunya/style.mss", "-o", "%s/%s.png" % (tmp_dir, musicbrainzid)])
        
         ret = {}
-        for f in sorted(listdir(tmp_dir)):
+        for f in sorted(os.listdir(tmp_dir)):
             if isfile(join(tmp_dir, f)):
                 img_file = open(join(tmp_dir, f))
                 ret['score'].append(img_file.read())
