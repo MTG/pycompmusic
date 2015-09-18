@@ -5,6 +5,7 @@ import csv
 import json
 from math import floor
 import numpy
+import compmusic
 
 class Metadata(compmusic.extractors.ExtractorModule):
     _version = "0.1"
@@ -18,7 +19,21 @@ class Metadata(compmusic.extractors.ExtractorModule):
     def run(self, musicbrainzid, fname):
         return extract(fname)
 
-def extract(scorefile, useMusicBrainz = False):
+def structure_labels(): 
+	return {u'instrumentation': [u'SAZ', u'DAVUL', u'BANDO'],
+		u'structure': [u'2. HANEYE', u'ARA SAZI', u'ARANA\u011eME',
+		u'1. HANE VE M\xdcL\xc2Z\u0130ME', u'OYUN KISMI', u'3. HANE', u'SON HANE',
+		u'G\u0130R\u0130\u015e SAZI', u'G\u0130R\u0130\u015e', u'TESL\u0130M',
+		u'R\u0130TM', u'3. HANEYE', u'1. HANE', u'I.', u'H\xc2NE-\u0130 S\xc2L\u0130S', 
+		u'ORTA HANE', u'II.', u'SERHANE', u'G\u0130R\u0130\u015e VE ARA SAZI',
+		u'5. HANE', u'TERENN\xdcM', u'KARAR', u'2. HANE', u'4. HANE', u'SERH\xc2NE',
+		u'M\xdcL\xc2Z\u0130ME', u'SESLERLE N\u0130NN\u0130', u'F\u0130NAL', 
+		u'4. HANEYE', u'H\xc2NE-\u0130 S\xc2N\u0130', u'M\xdcZ\u0130K (Y\xdcR\xdcK)',
+		u'2. HANE VE TESL\u0130M', u'K\xdc\u015eAT'], u'timing': [u'A\u011eIRLAMA',
+		u'A\u011eIR', u'A\u011eIRLA\u015eARAK', u'YAVA\u015eLAYARAK',
+		u'D\xd6N\xdc\u015eTE YAVA\u015eLAYARAK', u'CANLI OLARAK', u'SERBEST']}
+
+def extract(scorefile, useMusicBrainz = False, slugify = True):
     # get the metadata in the score name, works if the name of the 
     # file has not been changed
     metadata = dict()
@@ -28,10 +43,10 @@ def extract(scorefile, useMusicBrainz = False):
         metadata['composer']] = symbtrname.split('--')
 
         if isinstance(metadata['composer'], list):
-            print 'The SymbTr name is not "makam--form--usul--name--composer"'
+            print 'The SymbTr name is not in the form "makam--form--usul--name--composer"'
             metadata = dict()
     except ValueError:
-        print 'The SymbTr name is not "makam--form--usul--name--composer"'
+        print 'The SymbTr name is not in the form "makam--form--usul--name--composer"'
         
     # get the extension to determine the SymbTr-score format
     extension = os.path.splitext(scorefile)[1]
@@ -52,17 +67,9 @@ def extract(scorefile, useMusicBrainz = False):
     return json.dumps(metadata)
 
 
-
 def extractSectionFromTxt(scorefile):
-    structure_labels = {"structure": ["ARANA\u011eME", "TESL\u0130M", "1. HANE", "2. HANE", "KARAR", "3. HANE", "4. HANE", "M\u00dcL\u00c2Z\u0130ME", "TESL\u0130M", "2. HANEYE", "3. HANEYE", 
-        "4. HANEYE", "2. HANE VE TESL\u0130M", "1. HANE VE M\u00dcL\u00c2Z\u0130ME", "TESL\u0130M", "4. HANE", "TERENN\u00dcM", "SESLERLE N\u0130NN\u0130", 
-        "K\u00dc\u015eAT", "G\u0130R\u0130\u015e SAZI", "SERH\u00c2NE", "H\u00c2NE-\u0130 S\u00c2N\u0130", "H\u00c2NE-\u0130 S\u00c2L\u0130S", 
-        "G\u0130R\u0130\u015e",  "3. HANE", "2. HANE", "1. HANE", "SON HANE", "SERHANE", "R\u0130TM", "II.", "I.", "G\u0130R\u0130\u015e VE ARA SAZI", 
-        "ARA SAZI", "OYUN KISMI", "ORTA HANE", "M\u00dcZ\u0130K (Y\u00dcR\u00dcK)", "F\u0130NAL", "5. HANE" ],
-        "timing": [ "A\u011eIRLAMA", "A\u011eIR", "A\u011eIRLA\u015eARAK", "YAVA\u015eLAYARAK", "D\u00d6N\u00dc\u015eTE YAVA\u015eLAYARAK", "CANLI OLARAK", "SERBEST"], 
-        "instrumentation": ["SAZ","DAVUL", "BANDO"]
-    }
-    structure_labels = [l for sub_list in structure_labels.values() for l in sub_list ]
+
+    struct_lbl = [l for sub_list in struct_lbl.values() for l in sub_list ]
 
     with open(scorefile, "rb") as f:
         reader = csv.reader(f, delimiter='\t')
@@ -98,7 +105,7 @@ def extractSectionFromTxt(scorefile):
         measure_blacklist = []  # embellishments and control rows!
         for i, o in zip(xrange(len(offset), 1, -1), reversed(offset)):
             # start of measure; this row can be the measure start
-            if isFirstNote(o):
+            if integerOffset(o):
                 # this row is an annotation comment
                 if i+1 in measure_start or i+1 in measure_blacklist:
                     measure_blacklist.append(i)
@@ -109,7 +116,7 @@ def extractSectionFromTxt(scorefile):
 
         # note the explicit structures
         for i, l in enumerate(lyrics):
-            if l in structure_labels:
+            if l in struct_lbl:
                 sections.append({'name':l, 'startNote':i+1, 'endNote':[]})
 
         # get the section from the spaces in the lyrics line
@@ -118,7 +125,7 @@ def extractSectionFromTxt(scorefile):
             if '  ' in l:
                 sections.append({'name':"LYRICS_SECTION", 'startNote':[], 'endNote':i+1})
             # note the actual lyrics from other information in the lyrics column
-            if not (l in structure_labels or l in ['.', '', ' ']):
+            if not (l in struct_lbl or l in ['.', '', ' ']):
                 real_lyrics_idx.append(i)
 
         # from lyrics_end estimate the end of the lyrics line
@@ -216,9 +223,11 @@ def extractSectionFromMu2(scorefile):
 def extractSectionFromMusicBrainz(scorefile):
     pass
 
-def isFirstNote(offset):
-    # the last note of each measure is an integer. Since integer check in
-    # floating point math can be inexact, we accept +- 0.001 
+def integerOffset(offset):
+    # The measure changes when the offset is an integer
+    # (Note that offset was shifted by one earlier for asier processing )
+    # Since integer check in floating point math can be inexact,
+    # we accept +- 0.001 
     return abs(offset - round(offset)) * 1000.0 < 1.0
 
 def refineSections(sections):
