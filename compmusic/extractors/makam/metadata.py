@@ -6,6 +6,8 @@ import json
 from math import floor
 import numpy
 import compmusic
+import unicodedata
+import re
 
 class Metadata(compmusic.extractors.ExtractorModule):
     _version = "0.1"
@@ -16,47 +18,46 @@ class Metadata(compmusic.extractors.ExtractorModule):
          "metadata": {"extension": "json", "mimetype": "application/json" }
          }
 
-    def run(self, musicbrainzid, fname):
+    def run(self, musicbrainzid, fname, symbtrname):
         return extract(fname)
 
-def structure_labels(): 
-	return {u'instrumentation': [u'SAZ', u'DAVUL', u'BANDO'],
-		u'structure': [u'2. HANEYE', u'ARA SAZI', u'ARANA\u011eME',
-		u'1. HANE VE M\xdcL\xc2Z\u0130ME', u'OYUN KISMI', u'3. HANE', u'SON HANE',
-		u'G\u0130R\u0130\u015e SAZI', u'G\u0130R\u0130\u015e', u'TESL\u0130M',
-		u'R\u0130TM', u'3. HANEYE', u'1. HANE', u'I.', u'H\xc2NE-\u0130 S\xc2L\u0130S', 
-		u'ORTA HANE', u'II.', u'SERHANE', u'G\u0130R\u0130\u015e VE ARA SAZI',
-		u'5. HANE', u'TERENN\xdcM', u'KARAR', u'2. HANE', u'4. HANE', u'SERH\xc2NE',
-		u'M\xdcL\xc2Z\u0130ME', u'SESLERLE N\u0130NN\u0130', u'F\u0130NAL', 
-		u'4. HANEYE', u'H\xc2NE-\u0130 S\xc2N\u0130', u'M\xdcZ\u0130K (Y\xdcR\xdcK)',
-		u'2. HANE VE TESL\u0130M', u'K\xdc\u015eAT'], u'timing': [u'A\u011eIRLAMA',
-		u'A\u011eIR', u'A\u011eIRLA\u015eARAK', u'YAVA\u015eLAYARAK',
-		u'D\xd6N\xdc\u015eTE YAVA\u015eLAYARAK', u'CANLI OLARAK', u'SERBEST']}
+def get_structure_labels(): 
+    return {u'instrumentation': [u'SAZ', u'DAVUL', u'BANDO'],
+        u'structure': [u'2. HANEYE', u'ARA SAZI', u'ARANA\u011eME',
+        u'1. HANE VE M\xdcL\xc2Z\u0130ME', u'OYUN KISMI', u'3. HANE', u'SON HANE',
+        u'G\u0130R\u0130\u015e SAZI', u'G\u0130R\u0130\u015e', u'TESL\u0130M',
+        u'R\u0130TM', u'3. HANEYE', u'1. HANE', u'I.', u'H\xc2NE-\u0130 S\xc2L\u0130S', 
+        u'ORTA HANE', u'II.', u'SERHANE', u'G\u0130R\u0130\u015e VE ARA SAZI',
+        u'5. HANE', u'TERENN\xdcM', u'KARAR', u'2. HANE', u'4. HANE', u'SERH\xc2NE',
+        u'M\xdcL\xc2Z\u0130ME', u'SESLERLE N\u0130NN\u0130', u'F\u0130NAL', 
+        u'4. HANEYE', u'H\xc2NE-\u0130 S\xc2N\u0130', u'M\xdcZ\u0130K (Y\xdcR\xdcK)',
+        u'2. HANE VE TESL\u0130M', u'K\xdc\u015eAT'], u'timing': [u'A\u011eIRLAMA',
+        u'A\u011eIR', u'A\u011eIRLA\u015eARAK', u'YAVA\u015eLAYARAK',
+        u'D\xd6N\xdc\u015eTE YAVA\u015eLAYARAK', u'CANLI OLARAK', u'SERBEST']}
 
-def extract(scorefile, useMusicBrainz = False, slugify = True):
+def extract(scorefile, symbtrname, useMusicBrainz = False, slugify = True):
     # get the metadata in the score name, works if the name of the 
     # file has not been changed
     metadata = dict()
     try:
-        symbtrname = os.path.splitext(os.path.basename(scorefile))[0]
         [metadata['makam'], metadata['form'], metadata['usul'], metadata['name'], 
         metadata['composer']] = symbtrname.split('--')
 
         if isinstance(metadata['composer'], list):
-            print 'The SymbTr name is not in the form "makam--form--usul--name--composer"'
+            print 'The symbtrname is not in the form "makam--form--usul--name--composer"'
             metadata = dict()
     except ValueError:
-        print 'The SymbTr name is not in the form "makam--form--usul--name--composer"'
+        print 'The symbtrname is not in the form "makam--form--usul--name--composer"'
         
     # get the extension to determine the SymbTr-score format
     extension = os.path.splitext(scorefile)[1]
 
     if extension == ".txt":
-        metadata['sections'] = extractSectionFromTxt(scorefile)
+        metadata['sections'] = extractSectionFromTxt(scorefile, slugify = slugify)
     elif extension == ".xml":
-        metadata['sections'] = extractSectionFromXML(scorefile)
+        metadata['sections'] = extractSectionFromXML(scorefile, slugify = slugify)
     elif extension == ".mu2":
-        metadata['sections'] = extractSectionFromMu2(scorefile)
+        metadata['sections'] = extractSectionFromMu2(scorefile, slugify = slugify)
     else:
         print "Unknown format"
         return -1
@@ -67,9 +68,9 @@ def extract(scorefile, useMusicBrainz = False, slugify = True):
     return json.dumps(metadata)
 
 
-def extractSectionFromTxt(scorefile):
+def extractSectionFromTxt(scorefile, slugify = True):
 
-    struct_lbl = [l for sub_list in struct_lbl.values() for l in sub_list ]
+    struct_lbl = [l for sub_list in get_structure_labels().values() for l in sub_list ]
 
     with open(scorefile, "rb") as f:
         reader = csv.reader(f, delimiter='\t')
@@ -117,7 +118,8 @@ def extractSectionFromTxt(scorefile):
         # note the explicit structures
         for i, l in enumerate(lyrics):
             if l in struct_lbl:
-                sections.append({'name':l, 'startNote':i+1, 'endNote':[]})
+                sections.append({'name':slugify_tr(l) if slugify else l, 
+                	'startNote':i+1, 'endNote':[]})
 
         # get the section from the spaces in the lyrics line
         real_lyrics_idx = []
@@ -165,7 +167,9 @@ def extractSectionFromTxt(scorefile):
                     # check if nextLyricsStart and prevClosestEnd are in the same 
                     # measure. Ideally it shouldn't happen
                     if floor(offset[nextLyricsStart-1]) == floor(offset[prevClosestEnd-1]):
-                        print "    " + str(floor(offset[nextLyricsStart-1])) + ': ' + lyrics[prevClosestEnd] + ' and ' + lyrics[nextLyricsStart] + ' are in the same measure! Putting the start to the next measure...'
+                        print "    " + str(floor(offset[nextLyricsStart-1])) + ': '
+                        '' + lyrics[prevClosestEnd] + ' and ' + lyrics[nextLyricsStart] + ' '
+                        'are in the same measure! Putting the start to the next measure...'
                         nextLyricsOffset = nextLyricsOffset + 1 
                 elif prevClosestEnd < prevClosestStart:
                     # at this point only the non-vocal sections have a start
@@ -214,13 +218,13 @@ def extractSectionFromTxt(scorefile):
 
     return sections
 
-def extractSectionFromXML(scorefile):
+def extractSectionFromXML(scorefile, slugify = True):
     pass
 
-def extractSectionFromMu2(scorefile):
+def extractSectionFromMu2(scorefile, slugify = True):
     pass
 
-def extractSectionFromMusicBrainz(scorefile):
+def extractSectionFromMusicBrainz(scorefile, slugify = True):
     pass
 
 def integerOffset(offset):
@@ -229,6 +233,13 @@ def integerOffset(offset):
     # Since integer check in floating point math can be inexact,
     # we accept +- 0.001 
     return abs(offset - round(offset)) * 1000.0 < 1.0
+
+def slugify_tr(value):  
+    value_slug = value.replace(u'\u0131', 'i')
+    value_slug = unicodedata.normalize('NFKD', value_slug).encode('ascii', 'ignore').decode('ascii')
+    value_slug = re.sub('[^\w\s-]', '', value_slug).strip()
+    
+    return re.sub('[-\s]+', '-', value_slug)
 
 def refineSections(sections):
     # TODO
