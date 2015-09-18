@@ -35,6 +35,7 @@ def get_structure_labels():
         u'A\u011eIR', u'A\u011eIRLA\u015eARAK', u'YAVA\u015eLAYARAK',
         u'D\xd6N\xdc\u015eTE YAVA\u015eLAYARAK', u'CANLI OLARAK', u'SERBEST']}
 
+
 def extract(scorefile, symbtrname, useMusicBrainz = False, slugify = True):
     # get the metadata in the score name, works if the name of the 
     # file has not been changed
@@ -119,7 +120,7 @@ def extractSectionFromTxt(scorefile, slugify = True):
         for i, l in enumerate(lyrics):
             if l in struct_lbl:
                 sections.append({'name':slugify_tr(l) if slugify else l, 
-                	'startNote':i+1, 'endNote':[]})
+                    'startNote':i+1, 'endNote':[]})
 
         # get the section from the spaces in the lyrics line
         real_lyrics_idx = []
@@ -128,7 +129,7 @@ def extractSectionFromTxt(scorefile, slugify = True):
                 sections.append({'name':"LYRICS_SECTION", 'startNote':[], 'endNote':i+1})
             # note the actual lyrics from other information in the lyrics column
             if not (l in struct_lbl or l in ['.', '', ' ']):
-                real_lyrics_idx.append(i)
+                real_lyrics_idx.append(i+1)
 
         # from lyrics_end estimate the end of the lyrics line
         startNotes = [s['startNote'] for s in sections]
@@ -167,9 +168,9 @@ def extractSectionFromTxt(scorefile, slugify = True):
                     # check if nextLyricsStart and prevClosestEnd are in the same 
                     # measure. Ideally it shouldn't happen
                     if floor(offset[nextLyricsStart-1]) == floor(offset[prevClosestEnd-1]):
-                        print "    " + str(floor(offset[nextLyricsStart-1])) + ': '
-                        '' + lyrics[prevClosestEnd] + ' and ' + lyrics[nextLyricsStart] + ' '
-                        'are in the same measure! Putting the start to the next measure...'
+                        print ("    " + str(floor(offset[nextLyricsStart-1])) + ':'
+                        ' ' + lyrics[prevClosestEnd] + ' and ' + lyrics[nextLyricsStart] + ' '
+                        'are in the same measure! Putting the start to the next measure...')
                         nextLyricsOffset = nextLyricsOffset + 1 
                 elif prevClosestEnd < prevClosestStart:
                     # at this point only the non-vocal sections have a start
@@ -210,10 +211,12 @@ def extractSectionFromTxt(scorefile, slugify = True):
         # warnings
         for s in sections:
             if s['startNote'] not in measure_start and s['name'] not in ['SAZ', 'KARAR']:
-                print "    " + str(s['startNote']) + ', ' + s['name'] + ' does not start on a measure: ' + str(offset[s['startNote']-1])
+                print("    " + str(s['startNote']) + ', ' + s['name'] + ' does '
+                	'not start on a measure: ' + str(offset[s['startNote']-1]))
 
         # sort the sections
-        sortIdx = [i[0] for i in sorted(enumerate([s['startNote'] for s in sections]), key=lambda x:x[1])]
+        sortIdx = [i[0] for i in sorted(enumerate([s['startNote'] for s in sections]), 
+            key=lambda x:x[1])]
         sections = [sections[s] for s in sortIdx]
 
     return sections
