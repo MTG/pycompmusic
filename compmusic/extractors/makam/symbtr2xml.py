@@ -496,6 +496,15 @@ class symbtrscore(object):
         workTitle = etree.SubElement(work, 'work-title')
         workTitle.text = self.name.title()
 
+        identification = etree.SubElement(self.score, 'identification')
+        enc = etree.SubElement(identification, 'encoding')
+        sup = etree.SubElement(enc, 'supports')
+        sup.set('element', 'print')
+        sup.set('attribute', 'new-system')
+        sup.set('type', 'yes')
+        sup.set('value', 'yes')
+
+
         #part-list
         partList = etree.SubElement(self.score, 'part-list')
         scorePart = etree.SubElement(partList, 'score-part')
@@ -656,11 +665,16 @@ class symbtrscore(object):
                 #NEW MEASURE
                 if measureSum >= measureLength:
                     i += 1
-                    measure.append(etree.SubElement(P1, 'measure'))
+                    numb = etree.SubElement(P1, 'measure')
+                    measure.append(numb)
                     measure[-1].set('number', str(i))
-                    tempatts = etree.SubElement(measure[-1], 'attributes')
+                    if i % 2 !=0:
+                        eprint = etree.SubElement(measure[-1], 'print')
+                        eprint.set('new-system', 'yes')
+
+                    tempatts = etree.SubElement(numb, 'attributes')
                     measureSum = 0
-                    tempmeasurehead = measure[-1]
+                    tempmeasurehead = numb
                     #eof notes
             elif tempkod == '51':
                 #print('XX')
