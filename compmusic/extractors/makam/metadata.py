@@ -8,6 +8,8 @@ import numpy
 import compmusic
 import unicodedata
 import re
+from compmusic import dunya
+dunya.set_token('69ed3d824c4c41f59f0bc853f696a7dd80707779')
 
 class Metadata(compmusic.extractors.ExtractorModule):
     _version = "0.1"
@@ -18,8 +20,11 @@ class Metadata(compmusic.extractors.ExtractorModule):
          "metadata": {"extension": "json", "mimetype": "application/json" }
          }
 
-    def run(self, musicbrainzid, fname, symbtrname):
-        return extract(fname)
+    def run(self, musicbrainzid, fname):
+        symbtr = compmusic.dunya.makam.get_symbtr(musicbrainzid)
+        symbtr_fname = symbtr['name'] + ".txt"
+
+        return extract(fname, symbtr_fname)
 
 def get_structure_labels(): 
     return {u'instrumentation': [u'SAZ', u'DAVUL', u'BANDO'],
@@ -39,10 +44,11 @@ def get_structure_labels():
 def extract(scorefile, symbtrname, useMusicBrainz = False, slugify = True):
     # get the metadata in the score name, works if the name of the 
     # file has not been changed
+    symbtrdict = symbtrname.split('--')
     metadata = dict()
     try:
         [metadata['makam'], metadata['form'], metadata['usul'], metadata['name'], 
-        metadata['composer']] = symbtrname.split('--')
+            metadata['composer']] = symbtrname.split('--')
 
         if isinstance(metadata['composer'], list):
             print 'The symbtrname is not in the form "makam--form--usul--name--composer"'
@@ -66,7 +72,7 @@ def extract(scorefile, symbtrname, useMusicBrainz = False, slugify = True):
     if useMusicBrainz:
         extractSectionFromMusicBrainz
 
-    return json.dumps(metadata)
+    return {'metadata': metadata}
 
 
 def extractSectionFromTxt(scorefile, slugify = True):
