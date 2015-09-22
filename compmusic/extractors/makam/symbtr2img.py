@@ -66,8 +66,8 @@ class Symbtr2Png(compmusic.extractors.ExtractorModule):
         piece.convertsymbtr2xml(smallname)
 
         tmp_dir = tempfile.mkdtemp()
-        call(["mscore", smallname, "-o", "%s/%s.png" % (tmp_dir, musicbrainzid)])
-       
+        call(["mscore-self", "-platform minimal", smallname, "-b", "-o", "%s/%s.png" % (tmp_dir, musicbrainzid), "-d", " 2>% /dev/null"])
+      
         ret = {'score': []}
         for f in sorted(os.listdir(tmp_dir)):
             if isfile(join(tmp_dir, f)):
