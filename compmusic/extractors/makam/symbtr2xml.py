@@ -668,9 +668,10 @@ class symbtrscore(object):
                     numb = etree.SubElement(P1, 'measure')
                     measure.append(numb)
                     measure[-1].set('number', str(i))
-                    if i % 2 !=0:
-                        eprint = etree.SubElement(measure[-1], 'print')
-                        eprint.set('new-system', 'yes')
+                    
+                    #Add new line on each bar
+                    eprint = etree.SubElement(measure[-1], 'print')
+                    eprint.set('new-system', 'yes')
 
                     tempatts = etree.SubElement(numb, 'attributes')
                     measureSum = 0
