@@ -664,7 +664,7 @@ class symbtrscore(object):
                 #print(temp_duration, ' ', measureSum, ' ' , measureLength,' ',i)
 
                 #NEW MEASURE
-                if tempoffset != '' and float(tempoffset).is_integer():
+                if measureSum >= measureLength or tempoffset != '' and float(tempoffset).is_integer():
                     if measureSum >= measureLength:
                         measureSum = 0
                         #Double Line
