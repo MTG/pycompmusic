@@ -221,7 +221,7 @@ def getKeySig(piecemakam, keysig):
         try:
             donanim.append((makamTree.xpath(xpression + 'Donanim-' + str(i), makam=makam_))[0].text)
             donanim[-1] = trToWestern[donanim[-1][:2]] + donanim[-1][2:]
-            print(donanim[-1])
+            #print(donanim[-1])
         except:
             break
 
@@ -322,8 +322,8 @@ class symbtrscore(object):
                 except:
                     self.l_soz1.append('')
                 try:
-                    self.l_offset.append(temp_line.pop())
-                    self.l_offset[-1] = l_offset[-1][:-1]
+                    off =  temp_line.pop().replace('\n', '')
+                    self.l_offset.append(off)
                 except:
                     self.l_offset.append('')
                 i += 1
@@ -595,6 +595,7 @@ class symbtrscore(object):
             tempacc = self.l_acc[cnt]
             tempoct = self.l_oct[cnt]
             templyric = self.l_soz1[cnt]
+            tempoffset = self.l_offset[cnt]
 
             if tempkod not in ['0', '8', '35', '51', '53', '54', '55']:
                 note = etree.SubElement(measure[-1], 'note')  #note     UNIVERSAL
@@ -640,7 +641,7 @@ class symbtrscore(object):
                     if endlineflag == 1:
                         endline = etree.SubElement(lyric, 'end-line')
 
-                    print(cnt, endlineflag, measureSum)
+                    #print(cnt, endlineflag, measureSum)
 
                     #section information
                     if templyric in sectionList:        #instrumental pieces and pieces with section keywords
@@ -663,18 +664,26 @@ class symbtrscore(object):
                 #print(temp_duration, ' ', measureSum, ' ' , measureLength,' ',i)
 
                 #NEW MEASURE
-                if measureSum >= measureLength:
+                if tempoffset != '' and float(tempoffset).is_integer():
+                    if measureSum >= measureLength:
+                        measureSum = 0
+                        #Double Line
+                        bar = etree.SubElement(tempmeasurehead, 'barline')
+                        bar.set('location', 'right')
+                        bar_style = etree.SubElement(bar, 'bar-style')
+                        bar_style.text = 'light-light'
+
                     i += 1
                     numb = etree.SubElement(P1, 'measure')
+                    numb.set('number', str(i))
                     measure.append(numb)
-                    measure[-1].set('number', str(i))
-                    
-                    #Add new line on each bar
+                   
+                    #Add new line every bar
                     eprint = etree.SubElement(measure[-1], 'print')
                     eprint.set('new-system', 'yes')
-
+                    
+                    numb.set('width', "535.00")
                     tempatts = etree.SubElement(numb, 'attributes')
-                    measureSum = 0
                     tempmeasurehead = numb
                     #eof notes
             elif tempkod == '51':
