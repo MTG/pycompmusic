@@ -21,7 +21,7 @@
 # feature extraction for exploring Turkish makam music. In Proceedings of 3rd 
 # International Conference on Audio Technologies for Music and Media, Ankara, 
 # Turkey.
-
+from wand.image import Image
 import compmusic.extractors
 import symbtr2xml 
 import tempfile
@@ -66,8 +66,13 @@ class Symbtr2Png(compmusic.extractors.ExtractorModule):
         piece.convertsymbtr2xml(smallname)
 
         tmp_dir = tempfile.mkdtemp()
-        call(["mscore-self", "-platform minimal", smallname, "-b", "-o", "%s/%s.png" % (tmp_dir, musicbrainzid), "-d"])
-      
+        call(["mscore-self", "-platform minimal", smallname, "-S", "/srv/dunya/style.mss", "-b", "-o", "%s/out.pdf" % (tmp_dir)])
+     
+        with Image(filename="%s/out.pdf" % (tmp_dir), resolution=300) as img:
+            img.save(filename= "%s/%s.png" % (tmp_dir, musicbrainzid))
+        
+        os.remove(join(tmp_dir, "%s/out.pdf" % (tmp_dir))) 
+
         ret = {'score': []}
         for f in sorted(os.listdir(tmp_dir)):
             if isfile(join(tmp_dir, f)):
