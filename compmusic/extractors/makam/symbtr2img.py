@@ -38,6 +38,7 @@ class Symbtr2Png(compmusic.extractors.ExtractorModule):
     _slug = "score"
     _output = {
             "intervals": {"extension": "json", "mimetype": "application/json"},
+            "xmlscore": {"extension": "xml", "mimetype": "application/xml"},
             "score": {"extension": "png", "mimetype": "image/png", "parts": True},
     }
 
@@ -74,7 +75,12 @@ class Symbtr2Png(compmusic.extractors.ExtractorModule):
         
         os.remove(join(tmp_dir, "%s/out.pdf" % (tmp_dir))) 
 
-        ret = {'intervals': intervals, 'score': []}
+        ret = {'intervals': intervals, 'score': [], 'xmlscore': ''}
+        musicxml = open(smallname)
+        ret['xmlscore'] = musicxml.read()
+        musicxml.close()
+        os.unlink(smallname)
+        
         for f in sorted(os.listdir(tmp_dir)):
             if isfile(join(tmp_dir, f)):
                 img_file = open(join(tmp_dir, f))
@@ -82,7 +88,6 @@ class Symbtr2Png(compmusic.extractors.ExtractorModule):
                 img_file.close()
                 os.remove(join(tmp_dir, f)) 
         os.rmdir(tmp_dir)
-        os.unlink(smallname)
         return ret
 
 
