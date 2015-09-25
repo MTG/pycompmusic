@@ -37,6 +37,7 @@ class Symbtr2Png(compmusic.extractors.ExtractorModule):
     _sourcetype = "txt"
     _slug = "score"
     _output = {
+            "intervals": {"extension": "json", "mimetype": "application/json"},
             "score": {"extension": "png", "mimetype": "image/png", "parts": True},
     }
 
@@ -63,7 +64,7 @@ class Symbtr2Png(compmusic.extractors.ExtractorModule):
         os.close(fp)
 
         piece = symbtr2xml.symbtrscore(fpath, makam, form, usul, name, composer)
-        piece.convertsymbtr2xml(smallname)
+        intervals = piece.convertsymbtr2xml(smallname)
 
         tmp_dir = tempfile.mkdtemp()
         call(["mscore-self", "-platform minimal", smallname, "-S", "/srv/dunya/style.mss", "-b", "-o", "%s/out.pdf" % (tmp_dir)])
@@ -73,7 +74,7 @@ class Symbtr2Png(compmusic.extractors.ExtractorModule):
         
         os.remove(join(tmp_dir, "%s/out.pdf" % (tmp_dir))) 
 
-        ret = {'score': []}
+        ret = {'intervals': intervals, 'score': []}
         for f in sorted(os.listdir(tmp_dir)):
             if isfile(join(tmp_dir, f)):
                 img_file = open(join(tmp_dir, f))

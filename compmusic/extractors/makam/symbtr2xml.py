@@ -584,9 +584,11 @@ class symbtrscore(object):
         endlineflag = 1
         tempatts = ""
         tempmeasurehead = measure[-1]
+        startindex = None 
+        siraintervals = []
 
         for cnt in range(1, len(self.l_nota)):
-
+            
             tempkod = self.l_kod[cnt]
             tempsira = self.l_sira[cnt]
             temppay = self.l_pay[cnt]
@@ -598,6 +600,8 @@ class symbtrscore(object):
             tempoffset = self.l_offset[cnt]
 
             if tempkod not in ['0', '8', '35', '51', '53', '54', '55']:
+                if not startindex:
+                    startindex = tempsira
                 note = etree.SubElement(measure[-1], 'note')  #note     UNIVERSAL
 
                 if tempnota != 'r':
@@ -682,9 +686,13 @@ class symbtrscore(object):
                     eprint = etree.SubElement(measure[-1], 'print')
                     eprint.set('new-system', 'yes')
                     
-                    numb.set('width', "535.00")
                     tempatts = etree.SubElement(numb, 'attributes')
                     tempmeasurehead = numb
+                   
+                    print tempsira
+                    siraintervals.append({"start":startindex,"end": tempsira})
+                    startindex = None
+
                     #eof notes
             elif tempkod == '51':
                 #print('XX')
@@ -692,6 +700,7 @@ class symbtrscore(object):
                     measureLength = self.usulchange(measure[-1], tempatts, temppay, temppayda, nof_divs, templyric)
                 except:
                     print('Kod', tempkod, 'but no time information.')
+        return siraintervals
 
     def writexml(self, out_file):
         #printing xml file
@@ -702,8 +711,9 @@ class symbtrscore(object):
 
     def convertsymbtr2xml(self, out_file):
         self.readsymbtrlines()
-        self.xmlconverter()
+        intervals = self.xmlconverter()
         self.writexml(out_file)
+        return intervals
 
 def multipleFiles():
     errorFiles = []
