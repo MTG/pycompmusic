@@ -49,6 +49,7 @@ def extract(scorefile, symbtrname, useMusicBrainz = False, slugify = True):
     try:
         [metadata['makam'], metadata['form'], metadata['usul'], metadata['name'], 
             metadata['composer']] = symbtrname.split('--')
+        metadata['tonic'] = getTonic(metadata['makam'])
 
         if isinstance(metadata['composer'], list):
             print 'The symbtrname is not in the form "makam--form--usul--name--composer"'
@@ -74,6 +75,12 @@ def extract(scorefile, symbtrname, useMusicBrainz = False, slugify = True):
 
     return {'metadata': metadata}
 
+def getTonic(makam):
+    makam_tonic_file = os.path.join(os.path.dirname(
+        os.path.abspath(__file__)), 'makams_usuls/makam.json')
+    makam_tonic = json.load(open(makam_tonic_file, 'r'))
+
+    return makam_tonic[makam]['kararSymbol']
 
 def extractSectionFromTxt(scorefile, slugify = True):
 
