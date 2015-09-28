@@ -26,22 +26,16 @@ class Metadata(compmusic.extractors.ExtractorModule):
 
         return extract(fname, symbtr_fname)
 
-def get_structure_labels(): 
-    return {u'instrumentation': [u'SAZ', u'DAVUL', u'BANDO'],
-        u'structure': [u'2. HANEYE', u'ARA SAZI', u'ARANA\u011eME',
-        u'1. HANE VE M\xdcL\xc2Z\u0130ME', u'OYUN KISMI', u'3. HANE', u'SON HANE',
-        u'G\u0130R\u0130\u015e SAZI', u'G\u0130R\u0130\u015e', u'TESL\u0130M',
-        u'R\u0130TM', u'3. HANEYE', u'1. HANE', u'I.', u'H\xc2NE-\u0130 S\xc2L\u0130S', 
-        u'ORTA HANE', u'II.', u'SERHANE', u'G\u0130R\u0130\u015e VE ARA SAZI',
-        u'5. HANE', u'TERENN\xdcM', u'KARAR', u'2. HANE', u'4. HANE', u'SERH\xc2NE',
-        u'M\xdcL\xc2Z\u0130ME', u'SESLERLE N\u0130NN\u0130', u'F\u0130NAL', 
-        u'4. HANEYE', u'H\xc2NE-\u0130 S\xc2N\u0130', u'M\xdcZ\u0130K (Y\xdcR\xdcK)',
-        u'2. HANE VE TESL\u0130M', u'K\xdc\u015eAT'], u'timing': [u'A\u011eIRLAMA',
-        u'A\u011eIR', u'A\u011eIRLA\u015eARAK', u'YAVA\u015eLAYARAK',
-        u'D\xd6N\xdc\u015eTE YAVA\u015eLAYARAK', u'CANLI OLARAK', u'SERBEST']}
+def get_labels(): 
+    symbtr_label_file = os.path.join(os.path.dirname(
+        os.path.abspath(__file__)), 'makams_usuls', 'symbTrLabels.json')
+    symbtr_label = json.load(open(symbtr_label_file, 'r'))
+
+    return symbtr_label
 
 
-def extract(scorefile, symbtrname, useMusicBrainz = False, slugify = True):
+def extract(scorefile, symbtrname, useMusicBrainz = False, extractAllLabels = False, 
+    slugify = True):
     # get the metadata in the score name, works if the name of the 
     # file has not been changed
     symbtrdict = symbtrname.split('--')
@@ -61,11 +55,14 @@ def extract(scorefile, symbtrname, useMusicBrainz = False, slugify = True):
     extension = os.path.splitext(scorefile)[1]
 
     if extension == ".txt":
-        metadata['sections'] = extractSectionFromTxt(scorefile, slugify = slugify)
+        metadata['sections'] = extractSectionFromTxt(scorefile, slugify=slugify, 
+            extractAllLabels=extractAllLabels)
     elif extension == ".xml":
-        metadata['sections'] = extractSectionFromXML(scorefile, slugify = slugify)
+        metadata['sections'] = extractSectionFromXML(scorefile, slugify=slugify, 
+            extractAllLabels=extractAllLabels)
     elif extension == ".mu2":
-        metadata['sections'] = extractSectionFromMu2(scorefile, slugify = slugify)
+        metadata['sections'] = extractSectionFromMu2(scorefile, slugify=slugify, 
+            extractAllLabels=extractAllLabels)
     else:
         print "Unknown format"
         return -1
@@ -77,14 +74,14 @@ def extract(scorefile, symbtrname, useMusicBrainz = False, slugify = True):
 
 def getTonic(makam):
     makam_tonic_file = os.path.join(os.path.dirname(
-        os.path.abspath(__file__)), 'makams_usuls/makam.json')
+        os.path.abspath(__file__)), 'makams_usuls', 'makam.json')
     makam_tonic = json.load(open(makam_tonic_file, 'r'))
 
     return makam_tonic[makam]['kararSymbol']
 
-def extractSectionFromTxt(scorefile, slugify = True):
-
-    struct_lbl = [l for sub_list in get_structure_labels().values() for l in sub_list ]
+def extractSectionFromTxt(scorefile, slugify = True, extractAllLabels=False):
+    all_labels = [l for sub_list in get_labels().values() for l in sub_list] 
+    struct_lbl = all_labels if extractAllLabels else get_labels()['structure'] 
 
     with open(scorefile, "rb") as f:
         reader = csv.reader(f, delimiter='\t')
@@ -94,16 +91,19 @@ def extractSectionFromTxt(scorefile, slugify = True):
         offset_col = header.index('Offset')
         comma_col = header.index('Koma53')
         dur_col = header.index('Ms')
+        code_col = header.index('Sira')
 
         lyrics = []
         offset = []
         comma = []
         dur = []
+        code = []
         for row in reader:
             lyrics.append(row[lyrics_col].decode('utf-8'))
             offset.append(float(row[offset_col]))
             comma.append(int(row[comma_col]))
             dur.append(int(row[dur_col]))
+            code.append(int(row[code_col]))
 
     # shift offset such that the first note of each measure has an integer offset
     offset.insert(0, 0)
@@ -142,7 +142,8 @@ def extractSectionFromTxt(scorefile, slugify = True):
                 sections.append({'name':"LYRICS_SECTION", 'startNote':[], 'endNote':i+1})
                 
             # note the actual lyrics from other information in the lyrics column
-            if not (l in struct_lbl or l in ['.', '', ' ']):
+            # annotation/control rows, embelishments (rows w dur = 0) are ignored
+            if not (l in all_labels  or l in ['.', '', ' '] or dur[i] == 0):
                 real_lyrics_idx.append(i+1)
 
         # from lyrics_end estimate the end of the lyrics line
@@ -151,7 +152,9 @@ def extractSectionFromTxt(scorefile, slugify = True):
         endNotes = [s['endNote'] for s in sections]
         endNotes.append(0) # the zeroth note 
         for se in reversed(sections): # start from the last lyrics section
+            # print se['name'] + ' ' + str(se['startNote']) + ' ' + str(se['endNote'])
             if se['name'] == 'LYRICS_SECTION':
+
                 # find the next closest start
                 # since we start from the end, the first lyrics section we check  
                 # cannot be before another; hence the first section we will find
