@@ -185,16 +185,14 @@ def extractSectionFromTxt(scorefile, slugify = True, extractAllLabels=False):
                     # measure. Ideally it shouldn't happen
                     if floor(offset[nextLyricsStart-1]) == floor(offset[prevClosestEnd-1]):
                         print ("    " + str(floor(offset[nextLyricsStart-1])) + ':'
-                        ' ' + lyrics[prevClosestEnd] + ' and ' + lyrics[nextLyricsStart] + ' '
+                        ' ' + lyrics[prevClosestEnd-1] + ' and ' + lyrics[nextLyricsStart-1] + ' '
                         'are in the same measure!')
                         # start the section in the same measure, from the first lyrics syllable
                         # after the last end
                         se['startNote'] = nextLyricsStart
 
                     else: # The section starts on the first measure the lyrics start again
-                        # do inexact integer matching
-                        dist = [abs(o - nextLyricsOffset) for o in offset]
-                        se['startNote'] = dist.index(min(dist)) + 1
+                        se['startNote'] = getOffsetStartIdx(nextLyricsOffset, offset, measure_start)
 
                 elif prevClosestEnd < prevClosestStart:
                     # at this point only the non-vocal sections have a start
@@ -204,14 +202,11 @@ def extractSectionFromTxt(scorefile, slugify = True, extractAllLabels=False):
                     nextLyricsOffset = floor(offset[nextLyricsStart-1])
 
                     # The section starts on the first measure the lyrics start again
-                    # do inexact integer matching
-                    dist = [abs(o - nextLyricsOffset) for o in offset]
-                    se['startNote'] = dist.index(min(dist)) + 1
+                    se['startNote'] = getOffsetStartIdx(nextLyricsOffset, offset, measure_start)
+
                 else:
                     print "    No section information is available in the score"
                     return []
-
-                
 
                 # update startNotes
                 startNotes = [s['startNote'] for s in sections]
@@ -275,6 +270,12 @@ def integerOffset(offset):
     # Since integer check in floating point math can be inexact,
     # we accept +- 0.001 
     return abs(offset - round(offset)) * 1000.0 < 1.0
+
+def getOffsetStartIdx(offsetIdx, offsets, measure_start):
+    measure_start_offsets = [offsets[m-1] for m in measure_start]
+    # do inexact integer matching
+    dist = [abs(o - offsetIdx) for o in measure_start_offsets]
+    return measure_start[dist.index(min(dist))]
 
 def slugify_tr(value):  
     value_slug = value.replace(u'\u0131', 'i')
