@@ -140,6 +140,7 @@ def extractSectionFromTxt(scorefile, slugify = True):
         for i, l in enumerate(lyrics):
             if '  ' in l:
                 sections.append({'name':"LYRICS_SECTION", 'startNote':[], 'endNote':i+1})
+                
             # note the actual lyrics from other information in the lyrics column
             if not (l in struct_lbl or l in ['.', '', ' ']):
                 real_lyrics_idx.append(i+1)
@@ -154,7 +155,7 @@ def extractSectionFromTxt(scorefile, slugify = True):
                 # find the next closest start
                 # since we start from the end, the first lyrics section we check  
                 # cannot be before another; hence the first section we will find
-                # will not have an ambiguous/empy startNote
+                # will not have an ambiguous/empty startNote
                 se['endNote'] = min(x for x in startNotes if x > se['endNote']) - 1
 
                 # update endNotes
@@ -175,7 +176,6 @@ def extractSectionFromTxt(scorefile, slugify = True):
                 if prevClosestEnd > prevClosestStart:
                     # at this point only the lyrics sections have a known ending
                     # thus the current lyrics section is next to another
-                    # The section starts on the first measure the lyrics start again
                     nextLyricsStart = min(x for x in real_lyrics_idx if x > prevClosestEnd)
                     nextLyricsOffset = floor(offset[nextLyricsStart-1])
                     # check if nextLyricsStart and prevClosestEnd are in the same 
@@ -183,21 +183,32 @@ def extractSectionFromTxt(scorefile, slugify = True):
                     if floor(offset[nextLyricsStart-1]) == floor(offset[prevClosestEnd-1]):
                         print ("    " + str(floor(offset[nextLyricsStart-1])) + ':'
                         ' ' + lyrics[prevClosestEnd] + ' and ' + lyrics[nextLyricsStart] + ' '
-                        'are in the same measure! Putting the start to the next measure...')
-                        nextLyricsOffset = nextLyricsOffset + 1 
+                        'are in the same measure!')
+                        # start the section in the same measure, from the first lyrics syllable
+                        # after the last end
+                        se['startNote'] = nextLyricsStart
+
+                    else: # The section starts on the first measure the lyrics start again
+                        # do inexact integer matching
+                        dist = [abs(o - nextLyricsOffset) for o in offset]
+                        se['startNote'] = dist.index(min(dist)) + 1
+
                 elif prevClosestEnd < prevClosestStart:
                     # at this point only the non-vocal sections have a start
                     # thus the current lyrics section is next to one of these
                     # The section starts on the first measure the lyrics start again
                     nextLyricsStart = min(x for x in real_lyrics_idx if x > prevClosestStart)
                     nextLyricsOffset = floor(offset[nextLyricsStart-1])
+
+                    # The section starts on the first measure the lyrics start again
+                    # do inexact integer matching
+                    dist = [abs(o - nextLyricsOffset) for o in offset]
+                    se['startNote'] = dist.index(min(dist)) + 1
                 else:
                     print "    No section information is available in the score"
                     return []
 
-                # do inexact integer matching
-                dist = [abs(o - nextLyricsOffset) for o in offset]
-                se['startNote'] = dist.index(min(dist)) + 1
+                
 
                 # update startNotes
                 startNotes = [s['startNote'] for s in sections]
@@ -223,14 +234,26 @@ def extractSectionFromTxt(scorefile, slugify = True):
 
         # warnings
         for s in sections:
+            # check whether section starts on the measure or not
             if s['startNote'] not in measure_start and s['name'] not in ['SAZ', 'KARAR']:
                 print("    " + str(s['startNote']) + ', ' + s['name'] + ' does '
                 	'not start on a measure: ' + str(offset[s['startNote']-1]))
+            # check if the end of a section somehow got earlier than its start
+            if s['startNote'] > s['endNote']:
+                print("    " + str(s['startNote']) + '->' + str(s['endNote']) + ''
+                    ', ' + s['name'] + ' ends before it starts: ' + str(offset[s['startNote']-1]))
 
         # sort the sections
         sortIdx = [i[0] for i in sorted(enumerate([s['startNote'] for s in sections]), 
             key=lambda x:x[1])]
         sections = [sections[s] for s in sortIdx]
+
+        # check section continuity
+        ends = [0] + [s['endNote'] for s in sections]
+        starts = [s['startNote'] for s in sections] + [len(dur)+1]
+        for s, e in zip(starts, ends):
+            if not s - e == 1:
+                print "    " + str(e) + '->' + str(s) + ', Gap between the sections'
 
     return sections
 
