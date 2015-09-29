@@ -9,6 +9,8 @@ import compmusic
 import unicodedata
 import re
 from compmusic import dunya
+import pdb
+
 dunya.set_token('69ed3d824c4c41f59f0bc853f696a7dd80707779')
 
 class Metadata(compmusic.extractors.ExtractorModule):
@@ -83,175 +85,30 @@ def extractSectionFromTxt(scorefile, slugify = True, extractAllLabels=False):
     all_labels = [l for sub_list in get_labels().values() for l in sub_list] 
     struct_lbl = all_labels if extractAllLabels else get_labels()['structure'] 
 
-    with open(scorefile, "rb") as f:
-        reader = csv.reader(f, delimiter='\t')
-
-        header = next(reader, None)
-        lyrics_col = header.index('Soz1')
-        offset_col = header.index('Offset')
-        comma_col = header.index('Koma53')
-        dur_col = header.index('Ms')
-        code_col = header.index('Sira')
-
-        lyrics = []
-        offset = []
-        comma = []
-        dur = []
-        code = []
-        for row in reader:
-            lyrics.append(row[lyrics_col].decode('utf-8'))
-            offset.append(float(row[offset_col]))
-            comma.append(int(row[comma_col]))
-            dur.append(int(row[dur_col]))
-            code.append(int(row[code_col]))
-
-    # shift offset such that the first note of each measure has an integer offset
-    offset.insert(0, 0)
-    offset = offset[:-1]
-
+    score = readTxtScore(scorefile)
+    measure_start_idx = getMeasureStartIdx(score['offset'])
+    
     sections = []
     # Check lyrics information; without it we cannot really do anything
     # unless we incorporate symbolic analysis
-    if all(l == '' for l in lyrics):
+    if all(l == '' for l in score['lyrics']):
         print "    Lyrics is empty. Cannot determine the sections"
+        sections = []
     else:
-        # get the measure starts
-        measure_start = []
-        measure_blacklist = []  # embellishments and control rows!
-        for i, o in zip(xrange(len(offset), 1, -1), reversed(offset)):
-            # start of measure; this row can be the measure start
-            if integerOffset(o):
-                # this row is an annotation comment
-                if i+1 in measure_start or i+1 in measure_blacklist:
-                    measure_blacklist.append(i)
-                else:
-                    measure_start.append(i)
-        measure_start.append(1) # 1st note always starts the measure
-        measure_start = measure_start[::-1] # flip the list
-
-        # note the explicit structures
-        for i, l in enumerate(lyrics):
-            if l in struct_lbl:
-                sections.append({'name':slugify_tr(l) if slugify else l, 
-                    'startNote':i+1, 'endNote':[]})
-
-        # get the section from the spaces in the lyrics line
-        real_lyrics_idx = []
-        for i, l in enumerate(lyrics):
-            if '  ' in l:
-                sections.append({'name':"LYRICS_SECTION", 'startNote':[], 'endNote':i+1})
-                
-            # note the actual lyrics from other information in the lyrics column
-            # annotation/control rows, embelishments (rows w dur = 0) are ignored
-            if not (l in all_labels  or l in ['.', '', ' '] or dur[i] == 0):
-                real_lyrics_idx.append(i+1)
-
-        # from lyrics_end estimate the end of the lyrics line
-        startNotes = [s['startNote'] for s in sections]
-        startNotes.append(len(lyrics)+1) # the last note + 1 to close the last section
-        endNotes = [s['endNote'] for s in sections]
-        endNotes.append(0) # the zeroth note 
-        for se in reversed(sections): # start from the last lyrics section
-            # print se['name'] + ' ' + str(se['startNote']) + ' ' + str(se['endNote'])
-            if se['name'] == 'LYRICS_SECTION':
-
-                # find the next closest start
-                # since we start from the end, the first lyrics section we check  
-                # cannot be before another; hence the first section we will find
-                # will not have an ambiguous/empty startNote
-                se['endNote'] = min(x for x in startNotes if x > se['endNote']) - 1
-
-                # update endNotes
-                endNotes = [s['endNote'] for s in sections]
-                endNotes.append(0) # the zeroth note 
-
-                # estimate the start of the lyrics sections
-                # find the previous closest start or end
-                try:
-                    prevClosestStart = max(x for x in startNotes if x < se['endNote'])
-                except ValueError: # no section label in lyrics columns
-                    prevClosestStart = -1
-                try:
-                    prevClosestEnd = max(x for x in endNotes if x < se['endNote'])
-                except ValueError: # no vocal sections
-                    prevClosestEnd = -1
-
-                if prevClosestEnd > prevClosestStart:
-                    # at this point only the lyrics sections have a known ending
-                    # thus the current lyrics section is next to another
-                    nextLyricsStart = min(x for x in real_lyrics_idx if x > prevClosestEnd)
-                    nextLyricsOffset = floor(offset[nextLyricsStart-1])
-                    # check if nextLyricsStart and prevClosestEnd are in the same 
-                    # measure. Ideally it shouldn't happen
-                    if floor(offset[nextLyricsStart-1]) == floor(offset[prevClosestEnd-1]):
-                        print ("    " + str(floor(offset[nextLyricsStart-1])) + ':'
-                        ' ' + lyrics[prevClosestEnd-1] + ' and ' + lyrics[nextLyricsStart-1] + ' '
-                        'are in the same measure!')
-                        # start the section in the same measure, from the first lyrics syllable
-                        # after the last end
-                        se['startNote'] = nextLyricsStart
-
-                    else: # The section starts on the first measure the lyrics start again
-                        se['startNote'] = getOffsetStartIdx(nextLyricsOffset, offset, measure_start)
-
-                elif prevClosestEnd < prevClosestStart:
-                    # at this point only the non-vocal sections have a start
-                    # thus the current lyrics section is next to one of these
-                    # The section starts on the first measure the lyrics start again
-                    nextLyricsStart = min(x for x in real_lyrics_idx if x > prevClosestStart)
-                    nextLyricsOffset = floor(offset[nextLyricsStart-1])
-
-                    # The section starts on the first measure the lyrics start again
-                    se['startNote'] = getOffsetStartIdx(nextLyricsOffset, offset, measure_start)
-
-                else:
-                    print "    No section information is available in the score"
-                    return []
-
-                # update startNotes
-                startNotes = [s['startNote'] for s in sections]
-                startNotes.append(len(lyrics)+1) # the last note + 1 to close the last section
-            else:
-                break # all the lyrics sections are appended consecutively
-
-        # start a section if there are no sections starting in note 1
-        startNotes = [s['startNote'] for s in sections]
-        if 1 not in startNotes:
-            sections.append({'name':"Section1", 'startNote':1, 'endNote':[]})
-
-        # close any which doesn't have a endNote
-        startNotes = [s['startNote'] for s in sections]
-        startNotes.append(len(lyrics)+1) # the last note + 1 to close the last section
-        endNotes = [s['endNote'] for s in sections]
-        for s in sections:
-            if not s['endNote']:
-                s['endNote'] = min(x for x in startNotes if x > s['startNote']) - 1
+        sections = getSections(score, struct_lbl, slugify=slugify)
+        sections = completeSectionStartEnds(sections, score, all_labels, 
+            measure_start_idx)
 
         # the refine section names according to the lyrics, pitch and durations
         sections = refineSections(sections)
 
-        # warnings
-        for s in sections:
-            # check whether section starts on the measure or not
-            if s['startNote'] not in measure_start and s['name'] not in ['SAZ', 'KARAR']:
-                print("    " + str(s['startNote']) + ', ' + s['name'] + ' does '
-                	'not start on a measure: ' + str(offset[s['startNote']-1]))
-            # check if the end of a section somehow got earlier than its start
-            if s['startNote'] > s['endNote']:
-                print("    " + str(s['startNote']) + '->' + str(s['endNote']) + ''
-                    ', ' + s['name'] + ' ends before it starts: ' + str(offset[s['startNote']-1]))
+        validateSections(sections, score, measure_start_idx, 
+            set(all_labels)- set(struct_lbl))
 
-        # sort the sections
-        sortIdx = [i[0] for i in sorted(enumerate([s['startNote'] for s in sections]), 
-            key=lambda x:x[1])]
-        sections = [sections[s] for s in sortIdx]
-
-        # check section continuity
-        ends = [0] + [s['endNote'] for s in sections]
-        starts = [s['startNote'] for s in sections] + [len(dur)+1]
-        for s, e in zip(starts, ends):
-            if not s - e == 1:
-                print "    " + str(e) + '->' + str(s) + ', Gap between the sections'
+    # map the python indices in startNote and endNote to SymbTr index
+    for se in sections:
+        se['startNote'] = score['index'][se['startNote']]
+        se['endNote'] = score['index'][se['endNote']]
 
     return sections
 
@@ -264,22 +121,175 @@ def extractSectionFromMu2(scorefile, slugify = True):
 def extractSectionFromMusicBrainz(scorefile, slugify = True):
     pass
 
+def readTxtScore(scorefile):
+    with open(scorefile, "rb") as f:
+        reader = csv.reader(f, delimiter='\t')
+
+        header = next(reader, None)
+
+        index_col = header.index('Sira')
+        code_col = header.index('Kod')
+        comma_col = header.index('Koma53')
+        duration_col = header.index('Ms')
+        lyrics_col = header.index('Soz1')
+        offset_col = header.index('Offset')
+
+        score = {'index': [], 'code': [], 'comma': [], 'duration': [],
+                'lyrics': [], 'offset': []}
+        for row in reader:
+            score['index'].append(int(row[index_col]))
+            score['code'].append(int(row[code_col]))
+            score['comma'].append(int(row[comma_col]))
+            score['duration'].append(int(row[duration_col]))
+            score['lyrics'].append(row[lyrics_col].decode('utf-8'))
+            score['offset'].append(float(row[offset_col]))
+
+    # shift offset such that the first note of each measure has an integer offset
+    score['offset'].insert(0, 0)
+    score['offset'] = score['offset'][:-1]
+
+    return score
+
+def getMeasureStartIdx(offset):
+    measure_start_idx = []
+    filledMeasures = []
+
+    tol = 0.001
+    for int_offset in range(0, int(max(offset))):
+        measure_start_idx.append(min(i for i, o in enumerate(offset) 
+            if o > int_offset - tol))
+    
+    return measure_start_idx
+
 def integerOffset(offset):
     # The measure changes when the offset is an integer
     # (Note that offset was shifted by one earlier for asier processing )
     # Since integer check in floating point math can be inexact,
     # we accept +- 0.001 
-    return abs(offset - round(offset)) * 1000.0 < 1.0
+    return abs(offset - round(offset)) * 1000.0 < 1.0, round(offset)
 
-def getOffsetStartIdx(offsetIdx, offsets, measure_start):
-    measure_start_offsets = [offsets[m-1] for m in measure_start]
+def getSections(score, struct_lbl, slugify=True):
+    sections = []
+    for i, l in enumerate(score['lyrics']):
+        if l in struct_lbl: # note the explicit structures
+            sections.append({'name':slugify_tr(l) if slugify else l, 
+                'startNote':i, 'endNote':[]})
+        elif '  ' in l: # lyrics end marker
+            sections.append({'name':"LYRICS_SECTION", 'startNote':[], 
+                'endNote':i})
+    return sections
+     
+def getRealLyricsIdx(lyrics, all_labels, dur):
+    # separate the actual lyrics from other information in the lyrics column
+    real_lyrics_idx = []
+    for i, l in enumerate(lyrics):  
+        # annotation/control rows, embellishments (rows w dur = 0) are ignored
+        if not (l in all_labels  or l in ['.', '', ' '] or dur[i] == 0):
+            real_lyrics_idx.append(i)
+    return real_lyrics_idx
+
+def completeSectionStartEnds(sections, score, struct_lbl, measure_start_idx):
+    real_lyrics_idx = getRealLyricsIdx(score['lyrics'], struct_lbl, score['duration'])
+
+    startNoteIdx = [s['startNote'] for s in sections] + [len(score['lyrics'])]
+    endNoteIdx = [-1] + [s['endNote'] for s in sections]
+    for se in reversed(sections): # start from the last section
+        #print se['name'] + ' ' + str(se['startNote']) + ' ' + str(se['endNote'])
+        #pdb.set_trace()
+
+        if se['name'] == 'LYRICS_SECTION':
+            # carry the 'endNote' to the next closest start
+            se['endNote'] = min(x for x in startNoteIdx 
+                if x > se['endNote']) - 1
+            
+            # update endNoteIdx
+            endNoteIdx = [-1] + [s['endNote'] for s in sections]
+
+            # estimate the start of the lyrics sections
+            try: # find the previous closest start
+                prevClosestStartInd = max(x for x in startNoteIdx 
+                    if x < se['endNote'])
+            except ValueError: # no section label in lyrics columns
+                prevClosestStartInd = 0
+
+            try: # find the previous closest end
+                prevClosestEndInd = max(x for x in endNoteIdx 
+                    if x < se['endNote'])
+            except ValueError: # no vocal sections
+                prevClosestEndInd = -1
+
+            # find where the lyrics of this section starts
+            chkInd = max([prevClosestEndInd, prevClosestStartInd])
+            nextLyricsStartInd = min(x for x in real_lyrics_idx if x > chkInd)
+            nextLyricsOffset = floor(score['offset'][nextLyricsStartInd])
+
+            # check if nextLyricsStartInd and prevClosestEndInd are in the 
+            # same measure. Ideally they should be in different measures
+            if nextLyricsOffset == floor(score['offset'][prevClosestEndInd]):
+                print ("    " + str(nextLyricsOffset) + ':'
+                ' ' + score['lyrics'][prevClosestEndInd] + ' and' 
+                ' ' + score['lyrics'][nextLyricsStartInd] + ' '
+                'are in the same measure!')
+
+                se['startNote'] = nextLyricsStartInd
+            else: # The section starts on the first measure the lyrics start
+                se['startNote'] = getOffsetStartIdx(nextLyricsOffset, 
+                    score['offset'], measure_start_idx)
+
+            # update startNoteIdx
+            startNoteIdx = ([s['startNote'] for s in sections] + 
+                [len(score['lyrics'])])
+        else:  # instrumental
+            se['endNote'] = min(x for x in startNoteIdx 
+                if x > se['startNote']) - 1
+
+            # update endNoteIdx
+            endNoteIdx = [-1] + [s['endNote'] for s in sections]
+
+        #print(' ' + se['name'] + ' ' + str(se['startNote']) + ' '
+        #    '' + str(se['endNote']))
+    return sortSections(sections)
+
+def getOffsetStartIdx(offsetIdx, offsets, measure_start_idx):
+    measure_start_offsets = [offsets[m] for m in measure_start_idx]
     # do inexact integer matching
     dist = [abs(o - offsetIdx) for o in measure_start_offsets]
-    return measure_start[dist.index(min(dist))]
+    return measure_start_idx[dist.index(min(dist))]
+
+def sortSections(sections):
+    # sort the sections
+    sortIdx = [i[0] for i in sorted(enumerate([s['startNote'] 
+        for s in sections]),  key=lambda x:x[1])]
+    return [sections[s] for s in sortIdx]
+
+def validateSections(sections, score, measure_start_idx, ignoreLabels):
+    # warnings
+    for s in sections:
+        # check whether section starts on the measure or not
+        if (s['startNote'] not in measure_start_idx and 
+            s['name'] not in ignoreLabels):
+            print("    " + str(s['startNote']) + ', ' + s['name'] + ' '
+                'does not start on a measure: ' + 
+                str(score['offset'][s['startNote']]))
+        # check if the end of a section somehow got earlier than its start
+        if s['startNote'] > s['endNote']:
+            print("    " + str(s['startNote']) + '->'
+                '' + str(s['endNote']) + ', ' + s['name'] + ' '
+                'ends before it starts: ' + 
+                str(score['offset'][s['startNote']]))
+
+    # check section continuity
+    ends = [-1] + [s['endNote'] for s in sections]
+    starts = [s['startNote'] for s in sections] + [len(score['offset'])]
+    for s, e in zip(starts, ends):
+        if not s - e == 1:
+            print("    " + str(e) + '->' + str(s) + ', '
+                'Gap between the sections')
 
 def slugify_tr(value):  
     value_slug = value.replace(u'\u0131', 'i')
-    value_slug = unicodedata.normalize('NFKD', value_slug).encode('ascii', 'ignore').decode('ascii')
+    value_slug = unicodedata.normalize('NFKD', 
+        value_slug).encode('ascii', 'ignore').decode('ascii')
     value_slug = re.sub('[^\w\s-]', '', value_slug).strip()
     
     return re.sub('[-\s]+', '-', value_slug)
