@@ -89,10 +89,9 @@ def extractSectionFromTxt(scorefile, slugify = True, extractAllLabels=False):
     measure_start_idx = getMeasureStartIdx(score['offset'])
     
     sections = []
-    # Check lyrics information; without it we cannot really do anything
-    # unless we incorporate symbolic analysis
+    # Check lyrics information
     if all(l == '' for l in score['lyrics']):
-        print "    Lyrics is empty. Cannot determine the sections"
+        # empty lyrics field; we cannot really do anything wo symbolic analysis
         sections = []
     else:
         sections = getSections(score, struct_lbl, slugify=slugify)
@@ -102,8 +101,8 @@ def extractSectionFromTxt(scorefile, slugify = True, extractAllLabels=False):
         # the refine section names according to the lyrics, pitch and durations
         sections = refineSections(sections)
 
-        validateSections(sections, score, measure_start_idx, 
-            set(all_labels)- set(struct_lbl))
+    validateSections(sections, score, measure_start_idx, 
+        set(all_labels)- set(struct_lbl))
 
     # map the python indices in startNote and endNote to SymbTr index
     for se in sections:
@@ -152,12 +151,14 @@ def readTxtScore(scorefile):
 
 def getMeasureStartIdx(offset):
     measure_start_idx = []
-    filledMeasures = []
 
     tol = 0.001
-    for int_offset in range(0, int(max(offset))):
+    for int_offset in range(0, int(max(offset))+1):
         measure_start_idx.append(min(i for i, o in enumerate(offset) 
             if o > int_offset - tol))
+
+    if not all(integerOffset(offset[i]) for i in measure_start_idx):
+        print "    " + "Some measures are skipped by the offsets"
     
     return measure_start_idx
 
@@ -166,7 +167,7 @@ def integerOffset(offset):
     # (Note that offset was shifted by one earlier for asier processing )
     # Since integer check in floating point math can be inexact,
     # we accept +- 0.001 
-    return abs(offset - round(offset)) * 1000.0 < 1.0, round(offset)
+    return abs(offset - round(offset)) * 1000.0 < 1.0
 
 def getSections(score, struct_lbl, slugify=True):
     sections = []
@@ -195,7 +196,6 @@ def completeSectionStartEnds(sections, score, struct_lbl, measure_start_idx):
     endNoteIdx = [-1] + [s['endNote'] for s in sections]
     for se in reversed(sections): # start from the last section
         #print se['name'] + ' ' + str(se['startNote']) + ' ' + str(se['endNote'])
-        #pdb.set_trace()
 
         if se['name'] == 'LYRICS_SECTION':
             # carry the 'endNote' to the next closest start
@@ -210,7 +210,7 @@ def completeSectionStartEnds(sections, score, struct_lbl, measure_start_idx):
                 prevClosestStartInd = max(x for x in startNoteIdx 
                     if x < se['endNote'])
             except ValueError: # no section label in lyrics columns
-                prevClosestStartInd = 0
+                prevClosestStartInd = -1
 
             try: # find the previous closest end
                 prevClosestEndInd = max(x for x in endNoteIdx 
@@ -246,6 +246,12 @@ def completeSectionStartEnds(sections, score, struct_lbl, measure_start_idx):
             # update endNoteIdx
             endNoteIdx = [-1] + [s['endNote'] for s in sections]
 
+    # if the first note is not the startNote of a section
+    # add an initial instrumental section
+    if sections and not any(s['startNote'] == 0 for s in sections):
+        sections.append({'name': 'INSTRUMENTAL_SECTION','startNote': 0, 
+            'endNote': min([s['startNote'] for s in sections])-1})
+
         #print(' ' + se['name'] + ' ' + str(se['startNote']) + ' '
         #    '' + str(se['endNote']))
     return sortSections(sections)
@@ -263,7 +269,16 @@ def sortSections(sections):
     return [sections[s] for s in sortIdx]
 
 def validateSections(sections, score, measure_start_idx, ignoreLabels):
-    # warnings
+    if not sections: # check section presence
+        print "    Missing section info in lyrics."
+    else: # check section continuity
+        ends = [-1] + [s['endNote'] for s in sections]
+        starts = [s['startNote'] for s in sections] + [len(score['offset'])]
+        for s, e in zip(starts, ends):
+            if not s - e == 1:
+                print("    " + str(e) + '->' + str(s) + ', '
+                    'Gap between the sections')
+
     for s in sections:
         # check whether section starts on the measure or not
         if (s['startNote'] not in measure_start_idx and 
@@ -277,14 +292,6 @@ def validateSections(sections, score, measure_start_idx, ignoreLabels):
                 '' + str(s['endNote']) + ', ' + s['name'] + ' '
                 'ends before it starts: ' + 
                 str(score['offset'][s['startNote']]))
-
-    # check section continuity
-    ends = [-1] + [s['endNote'] for s in sections]
-    starts = [s['startNote'] for s in sections] + [len(score['offset'])]
-    for s, e in zip(starts, ends):
-        if not s - e == 1:
-            print("    " + str(e) + '->' + str(s) + ', '
-                'Gap between the sections')
 
 def slugify_tr(value):  
     value_slug = value.replace(u'\u0131', 'i')
