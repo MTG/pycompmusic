@@ -61,7 +61,7 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
                       confidenceThreshold = 36, # default confidenceThreshold for pitchFilter
                       minChunkSize = 50) # number of minimum allowed samples of a chunk in PitchFilter; ~145 ms with 128 sample hopSize & 44100 Fs
 
-  def run(self, fname):
+  def run(self, musicbrainzid, fname):
     citation = u"""
             Atlı, H. S., Uyar, B., Şentürk, S., Bozkurt, B., and Serra, X.
             (2014). Audio feature extraction for exploring Turkish makam music.
