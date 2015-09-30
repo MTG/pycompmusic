@@ -281,7 +281,7 @@ def validateSections(sections, score, measure_start_idx, ignoreLabels):
 
     for s in sections:
         # check whether section starts on the measure or not
-        if (s['startNote'] not in measure_start_idx and 
+        if (not integerOffset(score['offset'][s['startNote']]) and 
             s['name'] not in ignoreLabels):
             print("    " + str(s['startNote']) + ', ' + s['name'] + ' '
                 'does not start on a measure: ' + 
