@@ -1,0 +1,614 @@
+{
+	"acem": {
+		"kararMidiFrequency": 367,
+		"kararSymbol": "F4"
+	},
+	"acemasiran": {
+		"kararMidiFrequency": 367,
+		"kararSymbol": "F4"
+	},
+	"acembuselik": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"acemkurdi": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"acemtarab": {
+		"kararMidiFrequency": 329.63,
+		"kararSymbol": "E4"
+	},
+	"araban": {
+		"kararMidiFrequency": 587.33,
+		"kararSymbol": "D5"
+	},
+	"arazbar": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"arazbarbuselik": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"asiranmaye": {
+		"kararMidiFrequency": 329.63,
+		"kararSymbol": "E4"
+	},
+	"asiranzemzeme": {
+		"kararMidiFrequency": 329.63,
+		"kararSymbol": "E4"
+	},
+	"askefza": {
+		"kararMidiFrequency": 329.63,
+		"kararSymbol": "E4"
+	},
+	"bahrinazik": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"bendihisar": {
+		"kararMidiFrequency": 293.66,
+		"kararSymbol": "D4"
+	},
+	"besteisfahan": {
+		"kararMidiFrequency": 367.99,
+		"kararSymbol": "F4#4"
+	},
+	"bestenigar": {
+		"kararMidiFrequency": 367.99,
+		"kararSymbol": "F4#4"
+	},
+	"beyati": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"beyati-araban": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"beyati-arabanbuselik": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"beyatibuselik": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"buselik": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"buselikasiran": {
+		"kararMidiFrequency": 329.63,
+		"kararSymbol": "E4"
+	},
+	"buzurk": {
+		"kararMidiFrequency": 392,
+		"kararSymbol": "G4"
+	},
+	"canfeza": {
+		"kararMidiFrequency": 329.63,
+		"kararSymbol": "E4"
+	},
+	"cargah": {
+		"kararMidiFrequency": 523.25,
+		"kararSymbol": "C5"
+	},
+	"dilkeshaveran": {
+		"kararMidiFrequency": 367.99,
+		"kararSymbol": "F4#4"
+	},
+	"dilkeside": {
+		"kararMidiFrequency": 293.66,
+		"kararSymbol": "D4"
+	},
+	"dilkusa": {
+		"kararMidiFrequency": 587.33,
+		"kararSymbol": "D5"
+	},
+	"dilnisin": {
+		"kararMidiFrequency": 392,
+		"kararSymbol": "G4"
+	},
+	"dugah": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"dugah-maye": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"evcara": {
+		"kararMidiFrequency": 367.99,
+		"kararSymbol": "F4#4"
+	},
+	"evchuzi": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"evic": {
+		"kararMidiFrequency": 367.99,
+		"kararSymbol": "F4#4"
+	},
+	"evicbuselik": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"ferahfeza": {
+		"kararMidiFrequency": 293.66,
+		"kararSymbol": "D4"
+	},
+	"ferahnak": {
+		"kararMidiFrequency": 367.99,
+		"kararSymbol": "F4#4"
+	},
+	"ferahnakasiran": {
+		"kararMidiFrequency": 367.99,
+		"kararSymbol": "F4#4"
+	},
+	"ferahnuma": {
+		"kararMidiFrequency": 293.66,
+		"kararSymbol": "D4"
+	},
+	"gerdaniye": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"gerdaniyebuselik": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"gevest": {
+		"kararMidiFrequency": 367.99,
+		"kararSymbol": "F4#5"
+	},
+	"goncairana": {
+		"kararMidiFrequency": 587.33,
+		"kararSymbol": "D5"
+	},
+	"guldeste": {
+		"kararMidiFrequency": 392,
+		"kararSymbol": "G4"
+	},
+	"gulizar": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"gulsen-ivefa": {
+		"kararMidiFrequency": 293.66,
+		"kararSymbol": "D4"
+	},
+	"gulzar": {
+		"kararMidiFrequency": 293.66,
+		"kararSymbol": "D4"
+	},
+	"hicaz": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"hicazasiran": {
+		"kararMidiFrequency": 329.63,
+		"kararSymbol": "E4"
+	},
+	"hicazbuselik": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"hicaz-humayun": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"hicaziussak": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"hicazkar": {
+		"kararMidiFrequency": 392,
+		"kararSymbol": "G4"
+	},
+	"hicazkarkurdi": {
+		"kararMidiFrequency": 392,
+		"kararSymbol": "G4"
+	},
+	"hicaz-uzzal": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"hicaz-zemzeme": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"hicaz-zirgule": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"hisar": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"hisarbuselik": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"huseyni": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"huseyniasiran": {
+		"kararMidiFrequency": 329.63,
+		"kararSymbol": "E4"
+	},
+	"huseyni-gulizar": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"huzi": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"huzzam": {
+		"kararMidiFrequency": 487.46,
+		"kararSymbol": "B4b1"
+	},
+	"huzzam-icedid": {
+		"kararMidiFrequency": 367.99,
+		"kararSymbol": "F4#4"
+	},
+	"irak": {
+		"kararMidiFrequency": 367.99,
+		"kararSymbol": "F4#4"
+	},
+	"isfahan": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"isfahanek": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"karcigar": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"kucek": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"kurdi": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"kurdi-gerdaniye": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"kurdilihicazkar": {
+		"kararMidiFrequency": 392,
+		"kararSymbol": "G4"
+	},
+	"mahur": {
+		"kararMidiFrequency": 392,
+		"kararSymbol": "G4"
+	},
+	"mahurbuselik": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"maveraunnehr": {
+		"kararMidiFrequency": 392,
+		"kararSymbol": "G4"
+	},
+	"muberka": {
+		"kararMidiFrequency": 293.66,
+		"kararSymbol": "D4"
+	},
+	"muhalif": {
+		"kararMidiFrequency": 392,
+		"kararSymbol": "G4"
+	},
+	"muhayyer": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"muhayyerbuselik": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"muhayyerkurdi": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"muhayyersunbule": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"mustear": {
+		"kararMidiFrequency": 487.46,
+		"kararSymbol": "B4b1"
+	},
+	"neva": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"nevabuselik": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"neva-kurdi": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"neveser": {
+		"kararMidiFrequency": 392,
+		"kararSymbol": "G4"
+	},
+	"nevruz": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"nigar": {
+		"kararMidiFrequency": 392,
+		"kararSymbol": "G4"
+	},
+	"nihavendikebir": {
+		"kararMidiFrequency": 392,
+		"kararSymbol": "G4"
+	},
+	"nihavendirumi": {
+		"kararMidiFrequency": 392,
+		"kararSymbol": "G4"
+	},
+	"nihavent": {
+		"kararMidiFrequency": 392,
+		"kararSymbol": "G4"
+	},
+	"nikriz": {
+		"kararMidiFrequency": 392,
+		"kararSymbol": "G4"
+	},
+	"nisabur": {
+		"kararMidiFrequency": 493.88,
+		"kararSymbol": "B4"
+	},
+	"nisaburek": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"nisabureyn": {
+		"kararMidiFrequency": 493.88,
+		"kararSymbol": "B4"
+	},
+	"nuhuft": {
+		"kararMidiFrequency": 329.63,
+		"kararSymbol": "E4"
+	},
+	"pencgah": {
+		"kararMidiFrequency": 392,
+		"kararSymbol": "G4"
+	},
+	"pencgahiasl": {
+		"kararMidiFrequency": 392,
+		"kararSymbol": "G4"
+	},
+	"pencgahizaid": {
+		"kararMidiFrequency": 392,
+		"kararSymbol": "G4"
+	},
+	"pesendide": {
+		"kararMidiFrequency": 392,
+		"kararSymbol": "G4"
+	},
+	"peykinesat": {
+		"kararMidiFrequency": 392,
+		"kararSymbol": "G4"
+	},
+	"rahatfeza": {
+		"kararMidiFrequency": 367.99,
+		"kararSymbol": "F4#4"
+	},
+	"rahatulervah": {
+		"kararMidiFrequency": 367.99,
+		"kararSymbol": "F4#4"
+	},
+	"rast": {
+		"kararMidiFrequency": 392,
+		"kararSymbol": "G4"
+	},
+	"rasticedid": {
+		"kararMidiFrequency": 392,
+		"kararSymbol": "G4"
+	},
+	"rastmaye": {
+		"kararMidiFrequency": 392,
+		"kararSymbol": "G4"
+	},
+	"rehavi": {
+		"kararMidiFrequency": 392,
+		"kararSymbol": "G4"
+	},
+	"rengidil": {
+		"kararMidiFrequency": 367,
+		"kararSymbol": "F4"
+	},
+	"revnaknuma": {
+		"kararMidiFrequency": 367.99,
+		"kararSymbol": "F4#4"
+	},
+	"reyya": {
+		"kararMidiFrequency": 275.38,
+		"kararSymbol": "C4#4"
+	},
+	"ruhnuvaz": {
+		"kararMidiFrequency": 329.63,
+		"kararSymbol": "E4"
+	},
+	"ruyidilara": {
+		"kararMidiFrequency": 392,
+		"kararSymbol": "G4"
+	},
+	"ruyiirak": {
+		"kararMidiFrequency": 367.99,
+		"kararSymbol": "F4#4"
+	},
+	"saba": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"sabaasiran": {
+		"kararMidiFrequency": 329.63,
+		"kararSymbol": "E4"
+	},
+	"sababuselik": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"sabazemzeme": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"sazkar": {
+		"kararMidiFrequency": 392,
+		"kararSymbol": "G4"
+	},
+	"sedaraban": {
+		"kararMidiFrequency": 293.66,
+		"kararSymbol": "D4"
+	},
+	"segah": {
+		"kararMidiFrequency": 487.46,
+		"kararSymbol": "B4b1"
+	},
+	"segah-maye": {
+		"kararMidiFrequency": 487.46,
+		"kararSymbol": "B4b1"
+	},
+	"sehnaz": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"sehnazbuselik": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"selmek": {
+		"kararMidiFrequency": 392,
+		"kararSymbol": "G4"
+	},
+	"serefnuma": {
+		"kararMidiFrequency": 293.66,
+		"kararSymbol": "D4"
+	},
+	"sevkaver": {
+		"kararMidiFrequency": 367,
+		"kararSymbol": "F4"
+	},
+	"sevkefza": {
+		"kararMidiFrequency": 349.23,
+		"kararSymbol": "F4"
+	},
+	"sevk-icedid": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"sevkidil": {
+		"kararMidiFrequency": 392,
+		"kararSymbol": "G4"
+	},
+	"sevkitarab": {
+		"kararMidiFrequency": 367,
+		"kararSymbol": "F4"
+	},
+	"sevkutarab": {
+		"kararMidiFrequency": 367,
+		"kararSymbol": "F4"
+	},
+	"sipihr": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"sivenuma": {
+		"kararMidiFrequency": 293.66,
+		"kararSymbol": "D4"
+	},
+	"sultaniirak": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"sultanisegah": {
+		"kararMidiFrequency": 293.66,
+		"kararSymbol": "D4"
+	},
+	"sultaniyegah": {
+		"kararMidiFrequency": 587.33,
+		"kararSymbol": "D5"
+	},
+	"suzidil": {
+		"kararMidiFrequency": 329.63,
+		"kararSymbol": "E4"
+	},
+	"suzidilara": {
+		"kararMidiFrequency": 392,
+		"kararSymbol": "G4"
+	},
+	"suzinak": {
+		"kararMidiFrequency": 392,
+		"kararSymbol": "G4"
+	},
+	"suzinak-zirgule": {
+		"kararMidiFrequency": 392,
+		"kararSymbol": "G4"
+	},
+	"tahir": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"tahirbuselik": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"tarzicedid": {
+		"kararMidiFrequency": 367,
+		"kararSymbol": "F4"
+	},
+	"tarzinevin": {
+		"kararMidiFrequency": 392,
+		"kararSymbol": "G4"
+	},
+	"ussak": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"vecdidil": {
+		"kararMidiFrequency": 293.66,
+		"kararSymbol": "D4"
+	},
+	"vechiarazbar": {
+		"kararMidiFrequency": 487.46,
+		"kararSymbol": "B4b1"
+	},
+	"vechisehnaz": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"yegah": {
+		"kararMidiFrequency": 293.66,
+		"kararSymbol": "D4"
+	},
+	"zavil": {
+		"kararMidiFrequency": 392,
+		"kararSymbol": "G4"
+	},
+	"zevkidil": {
+		"kararMidiFrequency": 392,
+		"kararSymbol": "G4"
+	},
+	"zevkitarab": {
+		"kararMidiFrequency": 440,
+		"kararSymbol": "A4"
+	},
+	"zirefkend": {
+		"kararMidiFrequency": 329.63,
+		"kararSymbol": "E4"
+	}
+}
