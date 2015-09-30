@@ -135,10 +135,6 @@
 		"kararMidiFrequency": 440,
 		"kararSymbol": "A4"
 	},
-	"evic-huzi": {
-		"kararMidiFrequency": 367.99,
-		"kararSymbol": "F4#4"
-	},
 	"ferahfeza": {
 		"kararMidiFrequency": 293.66,
 		"kararSymbol": "D4"
