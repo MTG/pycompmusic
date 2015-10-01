@@ -68,7 +68,7 @@ class Symbtr2Png(compmusic.extractors.ExtractorModule):
         intervals = piece.convertsymbtr2xml(smallname)
 
         tmp_dir = tempfile.mkdtemp()
-        call(["mscore-self", "-platform minimal", smallname, "-S", "/srv/dunya/style.mss", "-b", "-P", "-o", "%s/out.pdf" % (tmp_dir)])
+        call(["xvfb-run mscore-self", "-platform minimal", smallname, "-S", "/srv/dunya/style.mss", "-b", "-P", "-o", "%s/out.pdf" % (tmp_dir)])
      
         with Image(filename="%s/out.pdf" % (tmp_dir), resolution=300) as img:
             img.save(filename= "%s/%s.png" % (tmp_dir, musicbrainzid))
