@@ -396,11 +396,11 @@ class SpectrogramImage(object):
     Given spectra from the AudioProcessor, this class will construct a wavefile image which
     can be saved as PNG.
     """
-    def __init__(self, image_width, image_height, fft_size):
+    def __init__(self, image_width, image_height, fft_size, f_min=None, f_max=None):
         self.image_width = image_width
         self.image_height = image_height
         self.fft_size = fft_size
-
+        
         self.image = Image.new("RGB", (image_height, image_width))
 	'''
         colors = [
@@ -430,11 +430,15 @@ class SpectrogramImage(object):
 
         # generate the lookup which translates y-coordinate to fft-bin
         self.y_to_bin = []
-        f_min = 100.0
+        
+        if not f_min:
+            f_min=100.0
+        if not f_max:
+            f_max=16000.0
+
         #f_max = 22050.0		# Changed the range 
-        f_max = 16000.0
-        y_min = math.log10(f_min)
-        y_max = math.log10(f_max)
+        #y_min = math.log10(f_min)
+        #y_max = math.log10(f_max)
         freqs = numpy.linspace(f_min,f_max,image_height)
         for i,y in enumerate(range(self.image_height)):
             #freq = math.pow(10.0, y_min + y / (image_height - 1.0) *(y_max - y_min))
@@ -465,7 +469,7 @@ class SpectrogramImage(object):
         self.image.transpose(Image.ROTATE_90).save(filename, quality=quality)
 
 
-def create_wave_images(input_filename, output_filename_w, output_filename_s, image_width, image_height, fft_size, progress_callback=None):
+def create_wave_images(input_filename, output_filename_w, output_filename_s, image_width, image_height, fft_size, progress_callback=None, f_min=None, f_max=None):
     """
     Utility function for creating both wavefile and spectrum images from an audio input file.
     """
@@ -473,7 +477,7 @@ def create_wave_images(input_filename, output_filename_w, output_filename_s, ima
     samples_per_pixel = processor.audio_file.nframes / float(image_width)
 
     waveform = WaveformImage(image_width, image_height)
-    spectrogram = SpectrogramImage(image_width, image_height, fft_size)
+    spectrogram = SpectrogramImage(image_width, image_height, fft_size, f_min, f_max)
 
     for x in range(image_width):
 

@@ -17,6 +17,7 @@ import os
 import compmusic.extractors
 import subprocess
 import socket
+import json
 
 import tempfile
 import wave
@@ -68,7 +69,7 @@ class TonicTempoTuning(compmusic.extractors.ExtractorModule):
         for f in expected:
             if os.path.isfile(os.path.join(output, f + '.json')):
                 json_file = open(os.path.join(output, f + '.json'))
-                ret[f] = json_file.read()
+                ret[f] = json.loads(json_file.read())
                 json_file.close()
                 os.remove(os.path.join(output, f + '.json'))
             else:

@@ -68,7 +68,7 @@ class Symbtr2Png(compmusic.extractors.ExtractorModule):
         intervals = piece.convertsymbtr2xml(smallname)
 
         tmp_dir = tempfile.mkdtemp()
-        call(["mscore-self", "-platform minimal", smallname, "-S", "/srv/dunya/style.mss", "-b", "-o", "%s/out.pdf" % (tmp_dir)])
+        call(["mscore-self", "-platform minimal", smallname, "-S", "/srv/dunya/style.mss", "-b", "-P", "-o", "%s/out.pdf" % (tmp_dir)])
      
         with Image(filename="%s/out.pdf" % (tmp_dir), resolution=300) as img:
             img.save(filename= "%s/%s.png" % (tmp_dir, musicbrainzid))
@@ -80,13 +80,17 @@ class Symbtr2Png(compmusic.extractors.ExtractorModule):
         ret['xmlscore'] = musicxml.read()
         musicxml.close()
         os.unlink(smallname)
-        
-        for f in sorted(os.listdir(tmp_dir)):
-            if isfile(join(tmp_dir, f)):
-                img_file = open(join(tmp_dir, f))
+
+        files = [os.path.join(tmp_dir, f) for f in os.listdir(tmp_dir)]
+        files = filter(os.path.isfile, files)
+        files.sort(key=lambda x: os.path.getmtime(x))
+        print files 
+        for f in files:
+            if isfile(f):
+                img_file = open(f)
                 ret['score'].append(img_file.read())
                 img_file.close()
-                os.remove(join(tmp_dir, f)) 
+                os.remove(f) 
         os.rmdir(tmp_dir)
         return ret
 
