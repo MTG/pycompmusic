@@ -48,13 +48,18 @@ class AudioImages(compmusic.extractors.ExtractorModule):
         }
 
     _zoom_levels =  [4, 8, 16, 32]
+    _f_min =  None
+    _f_max = None
+    _fft_size = 31
 
     def make_mini(self, wavfname):
-        smallfulloptions = coll.namedtuple('options', 'image_height fft_size image_width')
+        smallfulloptions = coll.namedtuple('options', 'image_height fft_size image_width f_min f_max')
         smallfulloptions.fft_size = 4096
         smallfulloptions.image_height = 65
         smallfulloptions.image_width = 900
-
+        smallfulloptions.f_min = None
+        smallfulloptions.f_max = None
+        
         smallfullio = StringIO()
         smallfullio.name = "wav.png"
         # We don't use the spectogram, but need to provide it anyway
@@ -71,9 +76,12 @@ class AudioImages(compmusic.extractors.ExtractorModule):
         panelWidth = 900		              # pixels
         panelHeight = 255		              # pixels
         zoomlevels = self._zoom_levels      	      # seconds
-        options = coll.namedtuple('options', 'image_height fft_size image_width')
+        options = coll.namedtuple('options', 'image_height fft_size image_width f_min f_max')
         options.image_height = panelHeight
-        options.fft_size = 31
+        options.fft_size = self._fft_size
+        options.f_min = self._f_min
+        options.f_max = self._f_max
+
 
         ret = {}
         for zoom in zoomlevels:

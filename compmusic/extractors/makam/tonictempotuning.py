@@ -17,6 +17,7 @@ import os
 import compmusic.extractors
 import subprocess
 import socket
+import json
 
 import tempfile
 import wave
@@ -42,8 +43,8 @@ class TonicTempoTuning(compmusic.extractors.ExtractorModule):
         server_name = socket.gethostname()
         subprocess_env = os.environ.copy()
         subprocess_env["MCR_CACHE_ROOT"] = "/tmp/emptydir"
-        #subprocess_env["LD_LIBRARY_PATH"] = "/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v85/runtime/glnxa64:/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v85/bin/glnxa64:/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v85/sys/os/glnxa64" % ((server_name,)*3)
-        subprocess_env["LD_LIBRARY_PATH"] = "/usr/local/MATLAB/MATLAB_Runtime/v85/runtime/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/v85/bin/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/v85/sys/os/glnxa64/:/usr/local/MATLAB/MATLAB_Runtime/v85/sys/java/jre/glnxa64/jre/lib/amd64/:/usr/local/MATLAB/MATLAB_Runtime/v85/sys/java/jre/glnxa64/jre/lib/amd64/server"
+        subprocess_env["LD_LIBRARY_PATH"] = "/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v85/runtime/glnxa64:/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v85/bin/glnxa64:/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v85/sys/os/glnxa64" % ((server_name,)*3)
+        #subprocess_env["LD_LIBRARY_PATH"] = "/usr/local/MATLAB/MATLAB_Runtime/v85/runtime/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/v85/bin/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/v85/sys/os/glnxa64/:/usr/local/MATLAB/MATLAB_Runtime/v85/sys/java/jre/glnxa64/jre/lib/amd64/:/usr/local/MATLAB/MATLAB_Runtime/v85/sys/java/jre/glnxa64/jre/lib/amd64/server"
         rec_data = dunya.makam.get_recording(musicbrainzid)
         
         if len(rec_data['works']) == 0:
@@ -68,7 +69,7 @@ class TonicTempoTuning(compmusic.extractors.ExtractorModule):
         for f in expected:
             if os.path.isfile(os.path.join(output, f + '.json')):
                 json_file = open(os.path.join(output, f + '.json'))
-                ret[f] = json_file.read()
+                ret[f] = json.loads(json_file.read())
                 json_file.close()
                 os.remove(os.path.join(output, f + '.json'))
             else:

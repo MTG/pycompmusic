@@ -35,21 +35,19 @@ from numpy import array
 from numpy import vstack
 from numpy import transpose
 
+import struct
 import json
 import scipy.io
 import cStringIO
 
-class PitchExtractMakam(compmusic.extractors.ExtractorModule):
-  _version = "0.6"
+class DunyaPitchMakam(compmusic.extractors.ExtractorModule):
+  _version = "0.1"
   _sourcetype = "mp3"
-  _slug = "makampitch"
-  _output = {"pitch": {"extension": "json", "mimetype": "application/json"},
-                "matlab": {"extension": "mat", "mimetype": "application/octet-stream"},
-                "settings": {"extension": "json", "mimetype": "application/json"}
-                }
+  _slug = "dunyamakampitch"
+  _output = {"pitch": {"extension": "json", "mimetype": "application/json"}}
 
   def setup(self):
-    self.add_settings(hopSize = 128, # default hopSize of PredominantMelody
+    self.add_settings(hopSize = 196, # default hopSize of PredominantMelody
                       frameSize = 2048, # default frameSize of PredominantMelody
                       sampleRate = 44100,
                       binResolution = 7.5, # ~1/3 Hc; recommended for makams
@@ -124,32 +122,7 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
     if self.settings.filterPitch:
       pitch = run_pitch_filter(pitch, pitch_salience)
 
-    # generate time stamps
-    time_stamps = [s*self.settings.hopSize/float(self.settings.sampleRate) for s in xrange(0,len(pitch))]
-
-    # [time pitch salience] matrix
-    out = transpose(vstack((time_stamps, pitch.tolist(), pitch_salience.tolist())))
-    out = out.tolist()
-
-    # settings
-    settings = self.settings
-    settings.update({'version':self._version,
-            'slug':self._slug,
-            'source': fname,
-            'essentiaVersion': essentia_version,
-            'pitchUnit': 'Hz',
-            'citation': citation})
-
-    # matlab
-    matout = cStringIO.StringIO()
-    matob = {'pitch': out}
-    matob.update(settings)
-
-    scipy.io.savemat(matout, matob)
-
-    return {'pitch': json.dumps(out),
-            'matlab': matout.getvalue(),
-            'settings': json.dumps(settings)}
+    return {'pitch': pitch.tolist()}
 
   def ContourSelection(self,pitchContours,contourSaliences,startTimes,duration):
     sampleRate = self.settings.sampleRate
