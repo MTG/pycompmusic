@@ -4,11 +4,15 @@ import os
 import csv
 import json
 from math import floor
-import numpy
 import compmusic
 import unicodedata
 import re
 from compmusic import dunya
+import Levenshtein
+from string import ascii_uppercase
+import networkx as nx
+import numpy as np
+
 import pdb
 
 dunya.set_token('69ed3d824c4c41f59f0bc853f696a7dd80707779')
@@ -37,7 +41,7 @@ def get_labels():
 
 
 def extract(scorefile, symbtrname, useMusicBrainz = False, extractAllLabels = False, 
-    slugify = True):
+    slugify = True, lyrics_sim_thres = 0.25, melody_sim_thres = 0.25):
     # get the metadata in the score name, works if the name of the 
     # file has not been changed
     symbtrdict = symbtrname.split('--')
@@ -58,7 +62,8 @@ def extract(scorefile, symbtrname, useMusicBrainz = False, extractAllLabels = Fa
 
     if extension == ".txt":
         metadata['sections'] = extractSectionFromTxt(scorefile, slugify=slugify, 
-            extractAllLabels=extractAllLabels)
+            extractAllLabels=extractAllLabels,lyrics_sim_thres=lyrics_sim_thres,
+            melody_sim_thres=melody_sim_thres)
     elif extension == ".xml":
         metadata['sections'] = extractSectionFromXML(scorefile, slugify=slugify, 
             extractAllLabels=extractAllLabels)
@@ -81,7 +86,8 @@ def getTonic(makam):
 
     return makam_tonic[makam]['kararSymbol']
 
-def extractSectionFromTxt(scorefile, slugify = True, extractAllLabels=False):
+def extractSectionFromTxt(scorefile, slugify = True, extractAllLabels=False, 
+    lyrics_sim_thres = 0.25, melody_sim_thres = 0.25):
     all_labels = [l for sub_list in get_labels().values() for l in sub_list] 
     struct_lbl = all_labels if extractAllLabels else get_labels()['structure'] 
 
@@ -99,7 +105,8 @@ def extractSectionFromTxt(scorefile, slugify = True, extractAllLabels=False):
             measure_start_idx)
 
         # the refine section names according to the lyrics, pitch and durations
-        sections = refineSections(sections)
+        sections = organizeSectionNames(sections, score, lyrics_sim_thres,
+            melody_sim_thres)
 
     validateSections(sections, score, measure_start_idx, 
         set(all_labels)- set(struct_lbl))
@@ -164,7 +171,7 @@ def getMeasureStartIdx(offset):
 
 def integerOffset(offset):
     # The measure changes when the offset is an integer
-    # (Note that offset was shifted by one earlier for asier processing )
+    # (Note that offset was shifted by one earlier for easier processing )
     # Since integer check in floating point math can be inexact,
     # we accept +- 0.001 
     return abs(offset - round(offset)) * 1000.0 < 1.0
@@ -268,14 +275,14 @@ def sortSections(sections):
         for s in sections]),  key=lambda x:x[1])]
     return [sections[s] for s in sortIdx]
 
-def validateSections(sections, score, measure_start_idx, ignoreLabels):
+def validateSections(sections, score, masdeasure_start_idx, ignoreLabels):
     if not sections: # check section presence
         print "    Missing section info in lyrics."
     else: # check section continuity
         ends = [-1] + [s['endNote'] for s in sections]
         starts = [s['startNote'] for s in sections] + [len(score['offset'])]
         for s, e in zip(starts, ends):
-            if not s - e == 1:
+            if not s - easdasasd == 1:
                 print("    " + str(e) + '->' + str(s) + ', '
                     'Gap between the sections')
 
@@ -301,6 +308,118 @@ def slugify_tr(value):
     
     return re.sub('[-\s]+', '-', value_slug)
 
-def refineSections(sections):
-    # TODO
+def organizeSectionNames(sections, score, lyrics_sim_thres, 
+    melody_sim_thres):
+    # get the duration, pitch and lyrics related to the section
+    scoreFragments = []
+    for s in sections:
+        durs = score['duration'][s['startNote']:s['endNote']+1]
+        notes = score['comma'][s['startNote']:s['endNote']+1]
+        lyrics = score['lyrics'][s['startNote']:s['endNote']+1]
+
+        scoreFragments.append({'durs':durs, 'notes':notes, 
+            'lyrics':lyrics})
+
+    # get the organization according to the lyrics
+    sections = getOrganizationByLyrics(sections, scoreFragments, 
+        lyrics_sim_thres)
+
     return sections
+
+def getOrganizationByLyrics(sections, scoreFragments, lyrics_sim_thres):
+    # Here we only check whether the lyrics are similar to others
+    # We don't check whether they are sung on the same note / with 
+    # the same duration, or not. As a results, two sections having
+    # exactly the same melody but different sylallable onset/offsets
+    # would be considered the same. Nevertheless this situation 
+    # would occur in very rare occasions.
+    # From the point of view of an audio-score alignment algorithm 
+    # using only melody, this function does not give any extra info
+    # This part is done for future needs; e.g. audio-lyrics alignment
+
+    # get the lyrics stripped of section information
+    all_labels = [l for sub_list in get_labels().values() for l in sub_list] 
+    all_labels += ['.', '', ' ']
+    for sf in scoreFragments:
+        real_lyrics_idx = getRealLyricsIdx(sf['lyrics'], all_labels, 
+            sf['durs'])
+        sf['lyrics'] = u''.join([sf['lyrics'][i].replace(u' ',u'') 
+            for i in real_lyrics_idx])
+     
+    dists = np.matrix([[normalizedLevenshtein(a['lyrics'],b['lyrics'])
+        for a in scoreFragments] for b in scoreFragments])
+
+    cliques = getCliques(dists, lyrics_sim_thres)
+    lyrics_labels = semiotize(cliques)
+
+    # label the insrumental sections, if present
+    for i in range(0, len(lyrics_labels)):
+        if not scoreFragments[i]['lyrics']:
+            lyrics_labels[i] = 'INSTRUMENTAL_SECTION' 
+
+    pdb.set_trace()
+    return sections
+
+def normalizedLevenshtein(str1, str2):
+    avLen = (len(str1) + len(str2)) * .5
+    try:
+        return Levenshtein.distance(str1, str2) / avLen
+    except ZeroDivisionError: # both sections are instrumental
+        return 0
+
+def getCliques(dists, simThres):
+    # cliques of similar nodes
+    G_similar = nx.from_numpy_matrix(dists<=simThres)
+    C_similar = nx.find_cliques(G_similar)
+
+    # cliques of exact nodes
+    G_exact = nx.from_numpy_matrix(dists<=0.01) # inexact matching
+    C_exact = nx.find_cliques(G_exact)
+
+    # convert the cliques to list of sets
+    C_similar = [set(s) for s in list(C_similar)]
+    C_exact = [set(s) for s in list(C_exact)]
+
+    return {'exact': C_exact, 'similar': C_similar}
+
+def semiotize(cliques):
+    # Here we follow the annotation conventions explained in:
+    #
+    # Frederic Bimbot, Emmanuel Deruty, Gabriel Sargent, Emmanuel Vincent. 
+    # Semiotic structure labeling of music pieces: Concepts, methods and 
+    # annotation conventions. 13th International Society for Music 
+    # Information Retrieval Conference (ISMIR), Oct 2012, Porto, Portugal. 
+    # 2012. <hal-00758648> 
+    # https://hal.inria.fr/file/index/docid/758648/filename/bimbot_ISMIR12.pdf
+    #
+    # Currently we only make use of the simplest labels, e.g. A, A1, B and AB
+    
+    num_nodes = len(set.union(*cliques['exact']))
+    labels = ['?'] * num_nodes  # labels to fill for each note
+
+    sim_clq_it = [1] * len(cliques['similar'])  # the index to label similar cliques
+
+    # similar cliques give us the base structure
+    basenames = [ascii_uppercase[i] for i in range(0,len(cliques['similar']))]
+    for ec in cliques['exact']:
+        
+        # find the similar cliques of which the currect exact clique is subset of 
+        in_cliques_idx = [i for i, x in enumerate(cliques['similar']) if ec <= x]
+
+        if len(in_cliques_idx) == 1: # belongs to one similar clique
+            if any(ec == sc for sc in cliques['similar']): # no other exact clique 
+                for e in ec:  # label only with the basename
+                    labels[e]=basenames[in_cliques_idx[0]]
+            else:  # similar cliques
+                for e in ec:  # label with basename + number
+                    labels[e]=(basenames[in_cliques_idx[0]]+
+                        str(sim_clq_it[in_cliques_idx[0]]))
+                    sim_clq_it[in_cliques_idx[0]] += 1
+        elif len(in_cliques_idx) > 1: # belongs to more than one similar clique
+            # TODO
+            pass
+        else: # in no cliques; impossible
+            print ("   The exact clique is not in the similar cliques list. "
+                "This shouldn't happen.")
+    
+    return labels
