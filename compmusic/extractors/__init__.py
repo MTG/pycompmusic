@@ -127,16 +127,12 @@ class ExtractorModule(object):
     def process_document(self, docid, sourcefileid, musicbrainzid, fname):
         """ Set up some class state and call run. This should
         never be called publicly """
-        try:
-            self.document_id = docid
-            self.logger.set_documentid(docid)
-            self.logger.set_sourcefileid(sourcefileid)
-            self.musicbrainz_id = musicbrainzid
-            self.logger.info("Worker %s" % self.hostname)
-            return self.run(musicbrainzid, fname)
-        except Exception, e:
-            self.logger.error(e)
-            raise e
+        self.document_id = docid
+        self.logger.set_documentid(docid)
+        self.logger.set_sourcefileid(sourcefileid)
+        self.musicbrainz_id = musicbrainzid
+        self.logger.info("Worker %s" % self.hostname)
+        return self.run(musicbrainzid, fname)
 
     def run(self, musicbrainzid, fname):
         """Overwrite this to process a file. If you need the document ID then it's available at
