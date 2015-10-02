@@ -282,7 +282,7 @@ def validateSections(sections, score, masdeasure_start_idx, ignoreLabels):
         ends = [-1] + [s['endNote'] for s in sections]
         starts = [s['startNote'] for s in sections] + [len(score['offset'])]
         for s, e in zip(starts, ends):
-            if not s - easdasasd == 1:
+            if not s - e == 1:
                 print("    " + str(e) + '->' + str(s) + ', '
                     'Gap between the sections')
 
@@ -357,7 +357,6 @@ def getOrganizationByLyrics(sections, scoreFragments, lyrics_sim_thres):
         if not scoreFragments[i]['lyrics']:
             lyrics_labels[i] = 'INSTRUMENTAL_SECTION' 
 
-    pdb.set_trace()
     return sections
 
 def normalizedLevenshtein(str1, str2):
