@@ -431,6 +431,7 @@ def getMelodicOrganization(sections, scoreFragments, melody_sim_thres):
             chk_mel = ([melodies[i] for i, x in enumerate(melody_labels) 
                 if x == lbl])
             if not all(mel == cm for cm in chk_mel):
+                pdb.set_trace()
                 print '   Mismatch in melody_label: ' + lbl
     else:  # no section information
         sections = []
@@ -495,7 +496,7 @@ def semiotize(cliques):
     labels = ['?'] * num_nodes  # labels to fill for each note
 
     sim_clq_it = [1] * len(cliques['similar'])  # the index to label similar cliques
-
+    mix_clq_it = dict()  # the index to label mixture cliques, if they exist
     # similar cliques give us the base structure
     basenames = [ascii_letters[i] for i in range(0,len(cliques['similar']))]
     for ec in cliques['exact']:
@@ -510,13 +511,15 @@ def semiotize(cliques):
             sim_clq_it[in_cliques_idx[0]] += 1
 
         elif len(in_cliques_idx) > 1: # belongs to more than one similar clique
-            for e in ec:  # join the labels of all basenames 
-                # Note for now ignore the number, even if it's applicable
-                labels[e]=''.join([basenames[i] for i in in_cliques_idx]) 
+            mix_str = ''.join([basenames[i] for i in in_cliques_idx])
+            if mix_str not in mix_clq_it.keys():
+                mix_clq_it[mix_str] = 1
 
-            pass
+            for e in ec:  # join the labels of all basenames 
+                labels[e]=mix_str + str(mix_clq_it[mix_str])
+            
+            mix_clq_it[mix_str] += 1
         else: # in no cliques; impossible
             print ("   The exact clique is not in the similar cliques list. "
                 "This shouldn't happen.")
     return labels
-
