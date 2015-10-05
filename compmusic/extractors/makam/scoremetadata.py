@@ -374,6 +374,14 @@ def getLyricOrganization(sections, scoreFragments, lyrics_sim_thres):
                 sections[i]['lyric_structure'] = 'INSTRUMENTAL'
             else:
                 sections[i]['lyric_structure'] = lyrics_labels[i]
+
+        # sanity check
+        lyrics = [sc['lyrics'] for sc in scoreFragments]
+        for lbl, lyr in zip(lyrics_labels, lyrics):
+            chk_lyr = ([lyrics[i] for i, x in enumerate(lyrics_labels) 
+                if x == lbl])
+            if not all(lyr == cl for cl in chk_lyr):
+                print '   Mismatch in lyrics_label: ' + lbl        
     else:  # no section information
         sections = []
 
@@ -417,6 +425,13 @@ def getMelodicOrganization(sections, scoreFragments, melody_sim_thres):
                     else sections[i]['name'] + '_' + melody_labels[i])
             else:
                 sections[i]['melodic_structure'] = melody_labels[i]
+
+        # sanity check
+        for lbl, mel in zip(melody_labels, melodies):
+            chk_mel = ([melodies[i] for i, x in enumerate(melody_labels) 
+                if x == lbl])
+            if not all(mel == cm for cm in chk_mel):
+                print '   Mismatch in melody_label: ' + lbl
     else:  # no section information
         sections = []
 
@@ -447,7 +462,7 @@ def getCliques(dists, simThres):
 
 
     # cliques of exact nodes
-    G_exact = nx.from_numpy_matrix(dists<=0.01) # inexact matching
+    G_exact = nx.from_numpy_matrix(dists<=0.001) # inexact matching
     C_exact = nx.find_cliques(G_exact)
 
     # convert the cliques to list of sets
@@ -495,7 +510,6 @@ def semiotize(cliques):
             sim_clq_it[in_cliques_idx[0]] += 1
 
         elif len(in_cliques_idx) > 1: # belongs to more than one similar clique
-            print '   Mixture clique encountered'
             for e in ec:  # join the labels of all basenames 
                 # Note for now ignore the number, even if it's applicable
                 labels[e]=''.join([basenames[i] for i in in_cliques_idx]) 
