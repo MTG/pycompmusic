@@ -9,11 +9,14 @@ import unicodedata
 import re
 from compmusic import dunya
 import Levenshtein
-from string import ascii_uppercase
+import string
 import networkx as nx
 import numpy as np
 
 import pdb
+
+# define the ascci letters, use capital first
+ascii_letters = string.ascii_uppercase + string.ascii_lowercase
 
 dunya.set_token('69ed3d824c4c41f59f0bc853f696a7dd80707779')
 
@@ -136,16 +139,21 @@ def readTxtScore(scorefile):
         index_col = header.index('Sira')
         code_col = header.index('Kod')
         comma_col = header.index('Koma53')
+        numerator_col = header.index('Pay')
+        denumerator_col = header.index('Payda')
         duration_col = header.index('Ms')
         lyrics_col = header.index('Soz1')
         offset_col = header.index('Offset')
 
-        score = {'index': [], 'code': [], 'comma': [], 'duration': [],
-                'lyrics': [], 'offset': []}
+        score = {'index': [], 'code': [], 'comma': [], 'numerator': [],
+                'denumerator': [], 'duration': [], 'lyrics': [], 
+                'offset': []}
         for row in reader:
             score['index'].append(int(row[index_col]))
             score['code'].append(int(row[code_col]))
             score['comma'].append(int(row[comma_col]))
+            score['numerator'].append(int(row[numerator_col]))
+            score['denumerator'].append(int(row[denumerator_col]))
             score['duration'].append(int(row[duration_col]))
             score['lyrics'].append(row[lyrics_col].decode('utf-8'))
             score['offset'].append(float(row[offset_col]))
@@ -314,19 +322,25 @@ def organizeSectionNames(sections, score, lyrics_sim_thres,
     scoreFragments = []
     for s in sections:
         durs = score['duration'][s['startNote']:s['endNote']+1]
+        nums = score['numerator'][s['startNote']:s['endNote']+1]
+        denums = score['denumerator'][s['startNote']:s['endNote']+1]
         notes = score['comma'][s['startNote']:s['endNote']+1]
         lyrics = score['lyrics'][s['startNote']:s['endNote']+1]
 
-        scoreFragments.append({'durs':durs, 'notes':notes, 
-            'lyrics':lyrics})
+        scoreFragments.append({'durs':durs, 'nums': nums, 
+            'denums':denums, 'notes':notes, 'lyrics':lyrics})
 
-    # get the organization according to the lyrics
-    sections = getOrganizationByLyrics(sections, scoreFragments, 
+    # get the lyric organization
+    sections = getLyricOrganization(sections, scoreFragments, 
         lyrics_sim_thres)
+
+    # get the melodic organization
+    section = getMelodicOrganization(sections, scoreFragments, 
+        melody_sim_thres)
 
     return sections
 
-def getOrganizationByLyrics(sections, scoreFragments, lyrics_sim_thres):
+def getLyricOrganization(sections, scoreFragments, lyrics_sim_thres):
     # Here we only check whether the lyrics are similar to others
     # We don't check whether they are sung on the same note / with 
     # the same duration, or not. As a results, two sections having
@@ -337,30 +351,106 @@ def getOrganizationByLyrics(sections, scoreFragments, lyrics_sim_thres):
     # using only melody, this function does not give any extra info
     # This part is done for future needs; e.g. audio-lyrics alignment
 
-    # get the lyrics stripped of section information
-    all_labels = [l for sub_list in get_labels().values() for l in sub_list] 
-    all_labels += ['.', '', ' ']
-    for sf in scoreFragments:
-        real_lyrics_idx = getRealLyricsIdx(sf['lyrics'], all_labels, 
-            sf['durs'])
-        sf['lyrics'] = u''.join([sf['lyrics'][i].replace(u' ',u'') 
-            for i in real_lyrics_idx])
-     
-    dists = np.matrix([[normalizedLevenshtein(a['lyrics'],b['lyrics'])
-        for a in scoreFragments] for b in scoreFragments])
+    if sections:
+        # get the lyrics stripped of section information
+        all_labels = [l for sub_list in get_labels().values() for l in sub_list] 
+        all_labels += ['.', '', ' ']
+        for sf in scoreFragments:
+            real_lyrics_idx = getRealLyricsIdx(sf['lyrics'], all_labels, 
+                sf['durs'])
+            sf['lyrics'] = u''.join([sf['lyrics'][i].replace(u' ',u'') 
+                for i in real_lyrics_idx])
+         
+        dists = np.matrix([[normalizedLevenshtein(a['lyrics'],b['lyrics'])
+            for a in scoreFragments] for b in scoreFragments])
 
-    cliques = getCliques(dists, lyrics_sim_thres)
-    lyrics_labels = semiotize(cliques)
+        cliques = getCliques(dists, lyrics_sim_thres)
 
-    # label the insrumental sections, if present
-    for i in range(0, len(lyrics_labels)):
-        if not scoreFragments[i]['lyrics']:
-            lyrics_labels[i] = 'INSTRUMENTAL_SECTION' 
+        lyrics_labels = semiotize(cliques)
+
+        # label the insrumental sections, if present
+        for i in range(0, len(lyrics_labels)):
+            if not scoreFragments[i]['lyrics']:
+                sections[i]['lyric_structure'] = 'INSTRUMENTAL'
+            else:
+                sections[i]['lyric_structure'] = lyrics_labels[i]
+
+        # sanity check
+        lyrics = [sc['lyrics'] for sc in scoreFragments]
+        for lbl, lyr in zip(lyrics_labels, lyrics):
+            chk_lyr = ([lyrics[i] for i, x in enumerate(lyrics_labels) 
+                if x == lbl])
+            if not all(lyr == cl for cl in chk_lyr):
+                print '   Mismatch in lyrics_label: ' + lbl        
+    else:  # no section information
+        sections = []
 
     return sections
 
+def getMelodicOrganization(sections, scoreFragments, melody_sim_thres):
+    if sections:
+        # remove annotation/control row; i.e. entries w 0 duration
+        for sf in scoreFragments:
+            for i in reversed(range(0, len(sf['durs']))):
+                if sf['durs'][i] == 0:
+                    sf['notes'].pop(i)
+                    sf['nums'].pop(i)
+                    sf['denums'].pop(i)
+                    sf['durs'].pop(i)
+
+        # synthesize the score according taking the shortest note as the unit
+        # shortest note has the greatest denumerator
+        max_denum = max(max(sf['denums']) for sf in scoreFragments)
+        melodies = [synthMelody(sf, max_denum) for sf in scoreFragments]
+        
+        # convert the numbers in melodies to unique strings for Levenstein
+        unique_notes = list(set(x for sf in scoreFragments 
+            for x in sf['notes']))
+        melodies_str = [mel2str(m, unique_notes) for m in melodies]
+        
+        dists = np.matrix([[normalizedLevenshtein(m1, m2)
+            for m1 in melodies_str] for m2 in melodies_str])
+        
+        cliques = getCliques(dists, melody_sim_thres)
+
+        melody_labels = semiotize(cliques)
+
+        # label the insrumental sections, if present
+        all_labels = [l for sub_list in get_labels().values() for l in sub_list]
+        for i in range(0, len(melody_labels)):
+            if sections[i]['name'] not in ['LYRICS_SECTION', 'INSTRUMENTAL_SECTION']:
+                # if it's a mixture clique, keep the label altogether
+                sections[i]['melodic_structure'] = (sections[i]['name'] +
+                    '_'+melody_labels[i][1:] if melody_labels[i][1].isdigit()
+                    else sections[i]['name'] + '_' + melody_labels[i])
+            else:
+                sections[i]['melodic_structure'] = melody_labels[i]
+
+        # sanity check
+        for lbl, mel in zip(melody_labels, melodies):
+            chk_mel = ([melodies[i] for i, x in enumerate(melody_labels) 
+                if x == lbl])
+            if not all(mel == cm for cm in chk_mel):
+                pdb.set_trace()
+                print '   Mismatch in melody_label: ' + lbl
+    else:  # no section information
+        sections = []
+
+    return sections
+
+def synthMelody(score, max_denum):
+    melody = []
+    for i, note in enumerate(score['notes']):
+        numSamp = score['nums'][i] * max_denum / score['denums'][i]
+        melody += numSamp*[note]
+    return melody
+
+def mel2str(melody, unique_notes):
+    return ''.join([ascii_letters[unique_notes.index(m)] for m in melody])
+
 def normalizedLevenshtein(str1, str2):
     avLen = (len(str1) + len(str2)) * .5
+
     try:
         return Levenshtein.distance(str1, str2) / avLen
     except ZeroDivisionError: # both sections are instrumental
@@ -371,15 +461,24 @@ def getCliques(dists, simThres):
     G_similar = nx.from_numpy_matrix(dists<=simThres)
     C_similar = nx.find_cliques(G_similar)
 
+
     # cliques of exact nodes
-    G_exact = nx.from_numpy_matrix(dists<=0.01) # inexact matching
+    G_exact = nx.from_numpy_matrix(dists<=0.001) # inexact matching
     C_exact = nx.find_cliques(G_exact)
 
     # convert the cliques to list of sets
-    C_similar = [set(s) for s in list(C_similar)]
-    C_exact = [set(s) for s in list(C_exact)]
+    C_similar = sortCliques([set(s) for s in list(C_similar)])
+    C_exact = sortCliques([set(s) for s in list(C_exact)])
 
     return {'exact': C_exact, 'similar': C_similar}
+
+def sortCliques(cliques):
+    min_idx = [min(c) for c in cliques]  # get the minimum in each clique
+
+    # sort minimum indices to get the actual sort indices for the clique list
+    sort_key = [i[0] for i in sorted(enumerate(min_idx), key=lambda x:x[1])]
+
+    return [cliques[k] for k in sort_key]
 
 def semiotize(cliques):
     # Here we follow the annotation conventions explained in:
@@ -397,28 +496,30 @@ def semiotize(cliques):
     labels = ['?'] * num_nodes  # labels to fill for each note
 
     sim_clq_it = [1] * len(cliques['similar'])  # the index to label similar cliques
-
+    mix_clq_it = dict()  # the index to label mixture cliques, if they exist
     # similar cliques give us the base structure
-    basenames = [ascii_uppercase[i] for i in range(0,len(cliques['similar']))]
+    basenames = [ascii_letters[i] for i in range(0,len(cliques['similar']))]
     for ec in cliques['exact']:
         
         # find the similar cliques of which the currect exact clique is subset of 
         in_cliques_idx = [i for i, x in enumerate(cliques['similar']) if ec <= x]
 
         if len(in_cliques_idx) == 1: # belongs to one similar clique
-            if any(ec == sc for sc in cliques['similar']): # no other exact clique 
-                for e in ec:  # label only with the basename
-                    labels[e]=basenames[in_cliques_idx[0]]
-            else:  # similar cliques
-                for e in ec:  # label with basename + number
-                    labels[e]=(basenames[in_cliques_idx[0]]+
-                        str(sim_clq_it[in_cliques_idx[0]]))
-                    sim_clq_it[in_cliques_idx[0]] += 1
+            for e in sorted(ec):  # label with basename + number
+                labels[e]=(basenames[in_cliques_idx[0]]+
+                    str(sim_clq_it[in_cliques_idx[0]]))
+            sim_clq_it[in_cliques_idx[0]] += 1
+
         elif len(in_cliques_idx) > 1: # belongs to more than one similar clique
-            # TODO
-            pass
+            mix_str = ''.join([basenames[i] for i in in_cliques_idx])
+            if mix_str not in mix_clq_it.keys():
+                mix_clq_it[mix_str] = 1
+
+            for e in ec:  # join the labels of all basenames 
+                labels[e]=mix_str + str(mix_clq_it[mix_str])
+            
+            mix_clq_it[mix_str] += 1
         else: # in no cliques; impossible
             print ("   The exact clique is not in the similar cliques list. "
                 "This shouldn't happen.")
-    
     return labels
