@@ -29,7 +29,8 @@ class MakamAudioImage(AudioImages):
             "waveform8": {"extension": "png", "mimetype": "image/png", "parts": True},
             "spectrum8": {"extension": "png", "mimetype": "image/png", "parts": True},
             "smallfull": {"extension": "png", "mimetype": "image/png"},
-            "pitch": { "extension": "dat", "mimetype": "application/octet-stream"}
+            "pitch": { "extension": "dat", "mimetype": "application/octet-stream"},
+            "pitchmax": { "extension": "json", "mimetype": "application/json"}
         }
 
     _zoom_levels =  [8]
@@ -53,4 +54,5 @@ class MakamAudioImage(AudioImages):
         print self._f_max
         ret = super(MakamAudioImage, self).run(musicbrainzid, fname)
         ret['pitch'] = packed_pitch.getvalue()
+        ret['pitchmax'] = {'value': max_pitch}
         return ret
