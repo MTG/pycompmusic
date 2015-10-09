@@ -396,25 +396,13 @@ class SpectrogramImage(object):
     Given spectra from the AudioProcessor, this class will construct a wavefile image which
     can be saved as PNG.
     """
-    def __init__(self, image_width, image_height, fft_size, f_min=None, f_max=None):
+    def __init__(self, image_width, image_height, fft_size, f_min=None, f_max=None, scale_exp=None, pallete=None):
         self.image_width = image_width
         self.image_height = image_height
         self.fft_size = fft_size
         
         self.image = Image.new("RGB", (image_height, image_width))
-	'''
-        colors = [
-            (0, 0, 0),
-            (58/4,68/4,65/4),
-            (80/2,100/2,153/2),
-            (90,180,100),
-            (224,224,44),
-            (255,60,30),
-            (255,255,255)
-         ]
-         '''
-        # Changed Colormap to dull green
-        
+	# Changed Colormap to dull green
         kf = 2
         colors = [
             (0, 0, 0),
@@ -425,6 +413,21 @@ class SpectrogramImage(object):
             (0,246/kf,0),
             (0,254/kf,0)
         ]
+        self.exp = 1
+        if scale_exp:
+            self.exp = scale_exp
+        if pallete == 2:
+            colors = [
+                (0, 0, 0),
+                (58/4,68/4,65/4),
+                (80/2,100/2,153/2),
+                (90,180,100),
+                (224,224,44),
+                (255,60,30),
+                (255,255,255)
+             ]
+        
+        
         
         self.palette = interpolate_colors(colors)
 
@@ -458,7 +461,7 @@ class SpectrogramImage(object):
     def draw_spectrum(self, x, spectrum):
         # for all frequencies, draw the pixels
         for (index, alpha) in self.y_to_bin:
-            self.pixels.append( self.palette[int((255.0-alpha) * spectrum[index] + alpha * spectrum[index + 1])] )
+            self.pixels.append( self.palette[int((255.0-alpha) * (spectrum[index]**self.exp) + alpha * (spectrum[index + 1]**self.exp))] )
 
         # if the FFT is too small to fill up the image, fill with black to the top
         for y in range(len(self.y_to_bin), self.image_height): #@UnusedVariable
@@ -469,7 +472,7 @@ class SpectrogramImage(object):
         self.image.transpose(Image.ROTATE_90).save(filename, quality=quality)
 
 
-def create_wave_images(input_filename, output_filename_w, output_filename_s, image_width, image_height, fft_size, progress_callback=None, f_min=None, f_max=None):
+def create_wave_images(input_filename, output_filename_w, output_filename_s, image_width, image_height, fft_size, progress_callback=None, f_min=None, f_max=None, scale_exp=None, pallete=None):
     """
     Utility function for creating both wavefile and spectrum images from an audio input file.
     """
@@ -477,7 +480,7 @@ def create_wave_images(input_filename, output_filename_w, output_filename_s, ima
     samples_per_pixel = processor.audio_file.nframes / float(image_width)
 
     waveform = WaveformImage(image_width, image_height)
-    spectrogram = SpectrogramImage(image_width, image_height, fft_size, f_min, f_max)
+    spectrogram = SpectrogramImage(image_width, image_height, fft_size, f_min, f_max, scale_exp, pallete)
 
     for x in range(image_width):
 

@@ -35,6 +35,8 @@ class MakamAudioImage(AudioImages):
 
     _zoom_levels =  [8]
     _fft_size = 4096
+    _scale_exp = 2
+    _pallete = 2
 
     def run(self, musicbrainzid, fname):
         melody = util.docserver_get_filename(musicbrainzid, "dunyamakampitch", "pitch", version="0.1")        
