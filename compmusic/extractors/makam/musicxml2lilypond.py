@@ -1,6 +1,7 @@
 # coding=utf-8
 __author__ = 'burakuyar', 'hsercanatli'
 
+import os
 import json
 import xml.etree.ElementTree as ET
 import sqlite3
@@ -157,9 +158,9 @@ class ScoreConverter(object):
             self.measure.append(temp_measure)
 
     def ly_writer(self):
-
+        curr_path = os.path.dirname(os.path.abspath(__file__))
         # connecting database, trying to get information for beams in lilypond
-        conn = sqlite3.connect("/home/andres/projects/dunya/env/src/pycompmusic/compmusic/extractors/makam/makam_db")
+        conn = sqlite3.connect(os.path.join(curr_path, "makam_db"))
         c = conn.cursor()
 
         # getting the components for the given makam
