@@ -22,12 +22,15 @@
 # International Conference on Audio Technologies for Music and Media, Ankara, 
 # Turkey.
 from wand.image import Image
+import re
+import json
 import compmusic.extractors
 import symbtr2xml 
 import tempfile
 from subprocess import call
 import os
 from os.path import isfile, join
+from musicxml2lilypond import ScoreConverter
 from compmusic import dunya
 from compmusic.dunya import makam
 dunya.set_token("69ed3d824c4c41f59f0bc853f696a7dd80707779")
@@ -39,7 +42,8 @@ class Symbtr2Png(compmusic.extractors.ExtractorModule):
     _output = {
             "intervals": {"extension": "json", "mimetype": "application/json"},
             "xmlscore": {"extension": "xml", "mimetype": "application/xml"},
-            "score": {"extension": "png", "mimetype": "image/png", "parts": True},
+            "score": {"extension": "svg", "mimetype": "image/svg+xml", "parts": True},
+            "indexmap": {"extension": "json", "mimetype": "application/json"},
     }
 
 
@@ -67,29 +71,36 @@ class Symbtr2Png(compmusic.extractors.ExtractorModule):
         piece = symbtr2xml.symbtrscore(fpath, makam, form, usul, name, composer)
         intervals = piece.convertsymbtr2xml(smallname)
 
-        tmp_dir = tempfile.mkdtemp()
-        call(["xvfb-run", "mscore-self", smallname, "-S", "/srv/dunya/style.mss", "-b", "-P", "-o", "%s/out.pdf" % (tmp_dir)])
-     
-        with Image(filename="%s/out.pdf" % (tmp_dir), resolution=300) as img:
-            img.save(filename= "%s/%s.png" % (tmp_dir, musicbrainzid))
-        
-        os.remove(join(tmp_dir, "%s/out.pdf" % (tmp_dir))) 
+        conv = ScoreConverter(smallname)
+        conv.run()
 
-        ret = {'intervals': intervals, 'score': [], 'xmlscore': ''}
+
+        tmp_dir = tempfile.mkdtemp()
+        call(["lilypond", '-dpaper-size=\"junior-legal\"', "-dbackend=svg", "-o" "%s" % (tmp_dir), smallname.replace(".xml",".ly")])
+     
+        ret = {'intervals': intervals, 'score': [], 'xmlscore': '', 'indexmap': ''}
         musicxml = open(smallname)
         ret['xmlscore'] = musicxml.read()
         musicxml.close()
+        indexmap = open(smallname.replace('.xml','.json'))
+        ret['indexmap'] = json.loads(indexmap.read())
+        indexmap.close()
+        
         os.unlink(smallname)
-
+        os.unlink(smallname.replace('.xml','.ly'))
+        os.unlink(smallname.replace('.xml','.json'))
+        
+        regex = re.compile(r'.*<a style="(.*)" xlink:href="textedit:\/\/\/.*:([0-9]+):([0-9]+):([0-9]+)">.*')
         files = [os.path.join(tmp_dir, f) for f in os.listdir(tmp_dir)]
         files = filter(os.path.isfile, files)
         files.sort(key=lambda x: os.path.getmtime(x))
         print files 
         for f in files:
-            if isfile(f):
-                img_file = open(f)
-                ret['score'].append(img_file.read())
-                img_file.close()
+            if f.endswith('.svg'):
+                svg_file = open(f)
+                score = svg_file.read()
+                ret['score'].append(regex.sub(r'<a style="\1" id="l\2-f\3-t\4" from="\3" to="\4">',score))
+                svg_file.close()
                 os.remove(f) 
         os.rmdir(tmp_dir)
         return ret

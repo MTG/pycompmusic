@@ -14,6 +14,12 @@
 # 
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
+
+'''
+This script generates links for adding attributes to MB works, extracted from 
+the recordings tags.
+'''
+
 import urllib2
 import urllib
 import json

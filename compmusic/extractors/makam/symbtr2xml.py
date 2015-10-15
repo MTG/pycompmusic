@@ -603,7 +603,9 @@ class symbtrscore(object):
                 if not startindex:
                     startindex = tempsira
                 note = etree.SubElement(measure[-1], 'note')  #note     UNIVERSAL
-
+                index = etree.SubElement(note, 'extra')  #index 
+                index.text = tempsira  
+                
                 if tempnota != 'r':
                     pitch = etree.SubElement(note, 'pitch')  #note pitch XML create
                 else:
