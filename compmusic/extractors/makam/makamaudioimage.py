@@ -40,11 +40,9 @@ class MakamAudioImage(AudioImages):
 
     def run(self, musicbrainzid, fname):
         melody = util.docserver_get_filename(musicbrainzid, "dunyamakampitch", "pitch", version="0.1")        
-        print melody
         pitch = open(melody,'r')
         pitch = json.loads(pitch.read())
         
-        pitch = [p[0] for p in pitch]
         # pitches as bytearray 
         packed_pitch = cStringIO.StringIO() 
         max_pitch = max(pitch) 

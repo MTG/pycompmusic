@@ -26,14 +26,7 @@ import compmusic.extractors.makam.pitch
 from docserver import util
 
 from alignedpitchfilter import alignedpitchfilter
-import matplotlib.pyplot as plt
 
-from essentia import __version__ as essentia_version
-from essentia import Pool
-from essentia import array as e_array
-import essentia.standard as estd
-
-from math import ceil
 from numpy import size
 from numpy import array
 from numpy import vstack
@@ -69,20 +62,21 @@ class DunyaPitchMakam(compmusic.extractors.makam.pitch.PitchExtractMakam):
 
   def run(self, musicbrainzid, fname):
     output = super(DunyaPitchMakam, self).run(musicbrainzid, fname)
-    
+
     # Compute the pitch octave correction
 
     tonicfile = util.docserver_get_filename(musicbrainzid, "tonictempotuning", "tonic", version="0.1")
     alignednotefile = util.docserver_get_filename(musicbrainzid, "scorealign", "notesalign", version="0.1")
 
-    print output["pitch"][0]
-    pitch = array(output["pitch"])
     
+    pitch = array(output['pitch'])
+    out_pitch = [p[1] for p in output["pitch"]]
     tonic = json.load(open(tonicfile, 'r'))['scoreInformed']['Value']
     notes = json.load(open(alignednotefile, 'r'))['notes']
 
     pitch_corrected, synth_pitch, notes = alignedpitchfilter.correctOctaveErrors(pitch, notes, tonic)
     output["pitch_corrected"] = pitch_corrected
+    output["pitch"] = out_pitch
     del output["matlab"]
     del output["settings"]
     return output
