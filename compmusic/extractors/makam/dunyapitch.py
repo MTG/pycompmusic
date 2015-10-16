@@ -22,7 +22,11 @@
 # International Conference on Audio Technologies for Music and Media, Ankara,
 # Turkey.
 
-import compmusic.extractors
+import compmusic.extractors.makam.pitch
+from docserver import util
+
+from alignedpitchfilter import alignedpitchfilter
+import matplotlib.pyplot as plt
 
 from essentia import __version__ as essentia_version
 from essentia import Pool
@@ -35,16 +39,20 @@ from numpy import array
 from numpy import vstack
 from numpy import transpose
 
+import os
 import struct
 import json
 import scipy.io
 import cStringIO
 
-class DunyaPitchMakam(compmusic.extractors.ExtractorModule):
+class DunyaPitchMakam(compmusic.extractors.makam.pitch.PitchExtractMakam):
   _version = "0.1"
   _sourcetype = "mp3"
   _slug = "dunyamakampitch"
-  _output = {"pitch": {"extension": "json", "mimetype": "application/json"}}
+  _output = {
+          "pitch": {"extension": "json", "mimetype": "application/json"},
+          "pitch_corrected":{"extension": "json", "mimetype": "application/json"}
+  }
 
   def setup(self):
     self.add_settings(hopSize = 196, # default hopSize of PredominantMelody
@@ -60,153 +68,21 @@ class DunyaPitchMakam(compmusic.extractors.ExtractorModule):
                       minChunkSize = 50) # number of minimum allowed samples of a chunk in PitchFilter; ~145 ms with 128 sample hopSize & 44100 Fs
 
   def run(self, musicbrainzid, fname):
-    citation = u"""
-            Atlı, H. S., Uyar, B., Şentürk, S., Bozkurt, B., and Serra, X.
-            (2014). Audio feature extraction for exploring Turkish makam music.
-            In Proceedings of 3rd International Conference on Audio Technologies
-            for Music and Media, Ankara, Turkey.
-            """
+    output = super(DunyaPitchMakam, self).run(musicbrainzid, fname)
+    
+    # Compute the pitch octave correction
 
-    run_windowing = estd.Windowing(zeroPadding = 3 * self.settings.frameSize) # Hann window with x4 zero padding
-    run_spectrum = estd.Spectrum(size=self.settings.frameSize * 4)
+    tonicfile = util.docserver_get_filename(musicbrainzid, "tonictempotuning", "tonic", version="0.1")
+    alignednotefile = util.docserver_get_filename(musicbrainzid, "scorealign", "notesalign", version="0.1")
 
-    run_spectral_peaks = estd.SpectralPeaks(minFrequency=self.settings.minFrequency,
-            maxFrequency = self.settings.maxFrequency,
-            sampleRate = self.settings.sampleRate,
-            magnitudeThreshold = self.settings.magnitudeThreshold,
-            orderBy = 'magnitude')
+    print output["pitch"][0]
+    pitch = array(output["pitch"])
+    
+    tonic = json.load(open(tonicfile, 'r'))['scoreInformed']['Value']
+    notes = json.load(open(alignednotefile, 'r'))['notes']
 
-    run_pitch_salience_function = estd.PitchSalienceFunction(binResolution=self.settings.binResolution) # converts unit to cents, 55 Hz is taken as the default reference
-    run_pitch_salience_function_peaks = estd.PitchSalienceFunctionPeaks(binResolution=self.settings.binResolution,
-            minFrequency=self.settings.minFrequency,
-            maxFrequency = self.settings.maxFrequency)
-    run_pitch_contours = estd.PitchContours(hopSize=self.settings.hopSize,
-            binResolution=self.settings.binResolution,
-            peakDistributionThreshold = self.settings.peakDistributionThreshold)
-
-    run_pitch_filter = estd.PitchFilter(confidenceThreshold=self.settings.confidenceThreshold,
-            minChunkSize=self.settings.minChunkSize)
-    pool = Pool()
-
-    # load audio and eqLoudness
-    audio = estd.MonoLoader(filename = fname)() # MonoLoader resamples the audio signal to 44100 Hz by default
-    audio = estd.EqualLoudness()(audio)
-
-    for frame in estd.FrameGenerator(audio,frameSize=self.settings.frameSize, hopSize=self.settings.hopSize):
-      frame = run_windowing(frame)
-      spectrum = run_spectrum(frame)
-      peak_frequencies, peak_magnitudes = run_spectral_peaks(spectrum)
-      salience = run_pitch_salience_function(peak_frequencies, peak_magnitudes)
-      salience_peaks_bins, salience_peaks_contourSaliences = run_pitch_salience_function_peaks(salience)
-      if not size(salience_peaks_bins):
-          salience_peaks_bins = array([0])
-      if not size(salience_peaks_contourSaliences):
-          salience_peaks_contourSaliences = array([0])
-
-      pool.add('allframes_salience_peaks_bins', salience_peaks_bins)
-      pool.add('allframes_salience_peaks_contourSaliences', salience_peaks_contourSaliences)
-
-    # post-processing: contour tracking
-    contours_bins, contours_contourSaliences, contours_start_times, duration = run_pitch_contours(
-            pool['allframes_salience_peaks_bins'],
-            pool['allframes_salience_peaks_contourSaliences'])
-
-    # run the simplified contour selection
-    [pitch, pitch_salience] = self.ContourSelection(contours_bins,contours_contourSaliences,contours_start_times,duration)
-
-    # cent to Hz conversion
-    pitch = e_array([0. if p == 0 else 55.*(2.**(((self.settings.binResolution*(p)))/1200)) for p in pitch])
-    pitch_salience = e_array(pitch_salience)
-
-    # pitch filter
-    if self.settings.filterPitch:
-      pitch = run_pitch_filter(pitch, pitch_salience)
-
-    return {'pitch': pitch.tolist()}
-
-  def ContourSelection(self,pitchContours,contourSaliences,startTimes,duration):
-    sampleRate = self.settings.sampleRate
-
-    hopSize = self.settings.hopSize
-
-    # number in samples in the audio
-    numSamples = int(ceil((duration * sampleRate)/hopSize))
-
-    #Start points of the contours in samples
-    startSamples = [int(round(startTimes[i] * sampleRate/float(hopSize))) for i in xrange(0,len(startTimes))]
-
-    pitchContours_noOverlap = []
-    startSamples_noOverlap = []
-    contourSaliences_noOverlap = []
-    lens_noOverlap = []
-    while pitchContours: # terminate when all the contours are checked
-      #print len(pitchContours)
-
-      # get the lengths of the pitchContours
-      lens = [len(k) for k in pitchContours]
-
-      # find the longest pitch contour
-      long_idx = lens.index(max(lens))
-
-      # pop the lists related to the longest pitchContour and append it to the new list
-      pitchContours_noOverlap.append(pitchContours.pop(long_idx))
-      contourSaliences_noOverlap.append(contourSaliences.pop(long_idx))
-      startSamples_noOverlap.append(startSamples.pop(long_idx))
-      lens_noOverlap.append(lens.pop(long_idx))
-
-      # accumulate the filled samples
-      acc_idx = range(startSamples_noOverlap[-1], startSamples_noOverlap[-1] + lens_noOverlap[-1])
-
-      # remove overlaps
-      [startSamples, pitchContours, contourSaliences] = self.RemoveOverlaps(startSamples, pitchContours, contourSaliences, lens, acc_idx)
-
-    # accumulate pitch and salience
-    pitch = array([0.] * (numSamples))
-    salience = array([0.] * (numSamples))
-    for i in xrange(0,len(pitchContours_noOverlap)):
-      startSample = startSamples_noOverlap[i]
-      endSample = startSamples_noOverlap[i] + len(pitchContours_noOverlap[i])
-
-      try:
-        pitch[startSample:endSample] = pitchContours_noOverlap[i]
-        salience[startSample:endSample] = contourSaliences_noOverlap[i]
-
-      except ValueError:
-        print "The last pitch contour exceeds the audio length. Trimming..."
-
-        pitch[startSample:] = pitchContours_noOverlap[i][:len(pitch)-startSample]
-        salience[startSample:] = contourSaliences_noOverlap[i][:len(pitch)-startSample]
-
-    return pitch, salience
-
-  def RemoveOverlaps(self, startSamples, pitchContours, contourSaliences, lens, acc_idx):
-    # remove overlaps
-    rmv_idx = []
-    for i in xrange(0, len(startSamples)):
-      #print '_' + str(i)
-      # create the sample index vector for the checked pitch contour
-      curr_samp_idx = range(startSamples[i], startSamples[i] + lens[i])
-
-      # get the non-overlapping samples
-      curr_samp_idx_noOverlap = (list(set(curr_samp_idx) - set(acc_idx)))
-
-      if curr_samp_idx_noOverlap:
-        temp = min(curr_samp_idx_noOverlap)
-        keep_idx = range(temp-startSamples[i], (max(curr_samp_idx_noOverlap)-startSamples[i])+1)
-
-        # remove all overlapping values
-        pitchContours[i] = array(pitchContours[i])[keep_idx]
-        contourSaliences[i] = array(contourSaliences[i])[keep_idx]
-        # update the startSample
-        startSamples[i] = temp
-      else: # totally overlapping
-        rmv_idx.append(i)
-
-    # remove totally overlapping pitch contours
-    rmv_idx = sorted(rmv_idx, reverse=True)
-    for r in rmv_idx:
-      pitchContours.pop(r)
-      contourSaliences.pop(r)
-      startSamples.pop(r)
-
-    return startSamples, pitchContours, contourSaliences
+    pitch_corrected, synth_pitch, notes = alignedpitchfilter.correctOctaveErrors(pitch, notes, tonic)
+    output["pitch_corrected"] = pitch_corrected
+    del output["matlab"]
+    del output["settings"]
+    return output

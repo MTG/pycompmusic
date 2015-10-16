@@ -147,9 +147,9 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
 
     scipy.io.savemat(matout, matob)
 
-    return {'pitch': json.dumps(out),
+    return {'pitch': out,
             'matlab': matout.getvalue(),
-            'settings': json.dumps(settings)}
+            'settings': settings}
 
   def ContourSelection(self,pitchContours,contourSaliences,startTimes,duration):
     sampleRate = self.settings.sampleRate
