@@ -30,6 +30,7 @@ class MakamAudioImage(AudioImages):
             "spectrum8": {"extension": "png", "mimetype": "image/png", "parts": True},
             "smallfull": {"extension": "png", "mimetype": "image/png"},
             "pitch": { "extension": "dat", "mimetype": "application/octet-stream"},
+            "corrected_pitch": { "extension": "dat", "mimetype": "application/octet-stream"},
             "pitchmax": { "extension": "json", "mimetype": "application/json"}
         }
 
@@ -40,20 +41,27 @@ class MakamAudioImage(AudioImages):
 
     def run(self, musicbrainzid, fname):
         melody = util.docserver_get_filename(musicbrainzid, "dunyamakampitch", "pitch", version="0.1")        
+        corrected_pitch_file = util.docserver_get_filename(musicbrainzid, "dunyamakampitch", "pitch_corrected", version="0.1")        
         pitch = open(melody,'r')
+        corrected_pitch = open(corrected_pitch_file,'r')
+        corrected_pitch = json.loads(corrected_pitch.read())
         pitch = json.loads(pitch.read())
         
         # pitches as bytearray 
         packed_pitch = cStringIO.StringIO() 
+        packed_corrected_pitch = cStringIO.StringIO() 
         max_pitch = max(pitch) 
         height = 255 
         for p in pitch: 
             packed_pitch.write(struct.pack("B", int(p * 1.0 / max_pitch * height)))
-        
+        for p in corrected_pitch: 
+            packed_corrected_pitch.write(struct.pack("B", int(p * 1.0 / max_pitch * height)))
+
         self._f_min = 0.1 
         self._f_max = max(pitch) 
         print self._f_max
         ret = super(MakamAudioImage, self).run(musicbrainzid, fname)
         ret['pitch'] = packed_pitch.getvalue()
+        ret['corrected_pitch'] = packed_corrected_pitch.getvalue() 
         ret['pitchmax'] = {'value': max_pitch}
         return ret

@@ -75,7 +75,7 @@ class DunyaPitchMakam(compmusic.extractors.makam.pitch.PitchExtractMakam):
     notes = json.load(open(alignednotefile, 'r'))['notes']
 
     pitch_corrected, synth_pitch, notes = alignedpitchfilter.correctOctaveErrors(pitch, notes, tonic)
-    output["pitch_corrected"] = pitch_corrected
+    output["pitch_corrected"] = [p[1] for p in pitch_corrected]
     output["pitch"] = out_pitch
     del output["matlab"]
     del output["settings"]
