@@ -26,6 +26,8 @@ import compmusic.extractors.makam.pitch
 from docserver import util
 
 from alignedpitchfilter import alignedpitchfilter
+from alignednotemodel.PitchDistribution import hz_to_cent, cent_to_hz
+from alignednotemodel import alignednotemodel
 
 from numpy import size
 from numpy import array
@@ -44,6 +46,7 @@ class DunyaPitchMakam(compmusic.extractors.makam.pitch.PitchExtractMakam):
   _slug = "dunyamakampitch"
   _output = {
           "pitch": {"extension": "json", "mimetype": "application/json"},
+          "notemodels": {"extension": "json", "mimetype": "application/json"},
           "pitch_corrected":{"extension": "json", "mimetype": "application/json"}
   }
 
@@ -66,15 +69,21 @@ class DunyaPitchMakam(compmusic.extractors.makam.pitch.PitchExtractMakam):
     # Compute the pitch octave correction
 
     tonicfile = util.docserver_get_filename(musicbrainzid, "tonictempotuning", "tonic", version="0.1")
+    tuningfile = util.docserver_get_filename(musicbrainzid, "tonictempotuning", "tuning", version="0.1")
     alignednotefile = util.docserver_get_filename(musicbrainzid, "scorealign", "notesalign", version="0.1")
 
     
     pitch = array(output['pitch'])
     out_pitch = [p[1] for p in output["pitch"]]
-    tonic = json.load(open(tonicfile, 'r'))['scoreInformed']['Value']
+    tonic = json.load(open(tonicfile, 'r'))['scoreInformed']
+    tuning = json.load(open(tuningfile, 'r'))['scoreInformed']
     notes = json.load(open(alignednotefile, 'r'))['notes']
 
-    pitch_corrected, synth_pitch, notes = alignedpitchfilter.correctOctaveErrors(pitch, notes, tonic)
+    pitch_corrected, synth_pitch, notes = alignedpitchfilter.correctOctaveErrors(pitch, notes, tonic['Value'])
+    
+    noteModels, pitchDistibution, newTonic = alignednotemodel.getModels(pitch, notes, tonic, tuning, kernel_width=7.5)
+    
+    output["notemodels"] = noteModels
     output["pitch_corrected"] = [p[1] for p in pitch_corrected]
     output["pitch"] = out_pitch
     del output["matlab"]
