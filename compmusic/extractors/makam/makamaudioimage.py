@@ -54,8 +54,11 @@ class MakamAudioImage(AudioImages):
         height = 255 
         for p in pitch: 
             packed_pitch.write(struct.pack("B", int(p * 1.0 / max_pitch * height)))
-        for p in corrected_pitch: 
-            packed_corrected_pitch.write(struct.pack("B", int(p * 1.0 / max_pitch * height)))
+        for p in corrected_pitch:
+            conv = int(p * 1.0 / max_pitch * height)
+            if conv > 255 or conv < 0:
+                conv = 0
+            packed_corrected_pitch.write(struct.pack("B", conv))
 
         self._f_min = 0.1 
         self._f_max = max(pitch) 
