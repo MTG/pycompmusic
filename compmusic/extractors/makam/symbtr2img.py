@@ -21,7 +21,6 @@
 # feature extraction for exploring Turkish makam music. In Proceedings of 3rd 
 # International Conference on Audio Technologies for Music and Media, Ankara, 
 # Turkey.
-from wand.image import Image
 import re
 import json
 import compmusic.extractors
