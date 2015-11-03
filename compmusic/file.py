@@ -89,6 +89,7 @@ def file_metadata(fname):
     """ Get the file metadata for an mp3 file.
     The argument is expected to be an mp3 file. No checking is done
     """
+    print fname
     if eyed3api == "old":
         audfile = eyeD3.Mp3AudioFile(fname)
         if not audfile:
