@@ -44,8 +44,8 @@ class TrainPhraseSeg(compmusic.extractors.ExtractorModule):
         server_name = socket.gethostname()
         subprocess_env = os.environ.copy()
         subprocess_env["MCR_CACHE_ROOT"] = "/tmp/emptydir"
-        #subprocess_env["LD_LIBRARY_PATH"] = "/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v85/runtime/glnxa64:/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v85/bin/glnxa64:/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v85/sys/os/glnxa64" % ((server_name,)*3)
-        subprocess_env["LD_LIBRARY_PATH"] = "/usr/local/MATLAB/MATLAB_Runtime/v85/runtime/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/v85/bin/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/v85/sys/os/glnxa64/:/usr/local/MATLAB/MATLAB_Runtime/v85/sys/java/jre/glnxa64/jre/lib/amd64/:/usr/local/MATLAB/MATLAB_Runtime/v85/sys/java/jre/glnxa64/jre/lib/amd64/server"
+        subprocess_env["LD_LIBRARY_PATH"] = "/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v85/runtime/glnxa64:/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v85/bin/glnxa64:/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v85/sys/os/glnxa64" % ((server_name,)*3)
+        #subprocess_env["LD_LIBRARY_PATH"] = "/usr/local/MATLAB/MATLAB_Runtime/v85/runtime/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/v85/bin/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/v85/sys/os/glnxa64/:/usr/local/MATLAB/MATLAB_Runtime/v85/sys/java/jre/glnxa64/jre/lib/amd64/:/usr/local/MATLAB/MATLAB_Runtime/v85/sys/java/jre/glnxa64/jre/lib/amd64/server"
         
         files = []
         for mbid, fname in id_fnames:
@@ -95,39 +95,39 @@ class SegmentPhraseSeg(compmusic.extractors.ExtractorModule):
         server_name = socket.gethostname()
         subprocess_env = os.environ.copy()
         subprocess_env["MCR_CACHE_ROOT"] = "/tmp/emptydir"
-        #subprocess_env["LD_LIBRARY_PATH"] = "/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v85/runtime/glnxa64:/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v85/bin/glnxa64:/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v85/sys/os/glnxa64" % ((server_name,)*3)
-        subprocess_env["LD_LIBRARY_PATH"] = "/usr/local/MATLAB/MATLAB_Runtime/v85/runtime/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/v85/bin/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/v85/sys/os/glnxa64/:/usr/local/MATLAB/MATLAB_Runtime/v85/sys/java/jre/glnxa64/jre/lib/amd64/:/usr/local/MATLAB/MATLAB_Runtime/v85/sys/java/jre/glnxa64/jre/lib/amd64/server"
+        subprocess_env["LD_LIBRARY_PATH"] = "/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v85/runtime/glnxa64:/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v85/bin/glnxa64:/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v85/sys/os/glnxa64" % ((server_name,)*3)
+        #subprocess_env["LD_LIBRARY_PATH"] = "/usr/local/MATLAB/MATLAB_Runtime/v85/runtime/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/v85/bin/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/v85/sys/os/glnxa64/:/usr/local/MATLAB/MATLAB_Runtime/v85/sys/java/jre/glnxa64/jre/lib/amd64/:/usr/local/MATLAB/MATLAB_Runtime/v85/sys/java/jre/glnxa64/jre/lib/amd64/server"
         
-        doc = models.Document.get(external_identifier=musicbrainzid)
         boundstat, fldmodel = (None, None)
-        for col in doc.collections:
-            collid = col.collectionid
-            try:
-                boundstat = util.docserver_get_filename(collid, "trainphraseseg", "boundstat", version="0.1")        
-                fldmodel = util.docserver_get_filename(collid, "trainphraseseg", "fldmodel", version="0.1")        
-            except docserver.util.NoFileException:
-                pass
-        if not boundstat or not fldmodel:
+        try:
+            boundstat = util.docserver_get_filename('31b52b29-be39-4ccb-98f2-2154140920f9', "trainphraseseg", "boundstat", version="0.1")        
+            fldmodel = util.docserver_get_filename('31b52b29-be39-4ccb-98f2-2154140920f9', "trainphraseseg", "fldmodel", version="0.1")        
+            print boundstat
+            print fldmodel 
+        except util.NoFileException:
             raise Exception('No training files found for recording %s' % musicbrainzid)
 
         files = []
         symbtr = compmusic.dunya.makam.get_symbtr(musicbrainzid)
-        files.append({ 'path': fname, 'name': symbtr})
+        files.append({ 'path': fname, 'name': symbtr['name']})
         
         fp, files_json = tempfile.mkstemp(".json")
-        json.dump(files, fp)
+        f = open(files_json, 'w')
+        json.dump(files, f)
+        f.close()
         os.close(fp)
-        
+
         fp, out_json = tempfile.mkstemp(".json")
         os.close(fp)
 
-        proc = subprocess.Popen(["/srv/dunya/phraseSeg segmentWrapper %s %s %s" % (boundstat, fldmodel, files_json, out_json)], stdout=subprocess.PIPE, shell=True, env=subprocess_env)
+        proc = subprocess.Popen(["/srv/dunya/phraseSeg segmentWrapper %s %s %s %s" % (boundstat, fldmodel, files_json, out_json)], stdout=subprocess.PIPE, shell=True, env=subprocess_env)
 
         (out, err) = proc.communicate()
         
-        ret = {}
+        ret = {"segments": []}
 
-        ret["segments"].append(out_json.read())
+        segments_file = open(out_json, 'r')
+        ret["segments"].append(json.load(segments_file))
         
         os.unlink(files_json)
         os.unlink(out_json)
