@@ -80,7 +80,7 @@ class DunyaPitchMakam(compmusic.extractors.makam.pitch.PitchExtractMakam):
     tuning = json.load(open(tuningfile, 'r'))['scoreInformed']
     notes = json.load(open(alignednotefile, 'r'))['notes']
 
-    pitch_corrected, synth_pitch, notes = alignedpitchfilter.correctOctaveErrors(pitch, notes, tonic['Value'])
+    pitch_corrected, synth_pitch, notes_out = alignedpitchfilter.correctOctaveErrors(pitch, notes, tonic['Value'])
     
     noteModels, pitchDistribution, newTonic = alignednotemodel.getModels(pitch_corrected, notes, tonic, tuning, kernel_width=7.5)
    
