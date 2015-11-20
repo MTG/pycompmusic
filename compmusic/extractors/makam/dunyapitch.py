@@ -82,7 +82,7 @@ class DunyaPitchMakam(compmusic.extractors.makam.pitch.PitchExtractMakam):
 
     pitch_corrected, synth_pitch, notes = alignedpitchfilter.correctOctaveErrors(pitch, notes, tonic['Value'])
     
-    noteModels, pitchDistribution, newTonic = alignednotemodel.getModels(pitch, notes, tonic, tuning, kernel_width=7.5)
+    noteModels, pitchDistribution, newTonic = alignednotemodel.getModels(pitch_corrected, notes, tonic, tuning, kernel_width=7.5)
    
     dist_json = [{'bins': pitchDistribution.bins.tolist(), 'vals': pitchDistribution.vals.tolist(),
                   'kernel_width': pitchDistribution.kernel_width, 'ref_freq': pitchDistribution.ref_freq, 
