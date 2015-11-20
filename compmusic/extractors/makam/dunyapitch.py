@@ -47,6 +47,7 @@ class DunyaPitchMakam(compmusic.extractors.makam.pitch.PitchExtractMakam):
   _output = {
           "pitch": {"extension": "json", "mimetype": "application/json"},
           "notemodels": {"extension": "json", "mimetype": "application/json"},
+          "histogram": {"extension": "json", "mimetype": "application/json"},
           "pitch_corrected":{"extension": "json", "mimetype": "application/json"}
   }
 
@@ -81,9 +82,14 @@ class DunyaPitchMakam(compmusic.extractors.makam.pitch.PitchExtractMakam):
 
     pitch_corrected, synth_pitch, notes = alignedpitchfilter.correctOctaveErrors(pitch, notes, tonic['Value'])
     
-    noteModels, pitchDistibution, newTonic = alignednotemodel.getModels(pitch, notes, tonic, tuning, kernel_width=7.5)
-    
+    noteModels, pitchDistribution, newTonic = alignednotemodel.getModels(pitch, notes, tonic, tuning, kernel_width=7.5)
+   
+    dist_json = [{'bins': pitchDistribution.bins.tolist(), 'vals': pitchDistribution.vals.tolist(),
+                  'kernel_width': pitchDistribution.kernel_width, 'ref_freq': pitchDistribution.ref_freq, 
+                  'step_size': pitchDistribution.step_size}]
+
     output["notemodels"] = noteModels
+    output["histogram"] = dist_json
     output["pitch_corrected"] = [p[1] for p in pitch_corrected]
     output["pitch"] = out_pitch
     del output["matlab"]
