@@ -31,7 +31,7 @@ dunya.set_token("69ed3d824c4c41f59f0bc853f696a7dd80707779")
 
 class TrainPhraseSeg(compmusic.extractors.ExtractorModule):
     _version = "0.1"
-    _sourcetype = "txt"
+    _sourcetype = "symbtrtxt"
     _slug = "trainphraseseg"
     _many_files = True
 
@@ -46,7 +46,7 @@ class TrainPhraseSeg(compmusic.extractors.ExtractorModule):
         subprocess_env["MCR_CACHE_ROOT"] = "/tmp/emptydir"
         subprocess_env["LD_LIBRARY_PATH"] = "/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v85/runtime/glnxa64:/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v85/bin/glnxa64:/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v85/sys/os/glnxa64" % ((server_name,)*3)
         #subprocess_env["LD_LIBRARY_PATH"] = "/usr/local/MATLAB/MATLAB_Runtime/v85/runtime/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/v85/bin/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/v85/sys/os/glnxa64/:/usr/local/MATLAB/MATLAB_Runtime/v85/sys/java/jre/glnxa64/jre/lib/amd64/:/usr/local/MATLAB/MATLAB_Runtime/v85/sys/java/jre/glnxa64/jre/lib/amd64/server"
-        
+
         files = []
         for mbid, fname in id_fnames:
             try:
@@ -68,18 +68,18 @@ class TrainPhraseSeg(compmusic.extractors.ExtractorModule):
         proc = subprocess.Popen(["/srv/dunya/phraseSeg trainWrapper %s %s %s" % (files_json, boundstat, fldmodel)], stdout=subprocess.PIPE, shell=True, env=subprocess_env)
 
         (out, err) = proc.communicate()
-        
+
         ret = {"boundstat": None, "fldmodel": None}
-        
+
         boundstat_file = open(boundstat)
         ret["boundstat"] = boundstat_file.read()
         fldmodel_file = open(fldmodel)
         ret["fldmodel"] = fldmodel_file.read()
-        
+
         os.unlink(files_json)
         os.unlink(boundstat)
         os.unlink(fldmodel)
-        
+
         return ret
 
 class SegmentPhraseSeg(compmusic.extractors.ExtractorModule):
@@ -97,20 +97,20 @@ class SegmentPhraseSeg(compmusic.extractors.ExtractorModule):
         subprocess_env["MCR_CACHE_ROOT"] = "/tmp/emptydir"
         subprocess_env["LD_LIBRARY_PATH"] = "/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v85/runtime/glnxa64:/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v85/bin/glnxa64:/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v85/sys/os/glnxa64" % ((server_name,)*3)
         #subprocess_env["LD_LIBRARY_PATH"] = "/usr/local/MATLAB/MATLAB_Runtime/v85/runtime/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/v85/bin/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/v85/sys/os/glnxa64/:/usr/local/MATLAB/MATLAB_Runtime/v85/sys/java/jre/glnxa64/jre/lib/amd64/:/usr/local/MATLAB/MATLAB_Runtime/v85/sys/java/jre/glnxa64/jre/lib/amd64/server"
-        
+
         boundstat, fldmodel = (None, None)
         try:
-            boundstat = util.docserver_get_filename('31b52b29-be39-4ccb-98f2-2154140920f9', "trainphraseseg", "boundstat", version="0.1")        
-            fldmodel = util.docserver_get_filename('31b52b29-be39-4ccb-98f2-2154140920f9', "trainphraseseg", "fldmodel", version="0.1")        
+            boundstat = util.docserver_get_filename('31b52b29-be39-4ccb-98f2-2154140920f9', "trainphraseseg", "boundstat", version="0.1")
+            fldmodel = util.docserver_get_filename('31b52b29-be39-4ccb-98f2-2154140920f9', "trainphraseseg", "fldmodel", version="0.1")
             print boundstat
-            print fldmodel 
+            print fldmodel
         except util.NoFileException:
             raise Exception('No training files found for recording %s' % musicbrainzid)
 
         files = []
         symbtr = compmusic.dunya.makam.get_symbtr(musicbrainzid)
         files.append({ 'path': fname, 'name': symbtr['name']})
-        
+
         fp, files_json = tempfile.mkstemp(".json")
         f = open(files_json, 'w')
         json.dump(files, f)
@@ -123,13 +123,13 @@ class SegmentPhraseSeg(compmusic.extractors.ExtractorModule):
         proc = subprocess.Popen(["/srv/dunya/phraseSeg segmentWrapper %s %s %s %s" % (boundstat, fldmodel, files_json, out_json)], stdout=subprocess.PIPE, shell=True, env=subprocess_env)
 
         (out, err) = proc.communicate()
-        
+
         ret = {"segments": []}
 
         segments_file = open(out_json, 'r')
         ret["segments"].append(json.load(segments_file))
-        
+
         os.unlink(files_json)
         os.unlink(out_json)
-        
-        return ret 
+
+        return ret
