@@ -40,15 +40,52 @@ import json
 import scipy.io
 import cStringIO
 
-class DunyaPitchMakam(compmusic.extractors.makam.pitch.PitchExtractMakam):
-  _version = "0.1"
+class CorrectedPitchMakam(compmusic.extractors.makam.pitch.PitchExtractMakam):
+  _version = "0.2"
   _sourcetype = "mp3"
-  _slug = "dunyamakampitch"
+  _slug = "correctedpitchmakam"
   _output = {
           "pitch": {"extension": "json", "mimetype": "application/json"},
           "notemodels": {"extension": "json", "mimetype": "application/json"},
           "histogram": {"extension": "json", "mimetype": "application/json"},
-          "pitch_corrected":{"extension": "json", "mimetype": "application/json"}
+  }
+
+  def run(self, musicbrainzid, fname):
+    output = super(CorrectedPitchMakam, self).run(musicbrainzid, fname)
+
+    # Compute the pitch octave correction
+
+    tonicfile = util.docserver_get_filename(musicbrainzid, "tonictempotuning", "tonic", version="0.1")
+    tuningfile = util.docserver_get_filename(musicbrainzid, "tonictempotuning", "tuning", version="0.1")
+    alignednotefile = util.docserver_get_filename(musicbrainzid, "scorealign", "notesalign", version="0.1")
+
+    pitch = array(output['pitch'])
+    tonic = json.load(open(tonicfile, 'r'))['scoreInformed']
+    tuning = json.load(open(tuningfile, 'r'))['scoreInformed']
+    notes = json.load(open(alignednotefile, 'r'))['notes']
+
+    pitch_corrected, synth_pitch, notes = alignedpitchfilter.correctOctaveErrors(pitch, notes, tonic['Value'])
+    
+    noteModels, pitchDistribution, newTonic = alignednotemodel.getModels(pitch_corrected, notes, tonic, tuning, kernel_width=7.5)
+   
+    dist_json = [{'bins': pitchDistribution.bins.tolist(), 'vals': pitchDistribution.vals.tolist(),
+                  'kernel_width': pitchDistribution.kernel_width, 'ref_freq': pitchDistribution.ref_freq, 
+                  'step_size': pitchDistribution.step_size}]
+
+    output["notemodels"] = noteModels
+    output["histogram"] = dist_json
+    output["pitch"] = pitch_corrected
+    del output["matlab"]
+    del output["settings"]
+    return output
+
+class DunyaPitchMakam(compmusic.extractors.makam.pitch.PitchExtractMakam):
+  _version = "0.2"
+  _sourcetype = "mp3"
+  _slug = "dunyapitchmakam"
+  _output = {
+          "pitch": {"extension": "dat", "mimetype": "application/octet-stream"},
+          "pitchmax": { "extension": "json", "mimetype": "application/json"},
   }
 
   def setup(self):
@@ -67,31 +104,29 @@ class DunyaPitchMakam(compmusic.extractors.makam.pitch.PitchExtractMakam):
   def run(self, musicbrainzid, fname):
     output = super(DunyaPitchMakam, self).run(musicbrainzid, fname)
 
-    # Compute the pitch octave correction
+    # Compute the pitch octave correction for display in dunya
 
     tonicfile = util.docserver_get_filename(musicbrainzid, "tonictempotuning", "tonic", version="0.1")
-    tuningfile = util.docserver_get_filename(musicbrainzid, "tonictempotuning", "tuning", version="0.1")
     alignednotefile = util.docserver_get_filename(musicbrainzid, "scorealign", "notesalign", version="0.1")
 
-    
     pitch = array(output['pitch'])
-    out_pitch = [p[1] for p in output["pitch"]]
     tonic = json.load(open(tonicfile, 'r'))['scoreInformed']
-    tuning = json.load(open(tuningfile, 'r'))['scoreInformed']
     notes = json.load(open(alignednotefile, 'r'))['notes']
 
-    pitch_corrected, synth_pitch, notes_out = alignedpitchfilter.correctOctaveErrors(pitch, notes, tonic['Value'])
+    pitch_corrected, synth_pitch, notes = alignedpitchfilter.correctOctaveErrors(pitch, notes, tonic['Value'])
     
-    noteModels, pitchDistribution, newTonic = alignednotemodel.getModels(pitch_corrected, notes, tonic, tuning, kernel_width=7.5)
-   
-    dist_json = [{'bins': pitchDistribution.bins.tolist(), 'vals': pitchDistribution.vals.tolist(),
-                  'kernel_width': pitchDistribution.kernel_width, 'ref_freq': pitchDistribution.ref_freq, 
-                  'step_size': pitchDistribution.step_size}]
-
-    output["notemodels"] = noteModels
-    output["histogram"] = dist_json
-    output["pitch_corrected"] = [p[1] for p in pitch_corrected]
-    output["pitch"] = out_pitch
+    pitch = [p[1] for p in pitch_corrected] 
+    
+    # pitches as bytearray 
+    packed_pitch = cStringIO.StringIO()
+    max_pitch = max(pitch) 
+    height = 255
+    for p in pitch:
+        packed_pitch.write(struct.pack("B", int(p * 1.0 / max_pitch * height)))
+                             
+    output['pitch'] = packed_pitch.getvalue()
+    output['pitchmax'] = {'value': max_pitch}
+                                   
     del output["matlab"]
     del output["settings"]
     return output

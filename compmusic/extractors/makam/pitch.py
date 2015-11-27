@@ -22,6 +22,7 @@
 # International Conference on Audio Technologies for Music and Media, Ankara,
 # Turkey.
 
+import os
 import compmusic.extractors
 
 from essentia import __version__ as essentia_version
@@ -38,11 +39,12 @@ from numpy import transpose
 import json
 import scipy.io
 import cStringIO
+from docserver import util
 
 class PitchExtractMakam(compmusic.extractors.ExtractorModule):
   _version = "0.6"
   _sourcetype = "mp3"
-  _slug = "makampitch"
+  _slug = "initialmakampitch"
   _output = {"pitch": {"extension": "json", "mimetype": "application/json"},
                 "matlab": {"extension": "mat", "mimetype": "application/octet-stream"},
                 "settings": {"extension": "json", "mimetype": "application/json"}
@@ -68,6 +70,8 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
             In Proceedings of 3rd International Conference on Audio Technologies
             for Music and Media, Ankara, Turkey.
             """
+
+    fname, created = util.docserver_get_wav_filename(musicbrainzid)
 
     run_windowing = estd.Windowing(zeroPadding = 3 * self.settings.frameSize) # Hann window with x4 zero padding
     run_spectrum = estd.Spectrum(size=self.settings.frameSize * 4)
@@ -146,6 +150,9 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
     matob.update(settings)
 
     scipy.io.savemat(matout, matob)
+
+    if created:
+         os.unlink(fname)
 
     return {'pitch': out,
             'matlab': matout.getvalue(),

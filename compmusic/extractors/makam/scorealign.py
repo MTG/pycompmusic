@@ -55,14 +55,17 @@ class ScoreAlign(compmusic.extractors.ExtractorModule):
         tonic = util.docserver_get_filename(musicbrainzid, "tonictempotuning", "tonic", version="0.1")
         tempo = util.docserver_get_filename(musicbrainzid, "tonictempotuning", "tempo", version="0.1")
         tuning = util.docserver_get_filename(musicbrainzid, "tonictempotuning", "tuning", version="0.1")
-        melody = util.docserver_get_filename(musicbrainzid, "makampitch", "matlab", version="0.6")
+        melody = util.docserver_get_filename(musicbrainzid, "initialmakampitch", "matlab", version="0.6")
 
-        mp3file = fname
+        mp3file, created = util.docserver_get_wav_filename(musicbrainzid)
         output = tempfile.mkdtemp()
         print "/srv/dunya/alignAudioScore %s %s '' %s %s %s %s %s %s" % (symbtrtxt, metadata, mp3file, melody, tonic, tempo, tuning, output) 
         proc = subprocess.Popen(["/srv/dunya/alignAudioScore %s %s '' %s %s %s %s %s %s" % (symbtrtxt, metadata, mp3file, melody, tonic, tempo, tuning, output)], stdout=subprocess.PIPE, shell=True, env=subprocess_env)
         (out, err) = proc.communicate()
         
+        if created:
+             os.unlink(mp3file)
+
         ret = {}
         if os.path.isfile(os.path.join(output, 'alignedNotes.json')):
             json_file = open(os.path.join(output, 'alignedNotes.json'))

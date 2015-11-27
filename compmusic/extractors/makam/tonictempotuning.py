@@ -55,15 +55,18 @@ class TonicTempoTuning(compmusic.extractors.ExtractorModule):
             raise Exception('No work on recording %s' % musicbrainzid)
 
         metadata = util.docserver_get_filename(rec_data['works'][0]['mbid'], "metadata", "metadata", version="0.1")
-        
-        mp3file = fname
-        mlbinary = util.docserver_get_filename(musicbrainzid, "makampitch", "matlab", version="0.6")
+       
+        print metadata
+
+        mp3file, created = util.docserver_get_wav_filename(musicbrainzid)
+        mlbinary = util.docserver_get_filename(musicbrainzid, "initialmakampitch", "matlab", version="0.6")
         output = tempfile.mkdtemp()
        
         proc = subprocess.Popen(["/srv/dunya/extractTonicTempoTuning %s %s %s %s %s" % (symbtrtxt, metadata, mp3file, mlbinary, output)], stdout=subprocess.PIPE, shell=True, env=subprocess_env)
         
         (out, err) = proc.communicate()
-        
+        if created:
+            os.unlink(mp3file)
         ret = {}
         expected = ['tempo', 'tonic', 'tuning'] 
         for f in expected:
