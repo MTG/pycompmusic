@@ -42,7 +42,7 @@ class MakamAudioImage(AudioImages):
         max_pitch = util.docserver_get_filename(musicbrainzid, "dunyapitchmakam", "pitchmax", version="0.2")        
         pitch = json.load(open(max_pitch))
 
-        self._f_min = 0.1 
-        self._f_max = pitch['value'] 
+        self._f_min = pitch['min']
+        self._f_max = pitch['max'] 
         ret = super(MakamAudioImage, self).run(musicbrainzid, fname)
         return ret
