@@ -48,36 +48,60 @@ class ScoreAlign(compmusic.extractors.ExtractorModule):
         if len(rec_data['works']) == 0:
             raise Exception('No work on recording %s' % musicbrainzid)
  
-        symbtrtxt =util.docserver_get_symbtrtxt(rec_data['works'][0]['mbid'])
-        if not symbtrtxt:
-            raise Exception('No work on recording %s' % musicbrainzid)
-        metadata = util.docserver_get_filename(rec_data['works'][0]['mbid'], "metadata", "metadata", version="0.1")
-        tonic = util.docserver_get_filename(musicbrainzid, "tonictempotuning", "tonic", version="0.1")
-        tempo = util.docserver_get_filename(musicbrainzid, "tonictempotuning", "tempo", version="0.1")
-        tuning = util.docserver_get_filename(musicbrainzid, "tonictempotuning", "tuning", version="0.1")
         melody = util.docserver_get_filename(musicbrainzid, "initialmakampitch", "matlab", version="0.6")
+        tonicfile = util.docserver_get_filename(musicbrainzid, "tonictempotuning", "tonic", version="0.1")
+        tempofile = util.docserver_get_filename(musicbrainzid, "tonictempotuning", "tempo", version="0.1")
+        tuningfile = util.docserver_get_filename(musicbrainzid, "tonictempotuning", "tuning", version="0.1")
 
-        mp3file, created = util.docserver_get_wav_filename(musicbrainzid)
-        output = tempfile.mkdtemp()
-        print "/srv/dunya/alignAudioScore %s %s '' %s %s %s %s %s %s" % (symbtrtxt, metadata, mp3file, melody, tonic, tempo, tuning, output) 
-        proc = subprocess.Popen(["/srv/dunya/alignAudioScore %s %s '' %s %s %s %s %s %s" % (symbtrtxt, metadata, mp3file, melody, tonic, tempo, tuning, output)], stdout=subprocess.PIPE, shell=True, env=subprocess_env)
-        (out, err) = proc.communicate()
-        
-        if created:
-             os.unlink(mp3file)
+        tonic = json.load(open(tonicfile, 'r'))
+        tuning = json.load(open(tuningfile, 'r'))
+        tempo = json.load(open(tempofile, 'r'))
 
-        ret = {}
-        if os.path.isfile(os.path.join(output, 'alignedNotes.json')):
-            json_file = open(os.path.join(output, 'alignedNotes.json'))
-            ret['notesalign'] = json.loads(json_file.read())
-            json_file.close()
-            os.remove(os.path.join(output, 'alignedNotes.json'))
-        if os.path.isfile(os.path.join(output, 'sectionLinks.json')):
-            json_file = open(os.path.join(output, 'sectionLinks.json'))
-            ret['sectionlinks'] = json.loads(json_file.read())
-            json_file.close()
-            os.remove(os.path.join(output, 'sectionLinks.json'))
-        
-        os.rmdir(output)
+        ret = {'notesalign': {}, 'sectionlinks':{}}
+        for w in rec_data['works']:
+            symbtrtxt =util.docserver_get_symbtrtxt(w['mbid'])
+            if not symbtrtxt:
+                continue    
+            if w['mbid'] not in tonic or w['mbid'] not in tempo or w['mbid'] not in tuning:
+                raise Exception('TonicTempoTuning doesn\'t has data for the work %s' % w['mbid'])
+            
+            metadata = util.docserver_get_filename(w['mbid'], "metadata", "metadata", version="0.1")
+           
+            ftonic = tempfile.NamedTemporaryFile(mode='w+', suffix=".json")
+            json.dump(tonic[w['mbid']], ftonic)
+            ftonic.flush()
+            ftempo = tempfile.NamedTemporaryFile(mode='w+', suffix=".json")
+            json.dump(tempo[w['mbid']], ftempo)
+            ftempo.flush()
+            ftuning = tempfile.NamedTemporaryFile(mode='w+', suffix=".json")
+            json.dump(tuning[w['mbid']], ftuning)
+            ftuning.flush()
+
+
+            mp3file, created = util.docserver_get_wav_filename(musicbrainzid)
+            output = tempfile.mkdtemp()
+            print "/srv/dunya/alignAudioScore %s %s '' %s %s %s %s %s %s" % (symbtrtxt, metadata, mp3file, melody, ftonic.name, ftempo.name, ftuning.name, output) 
+            proc = subprocess.Popen(["/srv/dunya/alignAudioScore %s %s '' %s %s %s %s %s %s" % (symbtrtxt, metadata, mp3file, melody, ftonic.name, ftempo.name, ftuning.name, output)], 
+                        stdout=subprocess.PIPE, shell=True, env=subprocess_env)
+            (out, err) = proc.communicate()
+            
+            if created:
+                 os.unlink(mp3file)
+
+            if os.path.isfile(os.path.join(output, 'alignedNotes.json')):
+                json_file = open(os.path.join(output, 'alignedNotes.json'))
+                ret['notesalign'][w['mbid']] = json.loads(json_file.read())
+                json_file.close()
+                os.remove(os.path.join(output, 'alignedNotes.json'))
+            if os.path.isfile(os.path.join(output, 'sectionLinks.json')):
+                json_file = open(os.path.join(output, 'sectionLinks.json'))
+                ret['sectionlinks'][w['mbid']] = json.loads(json_file.read())
+                json_file.close()
+                os.remove(os.path.join(output, 'sectionLinks.json'))
+ 
+            ftonic.close()
+            ftempo.close()
+            ftuning.close()
+            os.rmdir(output)
 
         return ret

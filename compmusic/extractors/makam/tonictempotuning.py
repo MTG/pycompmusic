@@ -50,34 +50,34 @@ class TonicTempoTuning(compmusic.extractors.ExtractorModule):
         if len(rec_data['works']) == 0:
             raise Exception('No work on recording %s' % musicbrainzid)
 
-        symbtrtxt =util.docserver_get_symbtrtxt(rec_data['works'][0]['mbid'])
-        if not symbtrtxt:
-            raise Exception('No work on recording %s' % musicbrainzid)
+        ret = {'tempo':{}, 'tonic':{}, 'tuning':{}}
+        for w in rec_data['works']:
 
-        metadata = util.docserver_get_filename(rec_data['works'][0]['mbid'], "metadata", "metadata", version="0.1")
-       
-        print metadata
+            symbtrtxt =util.docserver_get_symbtrtxt(w['mbid'])
+            if not symbtrtxt:
+                continue
+ 
+            metadata = util.docserver_get_filename(w['mbid'], "metadata", "metadata", version="0.1")
 
-        mp3file, created = util.docserver_get_wav_filename(musicbrainzid)
-        mlbinary = util.docserver_get_filename(musicbrainzid, "initialmakampitch", "matlab", version="0.6")
-        output = tempfile.mkdtemp()
-       
-        proc = subprocess.Popen(["/srv/dunya/extractTonicTempoTuning %s %s %s %s %s" % (symbtrtxt, metadata, mp3file, mlbinary, output)], stdout=subprocess.PIPE, shell=True, env=subprocess_env)
-        
-        (out, err) = proc.communicate()
-        if created:
-            os.unlink(mp3file)
-        ret = {}
-        expected = ['tempo', 'tonic', 'tuning'] 
-        for f in expected:
-            if os.path.isfile(os.path.join(output, f + '.json')):
-                json_file = open(os.path.join(output, f + '.json'))
-                ret[f] = json.loads(json_file.read())
-                json_file.close()
-                os.remove(os.path.join(output, f + '.json'))
-            else:
-                raise Exception('Missing output %s file for %s' % (f, musicbrainzid))
-        os.rmdir(output)
+            mp3file, created = util.docserver_get_wav_filename(musicbrainzid)
+            mlbinary = util.docserver_get_filename(musicbrainzid, "initialmakampitch", "matlab", version="0.6")
+            output = tempfile.mkdtemp()
+           
+            proc = subprocess.Popen(["/srv/dunya/extractTonicTempoTuning %s %s %s %s %s" % (symbtrtxt, metadata, mp3file, mlbinary, output)], stdout=subprocess.PIPE, shell=True, env=subprocess_env)
+            
+            (out, err) = proc.communicate()
+            if created:
+                os.unlink(mp3file)
+            expected = ['tempo', 'tonic', 'tuning'] 
+            for f in expected:
+                if os.path.isfile(os.path.join(output, f + '.json')):
+                    json_file = open(os.path.join(output, f + '.json'))
+                    ret[f][w['mbid']] = json.loads(json_file.read())
+                    json_file.close()
+                    os.remove(os.path.join(output, f + '.json'))
+                else:
+                    raise Exception('Missing output %s file for %s' % (f, musicbrainzid))
+            os.rmdir(output)
         
         
         return ret 
