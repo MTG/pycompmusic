@@ -202,7 +202,7 @@ class ScoreConverter(object):
         self.ly_stream.append(")")
         print accidentals_check
         
-        line = 0
+        line = len(self.ly_stream) + 5
         for xx, measure in enumerate(self.measure):
             self.ly_stream.append("\n\t")
             self.ly_stream.append("{")
@@ -248,7 +248,7 @@ class ScoreConverter(object):
                     temp_note += str(int(temp_dur))
 
                 if note[7]:
-                    self.mapping.append((note[7], pos + 4, line + 12))
+                    self.mapping.append((note[7], pos + 4, line))
                 
                 # lyrics
                 if note[-1] is not "":
