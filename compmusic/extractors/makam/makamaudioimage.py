@@ -96,7 +96,9 @@ def plot(seyir_features, file_location, plot_average_pitch=True, plot_stable_pit
 
         plt.plot(tt, pp, color='k', linewidth=3)
 
+    fig.set_size_inches(31.25, 2.6)
+    fig.set_tight_layout(True)
     plt.axis('off')
-    fig.set_size_inches(31.25,2.6)
+    plt.margins(0,0)
 
     plt.savefig(file_location, bbox_inches='tight', pad_inches=0) 

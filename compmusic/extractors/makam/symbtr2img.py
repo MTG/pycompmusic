@@ -24,7 +24,7 @@
 import re
 import json
 import compmusic.extractors
-import symbtr2xml 
+import symbtr2xml
 import tempfile
 from subprocess import call
 import os
@@ -36,7 +36,7 @@ dunya.set_token("69ed3d824c4c41f59f0bc853f696a7dd80707779")
 
 class Symbtr2Png(compmusic.extractors.ExtractorModule):
     _version = "0.1"
-    _sourcetype = "txt"
+    _sourcetype = "symbtrtxt"
     _slug = "score"
     _output = {
             "intervals": {"extension": "json", "mimetype": "application/json"},
@@ -76,7 +76,7 @@ class Symbtr2Png(compmusic.extractors.ExtractorModule):
 
         tmp_dir = tempfile.mkdtemp()
         call(["lilypond", '-dpaper-size=\"junior-legal\"', "-dbackend=svg", "-o" "%s" % (tmp_dir), smallname.replace(".xml",".ly")])
-     
+
         ret = {'intervals': intervals, 'score': [], 'xmlscore': '', 'indexmap': ''}
         musicxml = open(smallname)
         ret['xmlscore'] = musicxml.read()
@@ -84,23 +84,23 @@ class Symbtr2Png(compmusic.extractors.ExtractorModule):
         indexmap = open(smallname.replace('.xml','.json'))
         ret['indexmap'] = json.loads(indexmap.read())
         indexmap.close()
-        
+
         os.unlink(smallname)
         os.unlink(smallname.replace('.xml','.ly'))
         os.unlink(smallname.replace('.xml','.json'))
-        
+
         regex = re.compile(r'.*<a style="(.*)" xlink:href="textedit:\/\/\/.*:([0-9]+):([0-9]+):([0-9]+)">.*')
         files = [os.path.join(tmp_dir, f) for f in os.listdir(tmp_dir)]
         files = filter(os.path.isfile, files)
         files.sort(key=lambda x: os.path.getmtime(x))
-        print files 
+        
         for f in files:
             if f.endswith('.svg'):
                 svg_file = open(f)
                 score = svg_file.read()
                 ret['score'].append(regex.sub(r'<a style="\1" id="l\2-f\3-t\4" from="\3" to="\4">',score))
                 svg_file.close()
-                os.remove(f) 
+                os.remove(f)
         os.rmdir(tmp_dir)
         return ret
 

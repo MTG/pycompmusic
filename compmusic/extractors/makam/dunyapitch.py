@@ -97,7 +97,7 @@ class CorrectedPitchMakam(compmusic.extractors.ExtractorModule):
             output["works_intervals"][w['mbid']] = {"from": min_interval, "to": max_interval}
             output["notemodels"][w["mbid"]] = noteModels
             output["histogram"] = dist_json
-    
+
     output["corrected_alignednotes"] = notes_corrected
     output["pitch"] = pitch_corrected
     return output
