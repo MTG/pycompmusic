@@ -28,5 +28,4 @@ class Metadata(compmusic.extractors.ExtractorModule):
             bounds = []
 
         metadata = extractor.extract(fname, symbtr_fname, bounds)
-         
         return {"metadata": metadata }

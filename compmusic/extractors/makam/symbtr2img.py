@@ -17,9 +17,9 @@
 #
 # If you are using this extractor please cite the following paper:
 #
-# Atlı, H. S., Uyar, B., Şentürk, S., Bozkurt, B., and Serra, X. (2014). Audio 
-# feature extraction for exploring Turkish makam music. In Proceedings of 3rd 
-# International Conference on Audio Technologies for Music and Media, Ankara, 
+# Atlı, H. S., Uyar, B., Şentürk, S., Bozkurt, B., and Serra, X. (2014). Audio
+# feature extraction for exploring Turkish makam music. In Proceedings of 3rd
+# International Conference on Audio Technologies for Music and Media, Ankara,
 # Turkey.
 import re
 import json
@@ -93,7 +93,7 @@ class Symbtr2Png(compmusic.extractors.ExtractorModule):
         files = [os.path.join(tmp_dir, f) for f in os.listdir(tmp_dir)]
         files = filter(os.path.isfile, files)
         files.sort(key=lambda x: os.path.getmtime(x))
-        
+
         for f in files:
             if f.endswith('.svg'):
                 svg_file = open(f)
