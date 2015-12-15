@@ -84,7 +84,7 @@ class TrainPhraseSeg(compmusic.extractors.ExtractorModule):
 
 class SegmentPhraseSeg(compmusic.extractors.ExtractorModule):
     _version = "0.1"
-    _sourcetype = "txt"
+    _sourcetype = "symbtrtxt"
     _slug = "segmentphraseseg"
 
     _output = {
