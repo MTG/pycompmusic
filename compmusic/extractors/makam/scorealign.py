@@ -28,7 +28,7 @@ from compmusic.dunya import makam
 dunya.set_token("69ed3d824c4c41f59f0bc853f696a7dd80707779")
 
 class ScoreAlign(compmusic.extractors.ExtractorModule):
-    _version = "0.1"
+    _version = "0.2"
     _sourcetype = "mp3"
     _slug = "scorealign"
 

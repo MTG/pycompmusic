@@ -61,7 +61,7 @@ class CorrectedPitchMakam(compmusic.extractors.ExtractorModule):
     pitchfile = util.docserver_get_filename(musicbrainzid, "initialmakampitch", "pitch", version="0.6")
     tonicfile = util.docserver_get_filename(musicbrainzid, "tonictempotuning", "tonic", version="0.1")
     tuningfile = util.docserver_get_filename(musicbrainzid, "tonictempotuning", "tuning", version="0.1")
-    alignednotefile = util.docserver_get_filename(musicbrainzid, "scorealign", "notesalign", version="0.1")
+    alignednotefile = util.docserver_get_filename(musicbrainzid, "scorealign", "notesalign", version="0.2")
 
     pitch = array(json.load(open(pitchfile, 'r')))
     tonic = json.load(open(tonicfile, 'r'))
@@ -129,7 +129,7 @@ class DunyaPitchMakam(compmusic.extractors.makam.pitch.PitchExtractMakam):
 
     # Compute the pitch octave correction for display in dunya
 
-    alignednotefile = util.docserver_get_filename(musicbrainzid, "scorealign", "notesalign", version="0.1")
+    alignednotefile = util.docserver_get_filename(musicbrainzid, "scorealign", "notesalign", version="0.2")
 
     pitch = array(output['pitch'])
     notes = json.load(open(alignednotefile, 'r'))
