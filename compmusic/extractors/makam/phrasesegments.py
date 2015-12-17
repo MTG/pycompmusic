@@ -19,6 +19,7 @@ import shutil
 import compmusic.extractors
 import subprocess
 import socket
+import csv
 
 from docserver import util
 from docserver import models
@@ -47,11 +48,11 @@ class TrainPhraseSeg(compmusic.extractors.ExtractorModule):
         subprocess_env["LD_LIBRARY_PATH"] = "/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v85/runtime/glnxa64:/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v85/bin/glnxa64:/mnt/compmusic/%s/MATLAB/MATLAB_Compiler_Runtime/v85/sys/os/glnxa64" % ((server_name,)*3)
         #subprocess_env["LD_LIBRARY_PATH"] = "/usr/local/MATLAB/MATLAB_Runtime/v85/runtime/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/v85/bin/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/v85/sys/os/glnxa64/:/usr/local/MATLAB/MATLAB_Runtime/v85/sys/java/jre/glnxa64/jre/lib/amd64/:/usr/local/MATLAB/MATLAB_Runtime/v85/sys/java/jre/glnxa64/jre/lib/amd64/server"
 
+        mbid_names = get_mbid_names()
         files = []
         for mbid, fname in id_fnames:
             try:
-                symbtr = compmusic.dunya.makam.get_symbtr(mbid)
-                files.append({ 'path': fname, 'name': symbtr['name']})
+                files.append({ 'path': fname, 'name': mbid_names[mbid]})
             except:
                 pass
         fp, files_json = tempfile.mkstemp(".json")
@@ -133,3 +134,13 @@ class SegmentPhraseSeg(compmusic.extractors.ExtractorModule):
         os.unlink(out_json)
 
         return ret
+
+def get_mbid_names():
+    mbid_names = {}
+    dir = os.path.dirname(__file__)
+    with open(os.path.join(dir,'./makams_usuls/training_phrase_names.csv'), 'rb') as csvfile:
+        names_reader = csv.reader(csvfile, delimiter=',', quotechar='"')
+        for row in names_reader:
+            mbid_names[row[1]] = row[0]
+    return mbid_names    
+
