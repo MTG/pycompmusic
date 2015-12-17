@@ -21,11 +21,11 @@ import struct
 import tempfile
 import numpy as np
 import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from scipy.ndimage.filters import gaussian_filter
 from seyiranalyzer import audioseyiranalyzer
 
-matplotlib.use('Agg')
 
 class MakamAudioImage(AudioImages):
     _version = "0.2"
