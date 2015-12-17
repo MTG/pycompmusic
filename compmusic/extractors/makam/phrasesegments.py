@@ -101,8 +101,11 @@ class SegmentPhraseSeg(compmusic.extractors.ExtractorModule):
 
         boundstat, fldmodel = (None, None)
         try:
-            boundstat = util.docserver_get_filename('31b52b29-be39-4ccb-98f2-2154140920f9', "trainphraseseg", "boundstat", version="0.1")
-            fldmodel = util.docserver_get_filename('31b52b29-be39-4ccb-98f2-2154140920f9', "trainphraseseg", "fldmodel", version="0.1")
+            boundstat = util.docserver_get_filename('d2f729b8-cdc5-4019-ae0d-41695b78ee5b', "trainphraseseg", "boundstat", version="0.1")
+            fldmodel = util.docserver_get_filename('d2f729b8-cdc5-4019-ae0d-41695b78ee5b', "trainphraseseg", "fldmodel", version="0.1")
+ 
+            #boundstat = util.docserver_get_filename('31b52b29-be39-4ccb-98f2-2154140920f9', "trainphraseseg", "boundstat", version="0.1")
+            #fldmodel = util.docserver_get_filename('31b52b29-be39-4ccb-98f2-2154140920f9', "trainphraseseg", "fldmodel", version="0.1")
         except util.NoFileException:
             raise Exception('No training files found for recording %s' % musicbrainzid)
 
