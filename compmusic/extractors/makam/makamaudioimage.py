@@ -24,6 +24,8 @@ import matplotlib.pyplot as plt
 from scipy.ndimage.filters import gaussian_filter
 from seyiranalyzer import audioseyiranalyzer
 
+matplotlib.use('Agg')
+
 class MakamAudioImage(AudioImages):
     _version = "0.2"
     _sourcetype = "mp3"
