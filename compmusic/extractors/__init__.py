@@ -15,6 +15,7 @@
 # this program.  If not, see http://www.gnu.org/licenses/
 
 import log
+import traceback
 from warnings import warn
 try:
     import redis
@@ -114,14 +115,14 @@ class ExtractorModule(object):
 
         """ Set up some class state and call run. This should
         never be called publicly """
+        self.document_id = docid
+        self.logger.set_documentid(docid)
+        self.logger.info("Worker %s" % self.hostname)
         try:
-            self.document_id = docid
-            self.logger.set_documentid(docid)
-            self.logger.info("Worker %s" % self.hostname)
             return self.run_many(id_fnames)
-        except Exception, e:
-            self.logger.error(e)
-            raise e
+        except Exception:
+            self.logger.error(traceback.format_exc())
+            raise
 
 
     def process_document(self, docid, sourcefileid, musicbrainzid, fname):
@@ -132,7 +133,11 @@ class ExtractorModule(object):
         self.logger.set_sourcefileid(sourcefileid)
         self.musicbrainz_id = musicbrainzid
         self.logger.info("Worker %s" % self.hostname)
-        return self.run(musicbrainzid, fname)
+        try:
+            return self.run(musicbrainzid, fname)
+        except Exception:
+            self.logger.error(traceback.format_exc())
+            raise
 
     def run(self, musicbrainzid, fname):
         """Overwrite this to process a file. If you need the document ID then it's available at
