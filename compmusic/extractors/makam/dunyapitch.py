@@ -40,15 +40,75 @@ import json
 import scipy.io
 import cStringIO
 
-class DunyaPitchMakam(compmusic.extractors.makam.pitch.PitchExtractMakam):
-  _version = "0.1"
+from compmusic import dunya
+from compmusic.dunya import makam
+dunya.set_token("69ed3d824c4c41f59f0bc853f696a7dd80707779")
+
+
+class CorrectedPitchMakam(compmusic.extractors.ExtractorModule):
+  _version = "0.2"
   _sourcetype = "mp3"
-  _slug = "dunyamakampitch"
+  _slug = "correctedpitchmakam"
   _output = {
           "pitch": {"extension": "json", "mimetype": "application/json"},
+          "works_intervals": {"extension": "json", "mimetype": "application/json"},
           "notemodels": {"extension": "json", "mimetype": "application/json"},
           "histogram": {"extension": "json", "mimetype": "application/json"},
-          "pitch_corrected":{"extension": "json", "mimetype": "application/json"}
+          "corrected_alignednotes": {"extension": "json", "mimetype": "application/json"},
+  }
+
+  def run(self, musicbrainzid, fname):
+    pitchfile = util.docserver_get_filename(musicbrainzid, "initialmakampitch", "pitch", version="0.6")
+    tonicfile = util.docserver_get_filename(musicbrainzid, "tonictempotuning", "tonic", version="0.1")
+    tuningfile = util.docserver_get_filename(musicbrainzid, "tonictempotuning", "tuning", version="0.1")
+    alignednotefile = util.docserver_get_filename(musicbrainzid, "scorealign", "notesalign", version="0.2")
+
+    pitch = array(json.load(open(pitchfile, 'r')))
+    tonic = json.load(open(tonicfile, 'r'))
+    tuning = json.load(open(tuningfile, 'r'))
+    notes = json.load(open(alignednotefile, 'r'))
+
+    rec_data = dunya.makam.get_recording(musicbrainzid)
+    for w in rec_data['works']:
+        # Compute the pitch octave correction
+        if w['mbid'] in notes:
+            pitch_corrected, synth_pitch, notes_corrected = alignedpitchfilter.correctOctaveErrors(pitch, notes[w['mbid']]['notes'])
+            notes[w['mbid']]['notes'] = notes_corrected
+            pitch = pitch_corrected 
+    
+    output = {"works_intervals": {}, "histogram": {}, "notemodels": {}}
+    # generate notemodels for each work, also output the intervals to show each work
+    for w in rec_data['works']:
+        if w['mbid'] in notes:
+            min_interval = 9999
+            max_interval = 0
+            for i in notes[w['mbid']]['notes']:
+                if i['Interval'][0] < min_interval:
+                    min_interval = i['Interval'][0]
+                if i['Interval'][1] > max_interval:
+                    max_interval = i['Interval'][1]
+           
+            noteModels, pitchDistribution, newTonic = alignednotemodel.getModels(pitch_corrected, notes[w['mbid']]['notes'], tonic[w['mbid']]['scoreInformed'], tuning[w['mbid']]['scoreInformed'], kernel_width=7.5)
+           
+            dist_json = [{'bins': pitchDistribution.bins.tolist(), 'vals': pitchDistribution.vals.tolist(),
+                          'kernel_width': pitchDistribution.kernel_width, 'ref_freq': pitchDistribution.ref_freq, 
+                          'step_size': pitchDistribution.step_size}]
+
+            output["works_intervals"][w['mbid']] = {"from": min_interval, "to": max_interval}
+            output["notemodels"][w["mbid"]] = noteModels
+            output["histogram"] = dist_json
+
+    output["corrected_alignednotes"] = notes_corrected
+    output["pitch"] = pitch_corrected
+    return output
+
+class DunyaPitchMakam(compmusic.extractors.makam.pitch.PitchExtractMakam):
+  _version = "0.2"
+  _sourcetype = "mp3"
+  _slug = "dunyapitchmakam"
+  _output = {
+          "pitch": {"extension": "dat", "mimetype": "application/octet-stream"},
+          "pitchmax": { "extension": "json", "mimetype": "application/json"},
   }
 
   def setup(self):
@@ -67,31 +127,41 @@ class DunyaPitchMakam(compmusic.extractors.makam.pitch.PitchExtractMakam):
   def run(self, musicbrainzid, fname):
     output = super(DunyaPitchMakam, self).run(musicbrainzid, fname)
 
-    # Compute the pitch octave correction
+    # Compute the pitch octave correction for display in dunya
 
-    tonicfile = util.docserver_get_filename(musicbrainzid, "tonictempotuning", "tonic", version="0.1")
-    tuningfile = util.docserver_get_filename(musicbrainzid, "tonictempotuning", "tuning", version="0.1")
-    alignednotefile = util.docserver_get_filename(musicbrainzid, "scorealign", "notesalign", version="0.1")
+    alignednotefile = util.docserver_get_filename(musicbrainzid, "scorealign", "notesalign", version="0.2")
 
-    
     pitch = array(output['pitch'])
-    out_pitch = [p[1] for p in output["pitch"]]
-    tonic = json.load(open(tonicfile, 'r'))['scoreInformed']
-    tuning = json.load(open(tuningfile, 'r'))['scoreInformed']
-    notes = json.load(open(alignednotefile, 'r'))['notes']
+    notes = json.load(open(alignednotefile, 'r'))
 
-    pitch_corrected, synth_pitch, notes_out = alignedpitchfilter.correctOctaveErrors(pitch, notes, tonic['Value'])
+    rec_data = dunya.makam.get_recording(musicbrainzid)
+    for w in rec_data['works']:
+        # Compute the pitch octave correction
+        if w['mbid'] in notes:
+            pitch_corrected, synth_pitch, notes_corrected = alignedpitchfilter.correctOctaveErrors(pitch, notes[w['mbid']]['notes'])
+            notes[w['mbid']]['notes'] = notes_corrected
+            pitch = pitch_corrected 
     
-    noteModels, pitchDistribution, newTonic = alignednotemodel.getModels(pitch_corrected, notes, tonic, tuning, kernel_width=7.5)
-   
-    dist_json = [{'bins': pitchDistribution.bins.tolist(), 'vals': pitchDistribution.vals.tolist(),
-                  'kernel_width': pitchDistribution.kernel_width, 'ref_freq': pitchDistribution.ref_freq, 
-                  'step_size': pitchDistribution.step_size}]
 
-    output["notemodels"] = noteModels
-    output["histogram"] = dist_json
-    output["pitch_corrected"] = [p[1] for p in pitch_corrected]
-    output["pitch"] = out_pitch
+    pitch = [p[1] for p in pitch_corrected] 
+    
+    # pitches as bytearray 
+    packed_pitch = cStringIO.StringIO()
+    max_pitch = max(pitch) 
+    temp = [p for p in pitch if p>0]
+    min_pitch = min(temp) 
+    
+    height = 255
+    for p in pitch:
+        if p < min_pitch:
+            packed_pitch.write(struct.pack("B", 0))
+        else:
+            packed_pitch.write(struct.pack("B", int((p - min_pitch) * 1.0 / (max_pitch - min_pitch) * height)))
+                             
+    
+    output['pitch'] = packed_pitch.getvalue()
+    output['pitchmax'] = {'max': max_pitch, 'min': min_pitch}
+                                   
     del output["matlab"]
     del output["settings"]
     return output

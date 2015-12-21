@@ -93,7 +93,7 @@ class Symbtr2Png(compmusic.extractors.ExtractorModule):
         files = [os.path.join(tmp_dir, f) for f in os.listdir(tmp_dir)]
         files = filter(os.path.isfile, files)
         files.sort(key=lambda x: os.path.getmtime(x))
-        print files
+
         for f in files:
             if f.endswith('.svg'):
                 svg_file = open(f)
