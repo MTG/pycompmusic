@@ -28,6 +28,7 @@ from docserver import util
 from alignedpitchfilter import alignedpitchfilter
 from alignednotemodel.PitchDistribution import hz_to_cent, cent_to_hz
 from alignednotemodel import alignednotemodel
+from ahenkidentifier import ahenkidentifier
 
 from numpy import size
 from numpy import array
@@ -52,6 +53,7 @@ class CorrectedPitchMakam(compmusic.extractors.ExtractorModule):
   _output = {
           "pitch": {"extension": "json", "mimetype": "application/json"},
           "works_intervals": {"extension": "json", "mimetype": "application/json"},
+          "ahenk": {"extension": "json", "mimetype": "application/json"},
           "notemodels": {"extension": "json", "mimetype": "application/json"},
           "histogram": {"extension": "json", "mimetype": "application/json"},
           "corrected_alignednotes": {"extension": "json", "mimetype": "application/json"},
@@ -76,7 +78,7 @@ class CorrectedPitchMakam(compmusic.extractors.ExtractorModule):
             notes[w['mbid']]['notes'] = notes_corrected
             pitch = pitch_corrected 
     
-    output = {"works_intervals": {}, "histogram": {}, "notemodels": {}}
+    output = {"works_intervals": {}, "histogram": {}, "notemodels": {}, "ahenk": {}}
     # generate notemodels for each work, also output the intervals to show each work
     for w in rec_data['works']:
         if w['mbid'] in notes:
@@ -94,6 +96,11 @@ class CorrectedPitchMakam(compmusic.extractors.ExtractorModule):
                           'kernel_width': pitchDistribution.kernel_width, 'ref_freq': pitchDistribution.ref_freq, 
                           'step_size': pitchDistribution.step_size}]
 
+            scorename = compmusic.dunya.makam.get_symbtr(w['mbid'])
+            splitted = scorename['name'].split('/')[-1].split('--')
+            makam = splitted[0]
+            ahenk = ahenkidentifier.identify(newTonic['alignment']['Value'], makam)
+            output["ahenk"][w['mbid']] = ahenk
             output["works_intervals"][w['mbid']] = {"from": min_interval, "to": max_interval}
             output["notemodels"][w["mbid"]] = noteModels
             output["histogram"] = dist_json
