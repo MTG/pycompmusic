@@ -30,7 +30,7 @@ class Mp3ToM4a(compmusic.extractors.ExtractorModule):
 
     def run(self, musicbrainzid, fname):
         tmpname = '/tmp/%s.m4a' % uuid.uuid4()
-        proclist = ["ffmpeg", "-i", fname, "-acodec", "aac", "-strict", "experimental", tmpname]
+        proclist = ["avconv", "-i", fname, "-map", "0:0", "-strict", "experimental", tmpname]
         p = subprocess.Popen(proclist)
         p.communicate()
 
