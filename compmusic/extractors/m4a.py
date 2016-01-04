@@ -17,7 +17,7 @@
 import compmusic.extractors
 import subprocess
 
-import tempfile
+import uuid
 import os
 import wave
 
@@ -29,8 +29,7 @@ class Mp3ToM4a(compmusic.extractors.ExtractorModule):
     _output = {"m4a": {"extension": "m4a", "mimetype": "audio/m4a"}}
 
     def run(self, musicbrainzid, fname):
-        fp, tmpname = tempfile.mkstemp(".m4a")
-        os.close(fp)
+        tmpname = '/tmp/%s.m4a' % uuid.uuid4()
         proclist = ["ffmpeg", "-i", fname, "-acodec", "aac", "-strict", "experimental", tmpname]
         p = subprocess.Popen(proclist)
         p.communicate()
