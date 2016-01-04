@@ -26,9 +26,7 @@ class Mp3ToM4a(compmusic.extractors.ExtractorModule):
     _sourcetype = "mp3"
     _slug = "m4a"
 
-    _output = {
-            "m4a": {"extension": "m4a", "mimetype": "audio/m4a"},
-            }
+    _output = {"m4a": {"extension": "m4a", "mimetype": "audio/m4a"}}
 
     def run(self, musicbrainzid, fname):
         fp, tmpname = tempfile.mkstemp(".m4a")
@@ -39,4 +37,4 @@ class Mp3ToM4a(compmusic.extractors.ExtractorModule):
 
         contents = open(tmpname, "rb").read()
         os.unlink(tmpname)
-        return {"m4a": contents)}
+        return {"m4a": contents}
