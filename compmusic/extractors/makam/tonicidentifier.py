@@ -32,10 +32,7 @@ class TonicIdentifier(compmusic.extractors.ExtractorModule):
   _sourcetype = "mp3"
   _slug = "tonicidentifier"
   _output = {"tonic": {"extension": "json", "mimetype": "application/json"},
-                "pitch": {"extension": "json", "mimetype": "application/json"},
-                "pitch_chunks": {"extension": "json", "mimetype": "application/json"},
-                "histo": {"extension": "json", "mimetype": "application/json"},
-                }
+            }
 
 
   def run(self, musicbrainzid, fname):
@@ -50,9 +47,5 @@ class TonicIdentifier(compmusic.extractors.ExtractorModule):
       tonic_identifier = TonicLastNote()
       tonic, pitch, pitch_chunks, histo = tonic_identifier.identify(pitch)
 
-      histo_out = zip(histo.x.tolist(),histo.y.tolist())
-      return {'tonic': tonic,
-            'pitch': pitch,
-            'pitch_chunks': pitch_chunks,
-            'histo': histo_out}
+      return {'tonic': tonic}
 
