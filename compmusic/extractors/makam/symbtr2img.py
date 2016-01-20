@@ -24,7 +24,7 @@
 import re
 import json
 import compmusic.extractors
-import symbtr2xml
+from musicxmlconverter.symbtr2musicxml import symbtrscore
 import tempfile
 from subprocess import call
 import os
@@ -47,6 +47,8 @@ class Symbtr2Png(compmusic.extractors.ExtractorModule):
 
 
     def run(self, musicbrainzid, fpath):
+        symbtrmu2 = util.docserver_get_symbtrmu2(musicbrainzid)
+
         symbtr = compmusic.dunya.makam.get_symbtr(musicbrainzid)
         fname = symbtr['name']
 
@@ -64,30 +66,32 @@ class Symbtr2Png(compmusic.extractors.ExtractorModule):
         name = name.replace('_', ' ').title()
         composer = composer.replace('_', ' ').title()
 
-        fp, smallname = tempfile.mkstemp(".xml")
+        fp, tmpxml = tempfile.mkstemp(".xml")
         os.close(fp)
 
-        piece = symbtr2xml.symbtrscore(fpath, makam, form, usul, name, composer)
-        intervals = piece.convertsymbtr2xml(smallname)
+        piece = symbtrscore(fpath, symtrmu2, symbtrname=symbtr, mbid=musicbrainzid) 
+        piece.convertsymbtr2xml() 
+        piece.writexml(tmpxml)
+        intervals = piece.get_measure_bounds()
 
-        conv = ScoreConverter(smallname)
+        conv = ScoreConverter(tmpxml)
         conv.run()
 
 
         tmp_dir = tempfile.mkdtemp()
-        call(["lilypond", '-dpaper-size=\"junior-legal\"', "-dbackend=svg", "-o" "%s" % (tmp_dir), smallname.replace(".xml",".ly")])
+        call(["lilypond", '-dpaper-size=\"junior-legal\"', "-dbackend=svg", "-o" "%s" % (tmp_dir), tmpxml.replace(".xml",".ly")])
 
         ret = {'intervals': intervals, 'score': [], 'xmlscore': '', 'indexmap': ''}
-        musicxml = open(smallname)
+        musicxml = open(tmpxml)
         ret['xmlscore'] = musicxml.read()
         musicxml.close()
-        indexmap = open(smallname.replace('.xml','.json'))
+        indexmap = open(tmpxml.replace('.xml','.json'))
         ret['indexmap'] = json.loads(indexmap.read())
         indexmap.close()
 
-        os.unlink(smallname)
-        os.unlink(smallname.replace('.xml','.ly'))
-        os.unlink(smallname.replace('.xml','.json'))
+        os.unlink(tmpxml)
+        os.unlink(tmpxml.replace('.xml','.ly'))
+        os.unlink(tmpxml.replace('.xml','.json'))
 
         regex = re.compile(r'.*<a style="(.*)" xlink:href="textedit:\/\/\/.*:([0-9]+):([0-9]+):([0-9]+)">.*')
         files = [os.path.join(tmp_dir, f) for f in os.listdir(tmp_dir)]
