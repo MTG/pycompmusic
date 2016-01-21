@@ -48,8 +48,8 @@ class TonicIdentifier(compmusic.extractors.ExtractorModule):
 
       tonic_identifier = TonicLastNote()
       tonic, pitch, pitch_chunks, pitch_distribution, stable_pitches = tonic_identifier.identify(pitch)
-      dist_json = [{'bins': pitch_distribution.bins.tolist(), 'vals': pitch_distribution.vals.tolist(),
+      dist_json = {'bins': pitch_distribution.bins.tolist(), 'vals': pitch_distribution.vals.tolist(),
               'kernel_width': pitch_distribution.kernel_width, 'ref_freq': pitch_distribution.ref_freq, 
-              'step_size': pitch_distribution.step_size}]
+              'step_size': pitch_distribution.step_size}
       return {'tonic': tonic, 'pitch_distribution': dist_json}
 

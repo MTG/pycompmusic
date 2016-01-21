@@ -92,9 +92,9 @@ class CorrectedPitchMakam(compmusic.extractors.ExtractorModule):
            
             noteModels, pitchDistribution, newTonic = alignednotemodel.getModels(pitch_corrected, notes[w['mbid']]['notes'], tonic[w['mbid']]['scoreInformed'], tuning[w['mbid']]['scoreInformed'], kernel_width=7.5)
            
-            dist_json = [{'bins': pitchDistribution.bins.tolist(), 'vals': pitchDistribution.vals.tolist(),
+            dist_json = {'bins': pitchDistribution.bins.tolist(), 'vals': pitchDistribution.vals.tolist(),
                           'kernel_width': pitchDistribution.kernel_width, 'ref_freq': pitchDistribution.ref_freq, 
-                          'step_size': pitchDistribution.step_size}]
+                          'step_size': pitchDistribution.step_size}
 
             scorename = compmusic.dunya.makam.get_symbtr(w['mbid'])
             splitted = scorename['name'].split('/')[-1].split('--')
