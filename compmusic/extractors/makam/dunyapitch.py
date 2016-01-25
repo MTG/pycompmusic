@@ -90,7 +90,8 @@ class CorrectedPitchMakam(compmusic.extractors.ExtractorModule):
                 if i['Interval'][1] > max_interval:
                     max_interval = i['Interval'][1]
            
-            noteModels, pitchDistribution, newTonic = alignednotemodel.getModels(pitch_corrected, notes[w['mbid']]['notes'], tonic[w['mbid']]['scoreInformed'], tuning[w['mbid']]['scoreInformed'], kernel_width=7.5)
+            tonic_symbol = tonic[w['mbid']]['scoreInformed']['Symbol']
+            noteModels, pitchDistribution, newTonic = alignednotemodel.getModels(pitch_corrected, notes[w['mbid']]['notes'], tonic_symbol, kernel_width=7.5)
            
             dist_json = {'bins': pitchDistribution.bins.tolist(), 'vals': pitchDistribution.vals.tolist(),
                           'kernel_width': pitchDistribution.kernel_width, 'ref_freq': pitchDistribution.ref_freq, 
