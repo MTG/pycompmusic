@@ -1,5 +1,8 @@
 # coding=utf-8
 __author__ = 'burakuyar', 'hsercanatli'
+import sys
+reload(sys)
+sys.setdefaultencoding("utf-8")
 
 import os
 import json
@@ -94,65 +97,66 @@ class ScoreConverter(object):
 
             # all notes in selected measure
             for note in measure.findall('note'):
-                extra = None 
-                dur = note.find('duration').text
-                # note inf
-                try:
-                    step = note.find('pitch/step').text.lower()
-                    oct = note.find('pitch/octave').text
-                    rest = 0
-                    extra = int(note.find('extra').text)
-                    print extra
-                except:
+                if note.find('duration'):
+                    extra = None
+                    dur = note.find('duration').text
+                    # note inf
                     try:
-                        rest = note.find('rest')
-                        if type(rest) == type(None): rest = 0
-                        else:
-                            rest = 1
-                            step = "r"
-                            oct = "r"
-                    except: rest = 0
+                        step = note.find('pitch/step').text.lower()
+                        oct = note.find('pitch/octave').text
+                        rest = 0
+                        extra = int(note.find('extra').text)
+                        print extra
+                    except:
+                        try:
+                            rest = note.find('rest')
+                            if type(rest) == type(None): rest = 0
+                            else:
+                                rest = 1
+                                step = "r"
+                                oct = "r"
+                        except: rest = 0
 
-                # accident inf
-                try:
-                    acc = note.find('accidental').text
-                    if type(acc) == type(None): acc = 0
-                    elif acc == self.b_koma: acc = -1
-                    elif acc == self.b_bakiyye: acc = -4
-                    elif acc == self.b_kmucennep: acc = -5
-                    elif acc == self.b_bmucennep: acc = -8
+                    # accident inf
+                    try:
+                        acc = note.find('accidental').text
+                        if type(acc) == type(None): acc = 0
+                        elif acc == self.b_koma: acc = -1
+                        elif acc == self.b_bakiyye: acc = -4
+                        elif acc == self.b_kmucennep: acc = -5
+                        elif acc == self.b_bmucennep: acc = -8
 
-                    elif acc == self.d_koma: acc = +1
-                    elif acc == self.d_bakiyye: acc = +4
-                    elif acc == self.d_kmucennep: acc = +5
-                    elif acc == self.d_bmucennep: acc = +8
-                except: acc = 0
+                        elif acc == self.d_koma: acc = +1
+                        elif acc == self.d_bakiyye: acc = +4
+                        elif acc == self.d_kmucennep: acc = +5
+                        elif acc == self.d_bmucennep: acc = +8
+                    except: acc = 0
 
-                # dotted or not
-                try:
-                    dot = note.find('dot')
-                    if type(dot) == type(None): dot = 0
-                    else: dot = 1
-                except: dot = 0
+                    # dotted or not
+                    try:
+                        dot = note.find('dot')
+                        if type(dot) == type(None): dot = 0
+                        else: dot = 1
+                    except: dot = 0
 
-                # tuplet or not
-                try:
-                    tuplet = note.find('time-modification')
-                    if type(tuplet) == type(None): tuplet = 0
-                    else: tuplet = 1
-                except: tuplet = 0
+                    # tuplet or not
+                    try:
+                        tuplet = note.find('time-modification')
+                        if type(tuplet) == type(None): tuplet = 0
+                        else: tuplet = 1
+                    except: tuplet = 0
 
-                # lyrics
-                try:
-                    lyric = note.find('lyric/text').text
-                    if type(lyric) == type(None): lyric = ""
-                    else: lyric = lyric
-                except: lyric = ""
+                    # lyrics
+                    try:
+                        lyric = note.find('lyric/text').text
+                        if type(lyric) == type(None): lyric = ""
+                        else: lyric = lyric
+                    except: lyric = ""
 
-                # appending attributes to the temp note
-                normal_dur = int(self.qnotelen * float(dur) / self.divs) / self.qnotelen
-                temp_note = [step, oct, acc, dot, tuplet, rest, normal_dur, extra, lyric]
-                temp_measure.append(temp_note)
+                    # appending attributes to the temp note
+                    normal_dur = int(self.qnotelen * float(dur) / self.divs) / self.qnotelen
+                    temp_note = [step, oct, acc, dot, tuplet, rest, normal_dur, extra, lyric]
+                    temp_measure.append(temp_note)
 
             # adding temp measure to the measure
             self.measure.append(temp_measure)
