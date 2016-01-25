@@ -21,13 +21,15 @@
 # feature extraction for exploring Turkish makam music. In Proceedings of 3rd
 # International Conference on Audio Technologies for Music and Media, Ankara,
 # Turkey.
+import os
 import re
 import json
-import compmusic.extractors
-from musicxmlconverter.symbtr2musicxml import symbtrscore
 import tempfile
+
+import compmusic.extractors
+from docserver import util
+from musicxmlconverter.symbtr2musicxml import symbtrscore
 from subprocess import call
-import os
 from os.path import isfile, join
 from musicxml2lilypond import ScoreConverter
 from compmusic import dunya
@@ -48,28 +50,17 @@ class Symbtr2Png(compmusic.extractors.ExtractorModule):
 
     def run(self, musicbrainzid, fpath):
         symbtrmu2 = util.docserver_get_symbtrmu2(musicbrainzid)
-
+        print symbtrmu2
         symbtr = compmusic.dunya.makam.get_symbtr(musicbrainzid)
         fname = symbtr['name']
-
-        finfo = fname.split('/')[-1].split('--')
-        finfo[-1] = finfo[-1][:-4]
-
-        makam = finfo[0]
-        form = finfo[1]
-        usul = finfo[2]
-        name = finfo[3]
-        try:
-            composer = finfo[4]
-        except:
-            composer = None
-        name = name.replace('_', ' ').title()
-        composer = composer.replace('_', ' ').title()
+        finfo = fname.split('/')[-1]
 
         fp, tmpxml = tempfile.mkstemp(".xml")
         os.close(fp)
 
-        piece = symbtrscore(fpath, symtrmu2, symbtrname=symbtr, mbid=musicbrainzid) 
+        mbid_url = 'http://musicbrainz.org/work/%s' % musicbrainzid
+
+        piece = symbtrscore(fpath, symbtrmu2, symbtrname=finfo, mbid_url=mbid_url)
         piece.convertsymbtr2xml() 
         piece.writexml(tmpxml)
         intervals = piece.get_measure_bounds()
