@@ -27,5 +27,5 @@ class Metadata(compmusic.extractors.ExtractorModule):
         except TypeError:  # not available
             bounds = []
 
-        metadata = extractor.extract(fname, symbtr_fname, bounds)
+        metadata, valid = extractor.extract(fname, symbtr_fname, bounds)
         return {"metadata": metadata }
