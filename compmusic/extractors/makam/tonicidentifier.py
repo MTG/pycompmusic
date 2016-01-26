@@ -22,7 +22,7 @@ import os
 import compmusic.extractors
 
 import json
-from tonic_identifier.tonic_identifier import TonicLastNote
+from tonicidentifier.tonicidentifier import TonicLastNote
 from pitchfilter.pitchfilter import PitchPostFilter
 from docserver import util
 

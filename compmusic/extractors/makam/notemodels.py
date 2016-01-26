@@ -24,7 +24,7 @@ import compmusic.extractors
 import json
 
 from pitchfilter.pitchfilter import PitchPostFilter
-from tonic_identifier.tonic_identifier import TonicLastNote
+from tonicidentifier.tonicidentifier import TonicLastNote
 from note_model.NoteModel import NoteModel
 from docserver import util
 from compmusic import dunya
