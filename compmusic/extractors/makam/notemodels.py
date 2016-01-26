@@ -57,6 +57,6 @@ class NoteModels(compmusic.extractors.ExtractorModule):
       pitch_dist = json.load(open(pitch_dist_file, 'r'))
      
       model = NoteModel()
-      stable_notes, theo_peaks = model.calculate_notes(pitch_dist, tonic, rec_makam)
+      stable_notes = model.calculate_notes(pitch_dist, tonic, rec_makam)
       return {'stable_notes': stable_notes}
 
