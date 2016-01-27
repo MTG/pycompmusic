@@ -10,14 +10,29 @@ import xml.etree.ElementTree as ET
 import sqlite3
 import codecs
 
+class CommentHandler(ET.XMLTreeBuilder):
+    def __init__(self):
+        ET.XMLTreeBuilder.__init__(self)
+        # assumes ElementTree 1.2.X
+        self._parser.CommentHandler = self.handle_comment
+        self.mapping = {}
+
+    def handle_comment(self, data):
+        self._target.start("symbtrid", {})
+        if data and 'symbtr_txt_note_index' in data:
+            data = data.replace('symbtr_txt_note_index ', '')
+        self._target.data(data)
+        self._target.end("symbtrid")
+
 class ScoreConverter(object):
     def __init__(self, name):
+        self.parser = CommentHandler()
         # io information
         self.file = name
         self.ly_stream = []
 
         # setting the xml tree
-        self.tree = ET.parse(self.file)
+        self.tree = ET.parse(self.file, self.parser)
         self.root = self.tree.getroot()
 
         # koma definitions
@@ -102,14 +117,14 @@ class ScoreConverter(object):
                 if duration_node != None:
                     dur = note.find('duration').text
                 extra = None
-                print dur 
                 # note inf
                 try:
+                    extra =  note.find("symbtrid").text
+                    if extra:
+                        extra = int(extra)
                     step = note.find('pitch/step').text.lower()
                     oct = note.find('pitch/octave').text
                     rest = 0
-                    extra = int(note.find('extra').text)
-                    print extra
                 except:
                     try:
                         rest = note.find('rest')
