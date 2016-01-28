@@ -133,43 +133,44 @@ class DunyaPitchMakam(compmusic.extractors.makam.pitch.PitchExtractMakam):
                       minChunkSize = 50) # number of minimum allowed samples of a chunk in PitchFilter; ~145 ms with 128 sample hopSize & 44100 Fs
 
   def run(self, musicbrainzid, fname):
-    output = super(DunyaPitchMakam, self).run(musicbrainzid, fname)
-
     # Compute the pitch octave correction for display in dunya
-
     alignednotefile = util.docserver_get_filename(musicbrainzid, "scorealign", "notesalign", version="0.2")
 
-    pitch = array(output['pitch'])
     notes = json.load(open(alignednotefile, 'r'))
 
     rec_data = dunya.makam.get_recording(musicbrainzid)
+    if not len(rec_data['works']):
+        raise Exception('No works for the recording %s' % musicbrainzid)
+
+    output = super(DunyaPitchMakam, self).run(musicbrainzid, fname)
+    pitch = array(output['pitch'])
+
     for w in rec_data['works']:
         # Compute the pitch octave correction
         if w['mbid'] in notes:
             pitch_corrected, synth_pitch, notes_corrected = alignedpitchfilter.correctOctaveErrors(pitch, notes[w['mbid']]['notes'])
             notes[w['mbid']]['notes'] = notes_corrected
-            pitch = pitch_corrected 
-    
+            pitch = pitch_corrected
 
-    pitch = [p[1] for p in pitch_corrected] 
-    
-    # pitches as bytearray 
+    pitch = [p[1] for p in pitch_corrected]
+
+    # pitches as bytearray
     packed_pitch = cStringIO.StringIO()
-    max_pitch = max(pitch) 
+    max_pitch = max(pitch)
     temp = [p for p in pitch if p>0]
-    min_pitch = min(temp) 
-    
+    min_pitch = min(temp)
+
     height = 255
     for p in pitch:
         if p < min_pitch:
             packed_pitch.write(struct.pack("B", 0))
         else:
             packed_pitch.write(struct.pack("B", int((p - min_pitch) * 1.0 / (max_pitch - min_pitch) * height)))
-                             
-    
+
+
     output['pitch'] = packed_pitch.getvalue()
     output['pitchmax'] = {'max': max_pitch, 'min': min_pitch}
-                                   
+
     del output["matlab"]
     del output["settings"]
     return output
