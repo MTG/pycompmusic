@@ -27,7 +27,7 @@ dunya.set_token("69ed3d824c4c41f59f0bc853f696a7dd80707779")
 from utilsLyrics.Utilz import writeListOfListToTextFile, writeListToTextFile,\
     getMeanAndStDevError, getSectionNumberFromName, readListOfListTextFile, readListTextFile, getMelodicStructFromName, tokenList2TabFile
 
-from htk_converter import HtkConverter
+from htkparser.htk_converter import HtkConverter
 
 
 class LyricsAlign(compmusic.extractors.ExtractorModule):
