@@ -55,6 +55,7 @@ class CorrectedPitchMakam(compmusic.extractors.ExtractorModule):
           "works_intervals": {"extension": "json", "mimetype": "application/json"},
           "ahenk": {"extension": "json", "mimetype": "application/json"},
           "notemodels": {"extension": "json", "mimetype": "application/json"},
+          "tonic": {"extension": "json", "mimetype": "application/json"},
           "histogram": {"extension": "json", "mimetype": "application/json"},
           "corrected_alignednotes": {"extension": "json", "mimetype": "application/json"},
   }
@@ -78,7 +79,7 @@ class CorrectedPitchMakam(compmusic.extractors.ExtractorModule):
             notes[w['mbid']]['notes'] = notes_corrected
             pitch = pitch_corrected 
     
-    output = {"works_intervals": {}, "histogram": {}, "notemodels": {}, "ahenk": {}}
+    output = {"works_intervals": {}, "histogram": {}, "notemodels": {}, "ahenk": {}, "tonic": {}}
     # generate notemodels for each work, also output the intervals to show each work
     for w in rec_data['works']:
         if w['mbid'] in notes:
@@ -102,6 +103,7 @@ class CorrectedPitchMakam(compmusic.extractors.ExtractorModule):
             makam = splitted[0]
             ahenk = ahenkidentifier.identify(newTonic['alignment']['Value'], makam)
             output["ahenk"][w['mbid']] = ahenk
+            output["tonic"][w['mbid']] = newTonic['alignment']
             output["works_intervals"][w['mbid']] = {"from": min_interval, "to": max_interval}
             output["notemodels"][w["mbid"]] = noteModels
             output["histogram"] = dist_json

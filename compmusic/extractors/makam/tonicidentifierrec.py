@@ -24,7 +24,13 @@ import compmusic.extractors
 import json
 from tonicidentifier.tonicidentifier import TonicLastNote
 from pitchfilter.pitchfilter import PitchPostFilter
+from ahenkidentifier import ahenkidentifier
 from docserver import util
+
+from compmusic import dunya
+from compmusic.dunya import makam
+dunya.set_token("69ed3d824c4c41f59f0bc853f696a7dd80707779")
+
 
 
 class TonicIdentifier(compmusic.extractors.ExtractorModule):
@@ -33,6 +39,7 @@ class TonicIdentifier(compmusic.extractors.ExtractorModule):
   _slug = "tonicidentifier"
   _output = {
           "tonic": {"extension": "json", "mimetype": "application/json"},
+          "ahenk": {"extension": "json", "mimetype": "application/json"},
           "pitch_distribution": {"extension": "json", "mimetype": "application/json"}
           }
 
@@ -51,5 +58,17 @@ class TonicIdentifier(compmusic.extractors.ExtractorModule):
       dist_json = {'bins': pitch_distribution.bins.tolist(), 'vals': pitch_distribution.vals.tolist(),
               'kernel_width': pitch_distribution.kernel_width, 'ref_freq': pitch_distribution.ref_freq, 
               'step_size': pitch_distribution.step_size}
-      return {'tonic': tonic, 'pitch_distribution': dist_json}
+      
+      
+      rec_data = dunya.makam.get_recording(musicbrainzid)
+
+      output = {'tonic': tonic, 'pitch_distribution': dist_json}
+      if len(rec_data['makamlist']) != 0:
+          makam_data = dunya.makam.get_makam(rec_data['makamlist'][0]['uuid'])
+          makam = makam_data['symtr_key']
+          
+          ahenk = ahenkidentifier.identify(tonic['value'], makam)
+          output["ahenk"] = ahenk
+
+      return output
 

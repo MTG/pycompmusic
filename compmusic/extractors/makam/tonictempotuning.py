@@ -24,6 +24,7 @@ import wave
 import subprocess
 from docserver import util
 
+from ahenkidentifier import ahenkidentifier
 from compmusic import dunya
 dunya.set_token('69ed3d824c4c41f59f0bc853f696a7dd80707779')
 
@@ -36,7 +37,8 @@ class TonicTempoTuning(compmusic.extractors.ExtractorModule):
     _output = {
          "tonic": {"extension": "json", "mimetype": "application/json"},
          "tempo": {"extension": "json", "mimetype": "application/json"},
-         "tuning": {"extension": "json", "mimetype": "application/json"}
+         "tuning": {"extension": "json", "mimetype": "application/json"},
+          "ahenk": {"extension": "json", "mimetype": "application/json"}
          }
 
     def run(self, musicbrainzid, fname):
@@ -50,7 +52,7 @@ class TonicTempoTuning(compmusic.extractors.ExtractorModule):
         if len(rec_data['works']) == 0:
             raise Exception('No work on recording %s' % musicbrainzid)
 
-        ret = {'tempo':{}, 'tonic':{}, 'tuning':{}}
+        ret = {'tempo':{}, 'tonic':{}, 'tuning':{}, "ahenk": {}}
         for w in rec_data['works']:
 
             symbtrtxt =util.docserver_get_symbtrtxt(w['mbid'])
@@ -62,12 +64,14 @@ class TonicTempoTuning(compmusic.extractors.ExtractorModule):
             mp3file, created = util.docserver_get_wav_filename(musicbrainzid)
             mlbinary = util.docserver_get_filename(musicbrainzid, "initialmakampitch", "matlab", version="0.6")
             output = tempfile.mkdtemp()
-           
+            print "/srv/dunya/extractTonicTempoTuning %s %s %s %s %s" % (symbtrtxt, metadata, mp3file, mlbinary, output)   
             proc = subprocess.Popen(["/srv/dunya/extractTonicTempoTuning %s %s %s %s %s" % (symbtrtxt, metadata, mp3file, mlbinary, output)], stdout=subprocess.PIPE, shell=True, env=subprocess_env)
+           
             
             (out, err) = proc.communicate()
             if created:
-                os.unlink(mp3file)
+                pass
+                #os.unlink(mp3file)
             expected = ['tempo', 'tonic', 'tuning'] 
             for f in expected:
                 if os.path.isfile(os.path.join(output, f + '.json')):
@@ -78,6 +82,12 @@ class TonicTempoTuning(compmusic.extractors.ExtractorModule):
                 else:
                     raise Exception('Missing output %s file for %s' % (f, musicbrainzid))
             os.rmdir(output)
-        
+            
+            scorename = compmusic.dunya.makam.get_symbtr(w['mbid'])
+            splitted = scorename['name'].split('/')[-1].split('--')
+            makam = splitted[0]
+            ahenk = ahenkidentifier.identify(ret['tonic'][w['mbid']]['scoreInformed']['Value'], makam)
+            ret["ahenk"][w['mbid']] = ahenk
+             
         
         return ret 
