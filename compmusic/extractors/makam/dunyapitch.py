@@ -139,7 +139,7 @@ class DunyaPitchMakam(compmusic.extractors.makam.pitch.PitchExtractMakam):
     notes = json.load(open(alignednotefile, 'r'))
 
     rec_data = dunya.makam.get_recording(musicbrainzid)
-    if not len(rec_data['works']):
+    if not len(rec_data['works']) or not len(notes):
         raise Exception('No works for the recording %s' % musicbrainzid)
 
     output = super(DunyaPitchMakam, self).run(musicbrainzid, fname)
