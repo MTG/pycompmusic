@@ -70,8 +70,7 @@ class TonicTempoTuning(compmusic.extractors.ExtractorModule):
             
             (out, err) = proc.communicate()
             if created:
-                pass
-                #os.unlink(mp3file)
+                os.unlink(mp3file)
             expected = ['tempo', 'tonic', 'tuning'] 
             for f in expected:
                 if os.path.isfile(os.path.join(output, f + '.json')):
