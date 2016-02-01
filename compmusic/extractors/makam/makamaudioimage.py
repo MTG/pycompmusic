@@ -84,13 +84,14 @@ def plot(seyir_features, file_location, plot_average_pitch=True, plot_stable_pit
             plt.plot(tt, yy)
 
     for sf in seyir_features:
-        t_st = sf['time_interval'][0]
-        max_peak = max([sp['value'] for sp in sf['stable_pitches']])
-        for sp in sf['stable_pitches']:
-            clr = 'r' if sp['value'] == max_peak else 'b'
-            # map the values from 0-1 to 1-6
-            marker_thickness = sp['value']*5+1 
-            plt.plot(t_st, sp['frequency'], 'o', color = clr, ms=marker_thickness)
+        if len(sf['stable_pitches']):
+            t_st = sf['time_interval'][0]
+            max_peak = max([sp['value'] for sp in sf['stable_pitches']])
+            for sp in sf['stable_pitches']:
+                clr = 'r' if sp['value'] == max_peak else 'b'
+                # map the values from 0-1 to 1-6
+                marker_thickness = sp['value']*5+1 
+                plt.plot(t_st, sp['frequency'], 'o', color = clr, ms=marker_thickness)
 
             
     if plot_average_pitch:
