@@ -56,7 +56,7 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
         # TODO: if symbTr does not have second verse, continue
           
         sectionLinksURI = util.docserver_get_url(musicbrainzid, "scorealign", "sectionlinks", 1, version="0.2")
-        sectionMetadataURI = util.docserver_get_url(w['mbid'], "scoremetadata", "metadata", 1, version="0.1")
+        sectionMetadataURI = util.docserver_get_url(w['mbid'], "metadata", "metadata", 1, version="0.1")
         
         audioFileURI, created = util.docserver_get_wav_filename(musicbrainzid)
 
