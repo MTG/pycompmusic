@@ -54,10 +54,11 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
                 return
         
         # TODO: if symbTr does not have second verse, continue
-          
-        sectionLinksURI = util.docserver_get_url(musicbrainzid, "scorealign", "sectionlinks", 1, version="0.2")
-        sectionMetadataURI = util.docserver_get_url(w['mbid'], "metadata", "metadata", 1, version="0.1")
+        sectionLinksURI = dunya.docserver.get_document_as_json(musicbrainzid, "scorealign", "sectionlinks", 1, version="0.2")
+
+        sectionMetadataURI = dunya.docserver.get_document_as_json(w['mbid'], "metadata", "metadata", 1, version="0.1")
         
+        sectionMetadataURI = dunya.docserver.get_document_as_json(w['mbid'], "metadata", "metadata", 1, version="0.1")
         audioFileURI, created = util.docserver_get_wav_filename(musicbrainzid)
 
         outputDir = tempfile.mkdtemp()
