@@ -32,6 +32,7 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
     _slug = "lyrics-align"
     _output = {
             "alignedLyricsSyllables": {"extension": "json", "mimetype": "application/json"},
+            "sectionlinks": {"extension": "json", "mimetype": "application/json"},
             }
     
 
@@ -61,7 +62,7 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
         # TODO: if symbTr does not have second verse, continue
         
 
-        sectionMetadataURI = dunya.docserver.get_document_as_json(w['mbid'], "metadata", "metadata", 1, version="0.1")
+        sectionMetadata = dunya.docserver.get_document_as_json(w['mbid'], "metadata", "metadata", 1, version="0.1")
                 
         #### alternative if sectionMetadata not found
 #         from symbtrdataextractor import extractor
@@ -83,14 +84,14 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
 # on other computer         
 #         wavFileURI = download_wav(musicbrainzid, outputDir)
                
-        totalDetectedTokenList = alignRecording(symbtrtxtURI, sectionMetadataURI, sectionLinks, wavFileURI, extractedPitch, outputDir)
+        totalDetectedTokenList, sectionLinksDict = alignRecording(symbtrtxtURI, sectionMetadata, sectionLinks, wavFileURI, extractedPitch, outputDir)
 
-        ret = {'alignedLyricsSyllables':{} }
+        ret = {'alignedLyricsSyllables':{}, 'sectionlinks':{} }
         ret['alignedLyricsSyllables'] = totalDetectedTokenList
+        ret['sectionlinks'] = sectionLinksDict
         return ret
 
-
-
-
-        
+# if __name__=='__main__':
+#     la = LyricsAlign()
+#     la.run('727cff89-392f-4d15-926d-63b2697d7f3f','b')   
         
