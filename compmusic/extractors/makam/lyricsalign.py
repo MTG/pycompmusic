@@ -1,4 +1,9 @@
-import os
+'''
+Created on Feb 3, 2016
+
+@author: joro
+'''
+
 import sys
 from compmusic.extractors.wav import Mp3ToWav
 # parentDir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__) ), os.path.pardir,  os.path.pardir,  os.path.pardir,  os.path.pardir)) 
@@ -8,13 +13,14 @@ from compmusic.extractors.wav import Mp3ToWav
 
 
 import compmusic.extractors
-# from docserver import util
+from docserver import util
 from compmusic import dunya
 from compmusic.dunya import makam
 import tempfile
 
 
 from align.LyricsAligner  import downloadSymbTr,  alignRecording, download_wav
+# from align.MakamScore import loadMakamScore2
 
 dunya.set_token("69ed3d824c4c41f59f0bc853f696a7dd80707779")
 
@@ -44,21 +50,19 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
         w = rec_data['works'][0]
         outputDir = tempfile.mkdtemp()
 # on dunya server
-#         symbtrtxtURI = util.docserver_get_symbtrtxt(w['mbid'])
+        symbtrtxtURI = util.docserver_get_symbtrtxt(w['mbid'])
         
 # on other computer
-        
-        symbtrtxtURI = downloadSymbTr(w['mbid'], outputDir )
+#         symbtrtxtURI = downloadSymbTr(w['mbid'], outputDir )
         
         if not symbtrtxtURI:
                 sys.exit("no symbTr found for work {}".format(w['mbid']) )
         
         # TODO: if symbTr does not have second verse, continue
         
-        sectionLinks = dunya.docserver.get_document_as_json(musicbrainzid, "scorealign", "sectionlinks", 1, version="0.2")
 
         sectionMetadataURI = dunya.docserver.get_document_as_json(w['mbid'], "metadata", "metadata", 1, version="0.1")
-        
+                
         #### alternative if sectionMetadata not found
 #         from symbtrdataextractor import extractor
 #         autoSegBounds = ''
@@ -68,16 +72,17 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
 #                             lyrics_sim_thres=0.25, get_recording_rels=False)
         
         
+        sectionLinks = dunya.docserver.get_document_as_json(musicbrainzid, "scorealign", "sectionlinks", 1, version="0.2")
+
         extractedPitch = dunya.docserver.get_document_as_json(musicbrainzid, "initialmakampitch", "pitch", 1, version="0.6")
          
         
 #  on dunya server       
-#         wavFileURI, created = util.docserver_get_wav_filename(musicbrainzid)
+        wavFileURI, created = util.docserver_get_wav_filename(musicbrainzid)
 
 # on other computer         
-        wavFileURI = download_wav(musicbrainzid, outputDir)
+#         wavFileURI = download_wav(musicbrainzid, outputDir)
                
-        
         totalDetectedTokenList = alignRecording(symbtrtxtURI, sectionMetadataURI, sectionLinks, wavFileURI, extractedPitch, outputDir)
 
         ret = {'alignedLyricsSyllables':{} }
@@ -87,9 +92,5 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
 
 
 
-
         
-if __name__=='__main__':
-        la = LyricsAlign()
-        la.run('b49c633c-5059-4658-a6e0-9f84a1ffb08b', 'testName') 
         
