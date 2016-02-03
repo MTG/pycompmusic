@@ -1,3 +1,9 @@
+'''
+Created on Feb 3, 2016
+
+@author: joro
+'''
+
 import sys
 from compmusic.extractors.wav import Mp3ToWav
 # parentDir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__) ), os.path.pardir,  os.path.pardir,  os.path.pardir,  os.path.pardir)) 
@@ -86,6 +92,5 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
 
 
 
-        
         
         
