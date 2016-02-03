@@ -88,7 +88,7 @@ class TonicTempoTuning(compmusic.extractors.ExtractorModule):
             ahenk = ahenkidentifier.identify(ret['tonic'][w['mbid']]['scoreInformed']['Value'], makam)
             ret["ahenk"][w['mbid']] = ahenk
              
-        if len(ret['tonic'].keys()):
+        if not len(ret['tonic'].keys()):
             raise Exception('Missing tonic output, probable missing work for the recording %s' % musicbrainzid)
 
         return ret 
