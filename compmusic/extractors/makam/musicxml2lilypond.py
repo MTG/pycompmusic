@@ -185,7 +185,9 @@ class ScoreConverter(object):
         # connecting database, trying to get information for beams in lilypond
         conn = sqlite3.connect(os.path.join(curr_path, "makam_db"))
         c = conn.cursor()
-
+       
+        #Starting from 4 because of the lilypond header, defined in main function
+        line = 6
         # getting the components for the given makam
         c.execute('SELECT * FROM usul WHERE NAME="{0}"'.format(self.usul.title()))
         data = c.fetchone()
@@ -194,7 +196,7 @@ class ScoreConverter(object):
             if data[-1] is not None:
                 strokes = data[-1].replace("+", " ")
                 self.ly_stream.append('''\n\t\\set Staff.beatStructure = #\'({0})\n'''.format(strokes))
-
+                line += 2
         if data is None:
             c.execute('SELECT * FROM usul WHERE NAMEENG="{0}"'.format(self.usul.lower()))
             data = c.fetchone()
@@ -202,15 +204,19 @@ class ScoreConverter(object):
                 if data[-1] is not None:
                     strokes = data[-1].replace("+", " ")
                     self.ly_stream.append('''\n\t\\set Staff.beatStructure = #\'({0})\n'''.format(strokes))
+                    line += 2
 
         self.ly_stream.append("\n\t\\time")
-
+        line += 1
+        
         # time signature
-        try: self.ly_stream.append(self.beats + "/" + self.beat_type)
+        try: 
+            self.ly_stream.append(self.beats + "/" + self.beat_type)
         except: print("No time signature!!!")
 
         self.ly_stream.append("\n\t\\clef treble \n\t\\set Staff.keySignature = #`(")
-
+        line += 2
+        
         accidentals_check = []
         temp_keysig = ""
         for i in range(0, len(self.keysig_keys)):
@@ -221,14 +227,15 @@ class ScoreConverter(object):
 
             self.ly_stream.append(temp_keysig)
             temp_keysig = ""
-
+        
         self.ly_stream.append(")")
         print accidentals_check
         
-        line = len(self.ly_stream) + 5
         for xx, measure in enumerate(self.measure):
             self.ly_stream.append("\n\t")
+            line += 1
             self.ly_stream.append("{")
+            
             tuplet = 0
 
             pos = 0
@@ -285,7 +292,6 @@ class ScoreConverter(object):
 
                 pos += len(temp_note) +1
                 self.ly_stream.append(temp_note)
-            line += 1
             self.ly_stream.append("} %measure " + str(xx + 1))
         self.ly_stream.append('''\n\t\\bar \"|.\"''')
 
