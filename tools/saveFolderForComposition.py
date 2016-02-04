@@ -14,6 +14,7 @@ import os
 import sys
 import shutil
 import unidecode
+from compmusic.dunya import logger
 
 
 # this code needed if pycompmusic is copied (not installed as dependecy) in parent URI
@@ -75,18 +76,18 @@ def saveAudio(targetDir, listRecIDs):
         artistName = unidecode.unidecode(artistName)
         artistName = artistName.replace("/", "_")
         artistName = artistName.replace(" ", "_")
-        
+          
         # release name 
 #         releaseName = metadata["meta"]["release"]
 #         releaseName = unidecode.unidecode(releaseName)
         
-        titleName = metadata["meta"]["title"]
-        titleName = unidecode.unidecode(titleName)
-        titleName = titleName.replace("/", "_")
-        titleName = titleName.replace(" ", "_")
+#         titleName = metadata["meta"]["title"]
+#         titleName = unidecode.unidecode(titleName)
+#         titleName = titleName.replace("/", "_")
+#         titleName = titleName.replace(" ", "_")
         
        
-        fileName = '{0}.mp3'.format(titleName)
+        fileName = '{0}.mp3'.format(artistName)
         newDirUrl = '{0}/{1}'.format(targetDir, artistName)
         if not os.path.exists(newDirUrl): os.makedirs(newDirUrl)
         
@@ -114,28 +115,41 @@ def saveScores(symbTrNameNoExt, symbTrDir, targetDir):
         pass
     
     try:
-        shutil.copy(os.path.join(symbTrDir, symbTrNameNoExt+".pdf"), targetDir)
+        symbTrPdf = os.path.join(symbTrDir, symbTrNameNoExt +".pdf")
+        shutil.copy(symbTrPdf, targetDir)
     except IOError:
         pass
+        logger.warn("no {} file found".format(symbTrPdf))
+    try:
+        symbTrPdf = os.path.join(symbTrDir, symbTrNameNoExt +".PDF")
+        shutil.copy(symbTrPdf, targetDir)
+    except IOError:
+        pass
+        logger.warn("no {} file found".format(symbTrPdf))
     
     return targetDir
 
 
 if __name__=="__main__":
     
-    symbTrDir = "/Users/joro/Documents/Phd/UPF/symbTrFromMTG/symbTr_phraseSegmented/"
-    rootTargetdir = 'resultsTest'
-
-#     symbTrNameNoExt = 'rast--sarki--curcuna--nihansin_dideden--haci_faik_bey'
-#     recID = '1701ceba-bd5a-477e-b883-5dacac67da43'
+    symbTrDir = "/Users/joro/Documents/Phd/UPF/symbTrFromMTG/SymbTr_v1/SymbTr_TXT/"
+    rootTargetdir = '/Users/joro/Documents/Phd/UPF/turkish-makam-lyrics-2-audio-test-data/'
+    rootTargetdir = 'resultTest'
 
 
     symbTrNameNoExt = 'nihavent--sarki--curcuna--kimseye_etmem--kemani_sarkis_efendi'
     recID = 'feda89e3-a50d-4ff8-87d4-c1e531cc1233'
     
-#     symbTrNameNoExt = 'rast--turku--semai--gul_agaci--necip_mirkelamoglu'
-#     recID = '338e24ba-1f19-49a1-ad6a-2b89e0e09c38'
+    symbTrNameNoExt = 'rast--turku--semai--gul_agaci--necip_mirkelamoglu'
+    recID = '338e24ba-1f19-49a1-ad6a-2b89e0e09c38'
+    
+#     symbTrNameNoExt = 'rast--sarki--curcuna--nihansin_dideden--haci_faik_bey'
+#     recID = '1701ceba-bd5a-477e-b883-5dacac67da43'
+#     
+#     symbTrNameNoExt = 'rast--sarki--sofyan--gelmez_oldu--dramali_hasan'
+#     recID = '8c7eccf5-0d9e-4f33-89f0-87e95b7da970'
 
+    
     storeScoreAndAudio(symbTrNameNoExt, [recID], rootTargetdir )
 
     

@@ -35,7 +35,7 @@ class Mp3ToWav(compmusic.extractors.ExtractorModule):
         os.close(fp)
         proclist = ["lame", "--decode", fname, tmpname]
         p = subprocess.Popen(proclist)
-        p.communicate()
+        p.wait()
 
         wfile = wave.open(tmpname, "rb")
         length = wfile.getnframes() * 1.0 / wfile.getframerate()
