@@ -45,29 +45,38 @@ class MakamAudioImage(AudioImages):
     _pallete = 2
 
     def run(self, musicbrainzid, fname):
-        
-        max_pitch = util.docserver_get_filename(musicbrainzid, "dunyapitchmakam", "pitchmax", version="0.2")        
+
+        max_pitch = util.docserver_get_filename(musicbrainzid, "dunyapitchmakam", "pitchmax", version="0.2")
         pitch = json.load(open(max_pitch))
 
         self._f_min = pitch['min']
-        self._f_max = pitch['max'] 
+        self._f_max = pitch['max']
         ret = super(MakamAudioImage, self).run(musicbrainzid, fname)
-        
-        pitchfile = util.docserver_get_filename(musicbrainzid, "correctedpitchmakam", "pitch", version="0.2")        
+
+        pitchfile = util.docserver_get_filename(musicbrainzid, "correctedpitchmakam", "pitch", version="0.2")
         pitch = np.array(json.load(open(pitchfile, 'r')))
 
-        audioSeyirAnalyzer = audioseyiranalyzer.AudioSeyirAnalyzer() 
-        seyir_features = audioSeyirAnalyzer.analyze(pitch, frame_size = 20, hop_ratio = 0.5)
+        audioSeyirAnalyzer = audioseyiranalyzer.AudioSeyirAnalyzer()
+
+        # compute number of frames from some simple rules set by the user
+        duration = pitch[-1][0]
+        min_num_frames = 40
+        max_frame_dur = 30
+        frame_size = duration/min_num_frames if
+        duration/min_num_frames<=max_frame_dur else max_frame_dur
+        frame_size = int(5 * round(float(frame_size)/5))  # round to 5 seconds
+
+        seyir_features = audioSeyirAnalyzer.analyze(pitch, frame_size=frame_size, hop_ratio = 0.5)
         fimage = tempfile.NamedTemporaryFile(mode='w+', suffix=".png")
         plot(seyir_features, fimage.name)
         fimage.flush()
         fileContent = None
-        with open(fimage.name, mode='rb') as file: 
+        with open(fimage.name, mode='rb') as file:
             file_content = file.read()
         if not file_content:
             raise Exception("No image generated")
         ret['smallfull'] = file_content
-        
+
         return ret
 
 def plot(seyir_features, file_location, plot_average_pitch=True, plot_stable_pitches=True,
