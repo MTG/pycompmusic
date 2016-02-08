@@ -240,7 +240,8 @@ class ScoreConverter(object):
 
             pos = 0
             for note in measure:
-                temp_note = ""
+                temp_note = "\n\t"
+                line += 1
                 temp_dur = 0
                 # TODO: We don't show the grace notes, for now
                 if note[6] != None:
