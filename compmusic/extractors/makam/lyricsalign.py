@@ -19,7 +19,7 @@ from compmusic.dunya import makam
 import tempfile
 
 
-from align.LyricsAligner  import downloadSymbTr,  alignRecording, download_wav
+from align.LyricsAligner  import downloadSymbTr,  alignRecording, download_wav, stereoToMono
 # from align.MakamScore import loadMakamScore2
 
 dunya.set_token("69ed3d824c4c41f59f0bc853f696a7dd80707779")
@@ -83,8 +83,9 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
 
 # on other computer         
 #         wavFileURI = download_wav(musicbrainzid, outputDir)
-               
-        totalDetectedTokenList, sectionLinksDict = alignRecording(symbtrtxtURI, sectionMetadata, sectionLinks, wavFileURI, extractedPitch, outputDir)
+
+        wavFileURIMono = stereoToMono(wavFileURI)               
+        totalDetectedTokenList, sectionLinksDict = alignRecording(symbtrtxtURI, sectionMetadata, sectionLinks, wavFileURIMono, extractedPitch, outputDir)
 
         ret = {'alignedLyricsSyllables':{}, 'sectionlinks':{} }
         ret['alignedLyricsSyllables'] = totalDetectedTokenList
