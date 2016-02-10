@@ -237,7 +237,7 @@ def download_mp3(recordingid, location):
         raise Exception("Location %s doesn't exist; can't save" % location)
 
     recording = get_recording(recordingid)
-    concert = get_concert(recording["concert"]["mbid"])
+    concert = get_concert(recording["concert"][0]["mbid"])
     title = recording["title"]
     artists = " and ".join([a["name"] for a in concert["concert_artists"]])
     contents = docserver.get_mp3(recordingid)
