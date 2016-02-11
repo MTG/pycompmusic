@@ -244,6 +244,7 @@ def download_mp3(recordingid, location):
     name = "%s - %s.mp3" % (artists, title)
     path = os.path.join(location, name)
     open(path, "wb").write(contents)
+    return name
 
 def download_concert(concertid, location):
     """Download the mp3s of all recordings in a concert and save

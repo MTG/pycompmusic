@@ -293,6 +293,7 @@ def download_mp3(recordingid, location):
     name = "%s - %s.mp3" % (artists, title)
     path = os.path.join(location, name)
     open(path, "wb").write(contents)
+    return name
 
 def download_release(release_id, location):
     """Download the mp3s of all recordings in a release and save
