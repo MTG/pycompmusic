@@ -19,6 +19,7 @@ import os
 import re
 import json
 import tempfile
+import socket
 
 import compmusic.extractors
 from subprocess import call
@@ -37,7 +38,9 @@ class Musicxml2Svg(compmusic.extractors.ExtractorModule):
     def run(self, musicbrainzid, fpath):
         temp_name = next(tempfile._get_candidate_names())
         tmpfile = "/tmp/%s.ly" % temp_name
-        call(["musicxml2ly", fpath, "-o", tmpfile])
+
+        server_name = socket.gethostname()
+        call(["/mnt/compmusic/%s/lilypond/usr/bin/musicxml2ly" % server_name, fpath, "-o", tmpfile])
         
         tmp_dir = tempfile.mkdtemp()
         call(["lilypond", '-dpaper-size=\"junior-legal\"', "-dbackend=svg", "-o" "%s" % (tmp_dir), tmpfile])
