@@ -45,7 +45,7 @@ class Musicxml2Svg(compmusic.extractors.ExtractorModule):
         tmp_dir = tempfile.mkdtemp()
         call(["lilypond", '-dpaper-size=\"junior-legal\"', "-dbackend=svg", "-o" "%s" % (tmp_dir), tmpfile])
 
-        ret = {'score': ''}
+        ret = {'score': []}
 
         os.unlink(tmpfile)
         
