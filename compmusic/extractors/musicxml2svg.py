@@ -37,7 +37,7 @@ class Musicxml2Svg(compmusic.extractors.ExtractorModule):
     def run(self, musicbrainzid, fpath):
         temp_name = next(tempfile._get_candidate_names())
         tmpfile = "/tmp/%s.ly" % temp_name
-        call(["musicxml2ly", fpath, ,"-o", tmpfile])
+        call(["musicxml2ly", fpath, "-o", tmpfile])
         
         tmp_dir = tempfile.mkdtemp()
         call(["lilypond", '-dpaper-size=\"junior-legal\"', "-dbackend=svg", "-o" "%s" % (tmp_dir), tmpfile])
