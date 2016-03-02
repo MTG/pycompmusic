@@ -35,19 +35,17 @@ class Musicxml2Svg(compmusic.extractors.ExtractorModule):
 
 
     def run(self, musicbrainzid, fpath):
-        conv = ScoreConverter(fpath)
-        conv.run()
-
+        temp_name = next(tempfile._get_candidate_names())
+        tmpfile = "/tmp/%s.ly" % temp_name
+        call(["musicxml2ly", fpath, ,"-o", tmpfile])
+        
         tmp_dir = tempfile.mkdtemp()
-        call(["lilypond", '-dpaper-size=\"junior-legal\"', "-dbackend=svg", "-o" "%s" % (tmp_dir), fpath.replace(".xml",".ly")])
+        call(["lilypond", '-dpaper-size=\"junior-legal\"', "-dbackend=svg", "-o" "%s" % (tmp_dir), tmpfile])
 
-        ret = {'xmlscore': ''}
-        musicxml = open(tmpxml)
-        ret['xmlscore'] = musicxml.read()
-        musicxml.close()
+        ret = {'score': ''}
 
-        os.unlink(tmpxml)
-
+        os.unlink(tmpfile)
+        
         regex = re.compile(r'.*<a style="(.*)" xlink:href="textedit:\/\/\/.*:([0-9]+):([0-9]+):([0-9]+)">.*')
         files = [os.path.join(tmp_dir, f) for f in os.listdir(tmp_dir)]
         files = filter(os.path.isfile, files)
