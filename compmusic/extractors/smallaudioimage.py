@@ -36,6 +36,7 @@ class SmallAudioImage(AudioImages):
     def run(self, musicbrainzid, fname):
 
         wavfname, created = util.docserver_get_wav_filename(musicbrainzid)
+        ret = {}
         ret["smallfull"] = self.make_mini(wavfname)
         if created:
             os.unlink(wavfname)
