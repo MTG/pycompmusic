@@ -40,7 +40,7 @@ class Musicxml2Svg(compmusic.extractors.ExtractorModule):
         tmpfile = "/tmp/%s.ly" % temp_name
 
         server_name = socket.gethostname()
-        call(["/mnt/compmusic/%s/lilypond/usr/bin/musicxml2ly" % server_name, fpath, "-o", tmpfile])
+        call(["/mnt/compmusic/%s/lilypond/usr/bin/musicxml2ly" % server_name, "--no-page-layout", fpath, "-o", tmpfile])
         
         tmp_dir = tempfile.mkdtemp()
         call(["lilypond", '-dpaper-size=\"junior-legal\"', "-dbackend=svg", "-o" "%s" % (tmp_dir), tmpfile])
