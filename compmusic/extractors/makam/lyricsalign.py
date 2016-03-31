@@ -15,7 +15,7 @@ import json
 
 
 import compmusic.extractors
-from docserver import util
+# from docserver import util
 from compmusic import dunya
 from compmusic.dunya import makam
 import tempfile
@@ -57,10 +57,10 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
         w = rec_data['works'][0]
         outputDir = tempfile.mkdtemp()
 # on dunya server
-        symbtrtxtURI = util.docserver_get_symbtrtxt(w['mbid'])
+#         symbtrtxtURI = util.docserver_get_symbtrtxt(w['mbid'])
         
 # on other computer
-#         symbtrtxtURI = downloadSymbTr(w['mbid'], outputDir )
+        symbtrtxtURI = downloadSymbTr(w['mbid'], outputDir )
         
         if not symbtrtxtURI:
                 sys.exit("no symbTr found for work {}".format(w['mbid']) )
@@ -92,10 +92,10 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
          
         
 #  on dunya server       
-        wavFileURI, created = util.docserver_get_wav_filename(musicbrainzid)
+#         wavFileURI, created = util.docserver_get_wav_filename(musicbrainzid)
 
 # on other computer         
-#         wavFileURI = download_wav(musicbrainzid, outputDir)
+        wavFileURI = download_wav(musicbrainzid, outputDir)
 
 
 
