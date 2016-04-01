@@ -8,14 +8,16 @@ import sys
 import os
 import urllib2
 import json
-# parentDir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__) ), os.path.pardir,  os.path.pardir,  os.path.pardir,  os.path.pardir)) 
-# pathAlignmentDur = os.path.join(parentDir, 'AlignmentDuration')
-# if pathAlignmentDur not in sys.path:
-#     sys.path.append(pathAlignmentDur)
+parentDir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__) ), os.path.pardir,  os.path.pardir,  os.path.pardir,  os.path.pardir)) 
+pathAlignmentDur = os.path.join(parentDir, 'AlignmentDuration')
+print pathAlignmentDur
+
+if pathAlignmentDur not in sys.path:
+    sys.path.append(pathAlignmentDur)
 
 
 import compmusic.extractors
-# from docserver import util
+from docserver import util
 from compmusic import dunya
 from compmusic.dunya import makam
 import tempfile
@@ -46,6 +48,11 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
 
     def run(self, musicbrainzid, fname):
         
+        citation = u"""
+            Dzhambazov, G., & Serra X. (2015).  Modeling of Phoneme Durations for Alignment between Polyphonic Audio and Lyrics.
+            Sound and Music Computing Conference 2015.
+            """
+            
         rec_data = dunya.makam.get_recording(musicbrainzid )
         
         if len(rec_data['works']) == 0:
@@ -57,10 +64,10 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
         w = rec_data['works'][0]
         outputDir = tempfile.mkdtemp()
 # on dunya server
-#         symbtrtxtURI = util.docserver_get_symbtrtxt(w['mbid'])
+        symbtrtxtURI = util.docserver_get_symbtrtxt(w['mbid'])
         
 # on other computer
-        symbtrtxtURI = downloadSymbTr(w['mbid'], outputDir )
+#         symbtrtxtURI = downloadSymbTr(w['mbid'], outputDir )
         
         if not symbtrtxtURI:
                 sys.exit("no symbTr found for work {}".format(w['mbid']) )
@@ -92,10 +99,10 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
          
         
 #  on dunya server       
-#         wavFileURI, created = util.docserver_get_wav_filename(musicbrainzid)
+        wavFileURI, created = util.docserver_get_wav_filename(musicbrainzid)
 
 # on other computer         
-        wavFileURI = download_wav(musicbrainzid, outputDir)
+#         wavFileURI = download_wav(musicbrainzid, outputDir)
 
 
 
