@@ -89,14 +89,19 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
      
         
         if WITH_SECTION_ANNOTATIONS:    
-            #### get section annotation file: TODO: create a makam/extractor instead 
-            sectionAnnosDict = get_section_annotaions_dict(musicbrainzid, outputDir) 
+            #### get section annotation file 
+            try:
+                sectionAnnosDict = get_section_annotaions_dict(musicbrainzid, outputDir)
+            except Exception,e:
+                sys.exit("no section annotations found for audio {} ".format(musicbrainzid))
+                 
             sectionLinksDict = sectionAnnosDict
         else:
             sectionLinksDict = dunya.docserver.get_document_as_json(musicbrainzid, "scorealign", "sectionlinks", 1, version="0.2")
-            
-        extractedPitch = dunya.docserver.get_document_as_json(musicbrainzid, "initialmakampitch", "pitch", 1, version="0.6")
-         
+        try:    
+            extractedPitch = dunya.docserver.get_document_as_json(musicbrainzid, "initialmakampitch", "pitch", 1, version="0.6")
+        except Exception,e:
+            sys.exit("no initialmakampitch series could be downloaded.  ")
         
 #  on dunya server       
         wavFileURI, created = util.docserver_get_wav_filename(musicbrainzid)

@@ -39,7 +39,7 @@ from numpy import transpose
 import json
 import scipy.io
 import cStringIO
-from docserver import util
+# from docserver import util
 
 class PitchExtractMakam(compmusic.extractors.ExtractorModule):
   _version = "0.6"
