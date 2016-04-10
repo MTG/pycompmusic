@@ -63,6 +63,8 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
         
         w = rec_data['works'][0]
         outputDir = tempfile.mkdtemp()
+
+        # TODO: mark second verse symbTr second verse and get from a separate reposotory 
 # on dunya server
         symbtrtxtURI = util.docserver_get_symbtrtxt(w['mbid'])
         
@@ -72,26 +74,21 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
         if not symbtrtxtURI:
                 sys.exit("no symbTr found for work {}".format(w['mbid']) )
         
-        # TODO: if symbTr does not have second verse, continue
-        
 
-        sectionMetadata = dunya.docserver.get_document_as_json(w['mbid'], "metadata", "metadata", 1, version="0.1")
-                
-        #### alternative if sectionMetadata not found
-#         from symbtrdataextractor import extractor
-#         autoSegBounds = ''
-#         symbtrtxtURINoExt = os.path.splitext(os.path.basename(symbtrtxtURI))[0]
-#         sectionMetadataURI, isDataValid = extractor.extract(symbtrtxtURI, symbtrname=symbtrtxtURINoExt, seg_note_idx=autoSegBounds,
-#                             mbid=w['mbid'], extract_all_labels=False, melody_sim_thres=0.25, 
-#                             lyrics_sim_thres=0.25, get_recording_rels=False)
-        
+        if WITH_SECTION_ANNOTATIONS:            #  becasue complying with  score metadata for symbTr1, on which annotations are done
+            dir = 'scores/'
+            sectionMetadata = get_section_annotaions_dict(w['mbid'], dir, outputDir)
+        else:
+            sectionMetadata = dunya.docserver.get_document_as_json(w['mbid'], "metadata", "metadata", 1, version="0.1")
+                      
         
      
         
-        if WITH_SECTION_ANNOTATIONS:    
+        if WITH_SECTION_ANNOTATIONS:    #  because complying with section annotations
             #### get section annotation file 
             try:
-                sectionAnnosDict = get_section_annotaions_dict(musicbrainzid, outputDir)
+                dir = 'audio_metadata/'
+                sectionAnnosDict = get_section_annotaions_dict(musicbrainzid, dir, outputDir)
             except Exception,e:
                 sys.exit("no section annotations found for audio {} ".format(musicbrainzid))
                  
@@ -120,8 +117,8 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
         return ret
 
 
-def get_section_annotaions_dict( musicbrainzid, outputDir):
-        URL = 'https://raw.githubusercontent.com/georgid/turkish_makam_section_dataset/master/audio_metadata/' + musicbrainzid + '.json'
+def get_section_annotaions_dict( musicbrainzid, dir_, outputDir):
+        URL = 'https://raw.githubusercontent.com/georgid/turkish_makam_section_dataset/master/' + dir_ + musicbrainzid + '.json'
         sectionAnnosURI = os.path.join(outputDir, musicbrainzid + '.json')
         if not os.path.isfile(sectionAnnosURI):
             print "fetching sections  annotation from URL {}...".format(URL)
