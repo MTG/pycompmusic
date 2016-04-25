@@ -66,18 +66,18 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
 
         # TODO: mark second verse symbTr second verse and get from a separate reposotory 
 # on dunya server
-        symbtrtxtURI = util.docserver_get_symbtrtxt(w['mbid'])
+#         symbtrtxtURI = util.docserver_get_symbtrtxt(w['mbid'])
         
 # on other computer
-#         symbtrtxtURI = downloadSymbTr(w['mbid'], outputDir )
+        symbtrtxtURI = downloadSymbTr(w['mbid'], outputDir )
         
         if not symbtrtxtURI:
                 sys.exit("no symbTr found for work {}".format(w['mbid']) )
         
 
         if WITH_SECTION_ANNOTATIONS:            #  becasue complying with  score metadata for symbTr1, on which annotations are done
-            dir = 'scores/'
-            sectionMetadata = get_section_annotaions_dict(w['mbid'], dir, outputDir)
+            dir_ = 'scores/metadata/'
+            sectionMetadata = get_section_annotaions_dict(w['mbid'], dir_, outputDir)
         else:
             sectionMetadata = dunya.docserver.get_document_as_json(w['mbid'], "metadata", "metadata", 1, version="0.1")
                       
@@ -101,10 +101,10 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
             sys.exit("no initialmakampitch series could be downloaded.  ")
         
 #  on dunya server       
-        wavFileURI, created = util.docserver_get_wav_filename(musicbrainzid)
+#         wavFileURI, created = util.docserver_get_wav_filename(musicbrainzid)
 
 # on other computer         
-#         wavFileURI = download_wav(musicbrainzid, outputDir)
+        wavFileURI = download_wav(musicbrainzid, outputDir)
 
 
 
@@ -135,5 +135,5 @@ def fetchFileFromURL(URL, outputFileURI):
 
 if __name__=='__main__':
     la = LyricsAlign()
-    la.run('727cff89-392f-4d15-926d-63b2697d7f3f','b')   
+    la.run('8c7eccf5-0d9e-4f33-89f0-87e95b7da970','b')   
         
