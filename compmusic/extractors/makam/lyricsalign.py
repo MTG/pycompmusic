@@ -17,7 +17,7 @@ if pathAlignmentDur not in sys.path:
 
 
 import compmusic.extractors
-# from docserver import util
+from docserver import util
 from compmusic import dunya
 from compmusic.dunya import makam
 import tempfile
@@ -101,10 +101,10 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
             sys.exit("no initialmakampitch series could be downloaded.  ")
         
 #  on dunya server       
-#         wavFileURI, created = util.docserver_get_wav_filename(musicbrainzid)
+        wavFileURI, created = util.docserver_get_wav_filename(musicbrainzid)
 
 # on other computer         
-        wavFileURI = download_wav(musicbrainzid, outputDir)
+#         wavFileURI = download_wav(musicbrainzid, outputDir)
 
 
 
