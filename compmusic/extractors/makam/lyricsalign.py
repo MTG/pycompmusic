@@ -17,7 +17,7 @@ if pathAlignmentDur not in sys.path:
 
 
 import compmusic.extractors
-from docserver import util
+# from docserver import util
 from compmusic import dunya
 from compmusic.dunya import makam
 import tempfile
