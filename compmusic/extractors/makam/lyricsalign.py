@@ -8,14 +8,16 @@ import sys
 import os
 import urllib2
 import json
-# parentDir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__) ), os.path.pardir,  os.path.pardir,  os.path.pardir,  os.path.pardir)) 
-# pathAlignmentDur = os.path.join(parentDir, 'AlignmentDuration')
-# if pathAlignmentDur not in sys.path:
-#     sys.path.append(pathAlignmentDur)
+parentDir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__) ), os.path.pardir,  os.path.pardir,  os.path.pardir,  os.path.pardir)) 
+pathAlignmentDur = os.path.join(parentDir, 'AlignmentDuration')
+print pathAlignmentDur
+
+if pathAlignmentDur not in sys.path:
+    sys.path.append(pathAlignmentDur)
 
 
 import compmusic.extractors
-# from docserver import util
+from docserver import util
 from compmusic import dunya
 from compmusic.dunya import makam
 import tempfile
@@ -46,6 +48,11 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
 
     def run(self, musicbrainzid, fname):
         
+        citation = u"""
+            Dzhambazov, G., & Serra X. (2015).  Modeling of Phoneme Durations for Alignment between Polyphonic Audio and Lyrics.
+            Sound and Music Computing Conference 2015.
+            """
+            
         rec_data = dunya.makam.get_recording(musicbrainzid )
         
         if len(rec_data['works']) == 0:
@@ -56,6 +63,8 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
         
         w = rec_data['works'][0]
         outputDir = tempfile.mkdtemp()
+
+        # TODO: mark second verse symbTr second verse and get from a separate reposotory 
 # on dunya server
 #         symbtrtxtURI = util.docserver_get_symbtrtxt(w['mbid'])
         
@@ -65,37 +74,37 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
         if not symbtrtxtURI:
                 sys.exit("no symbTr found for work {}".format(w['mbid']) )
         
-        # TODO: if symbTr does not have second verse, continue
-        
 
-        sectionMetadata = dunya.docserver.get_document_as_json(w['mbid'], "metadata", "metadata", 1, version="0.1")
-                
-        #### alternative if sectionMetadata not found
-#         from symbtrdataextractor import extractor
-#         autoSegBounds = ''
-#         symbtrtxtURINoExt = os.path.splitext(os.path.basename(symbtrtxtURI))[0]
-#         sectionMetadataURI, isDataValid = extractor.extract(symbtrtxtURI, symbtrname=symbtrtxtURINoExt, seg_note_idx=autoSegBounds,
-#                             mbid=w['mbid'], extract_all_labels=False, melody_sim_thres=0.25, 
-#                             lyrics_sim_thres=0.25, get_recording_rels=False)
-        
+        if WITH_SECTION_ANNOTATIONS:            #  becasue complying with  score metadata for symbTr1, on which annotations are done
+            dir_ = 'scores/metadata/'
+            sectionMetadata = get_section_annotaions_dict(w['mbid'], dir_, outputDir)
+        else:
+            sectionMetadata = dunya.docserver.get_document_as_json(w['mbid'], "metadata", "metadata", 1, version="0.1")
+                      
         
      
         
-        if WITH_SECTION_ANNOTATIONS:    
-            #### get section annotation file: TODO: create a makam/extractor instead 
-            sectionAnnosDict = get_section_annotaions_dict(musicbrainzid, outputDir) 
+        if WITH_SECTION_ANNOTATIONS:    #  because complying with section annotations
+            #### get section annotation file 
+            try:
+                dir = 'audio_metadata/'
+                sectionAnnosDict = get_section_annotaions_dict(musicbrainzid, dir, outputDir)
+            except Exception,e:
+                sys.exit("no section annotations found for audio {} ".format(musicbrainzid))
+                 
             sectionLinksDict = sectionAnnosDict
         else:
             sectionLinksDict = dunya.docserver.get_document_as_json(musicbrainzid, "scorealign", "sectionlinks", 1, version="0.2")
-            
-        extractedPitch = dunya.docserver.get_document_as_json(musicbrainzid, "initialmakampitch", "pitch", 1, version="0.6")
-         
+        try:    
+            extractedPitch = dunya.docserver.get_document_as_json(musicbrainzid, "initialmakampitch", "pitch", 1, version="0.6")
+        except Exception,e:
+            sys.exit("no initialmakampitch series could be downloaded.  ")
         
 #  on dunya server       
-#         wavFileURI, created = util.docserver_get_wav_filename(musicbrainzid)
+        wavFileURI, created = util.docserver_get_wav_filename(musicbrainzid)
 
 # on other computer         
-        wavFileURI = download_wav(musicbrainzid, outputDir)
+#         wavFileURI = download_wav(musicbrainzid, outputDir)
 
 
 
@@ -108,8 +117,8 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
         return ret
 
 
-def get_section_annotaions_dict( musicbrainzid, outputDir):
-        URL = 'https://raw.githubusercontent.com/georgid/turkish_makam_section_dataset/master/audio_metadata/' + musicbrainzid + '.json'
+def get_section_annotaions_dict( musicbrainzid, dir_, outputDir):
+        URL = 'https://raw.githubusercontent.com/georgid/turkish_makam_section_dataset/master/' + dir_ + musicbrainzid + '.json'
         sectionAnnosURI = os.path.join(outputDir, musicbrainzid + '.json')
         if not os.path.isfile(sectionAnnosURI):
             print "fetching sections  annotation from URL {}...".format(URL)

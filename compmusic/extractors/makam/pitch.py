@@ -39,7 +39,7 @@ from numpy import transpose
 import json
 import scipy.io
 import cStringIO
-from docserver import util
+# from docserver import util
 
 class PitchExtractMakam(compmusic.extractors.ExtractorModule):
   _version = "0.6"
@@ -63,7 +63,7 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
                       confidenceThreshold = 36, # default confidenceThreshold for pitchFilter
                       minChunkSize = 50) # number of minimum allowed samples of a chunk in PitchFilter; ~145 ms with 128 sample hopSize & 44100 Fs
 
-  def run(self, musicbrainzid, fname):
+  def run(self,  fname):
     citation = u"""
             Atlı, H. S., Uyar, B., Şentürk, S., Bozkurt, B., and Serra, X.
             (2014). Audio feature extraction for exploring Turkish makam music.
@@ -71,8 +71,8 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
             for Music and Media, Ankara, Turkey.
             """
 
-    fname, created = util.docserver_get_wav_filename(musicbrainzid)
-
+#     fname, created = util.docserver_get_wav_filename(musicbrainzid)
+    created = 1
     run_windowing = estd.Windowing(zeroPadding = 3 * self.settings.frameSize) # Hann window with x4 zero padding
     run_spectrum = estd.Spectrum(size=self.settings.frameSize * 4)
 
@@ -151,8 +151,8 @@ class PitchExtractMakam(compmusic.extractors.ExtractorModule):
 
     scipy.io.savemat(matout, matob)
 
-    if created:
-         os.unlink(fname)
+#     if created:
+#          os.unlink(fname)
 
     return {'pitch': out,
             'matlab': matout.getvalue(),
