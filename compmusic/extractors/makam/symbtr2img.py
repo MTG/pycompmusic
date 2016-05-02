@@ -81,7 +81,6 @@ class Symbtr2Png(compmusic.extractors.ExtractorModule):
 
         os.unlink(tmpxml)
         os.unlink(tmpxml.replace('.xml','.ly'))
-        os.unlink(tmpxml.replace('.xml','.json'))
 
         files = [os.path.join(tmp_dir, f) for f in os.listdir(tmp_dir)]
         files = filter(os.path.isfile, files)
