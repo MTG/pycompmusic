@@ -27,24 +27,22 @@ import json
 import tempfile
 
 import compmusic.extractors
+from tomato.symbolic.scoreconverter import ScoreConverter
+
 from docserver import util
-from musicxmlconverter.symbtr2musicxml import symbtrscore
-from subprocess import call
 from os.path import isfile, join
-from musicxml2lilypond import ScoreConverter
 from compmusic import dunya
+from settings import token
 from compmusic.dunya import makam
-dunya.set_token("69ed3d824c4c41f59f0bc853f696a7dd80707779")
+dunya.set_token(token)
 
 class Symbtr2Png(compmusic.extractors.ExtractorModule):
-    _version = "0.1"
+    _version = "0.2"
     _sourcetype = "symbtrtxt"
     _slug = "score"
     _output = {
-            "intervals": {"extension": "json", "mimetype": "application/json"},
             "xmlscore": {"extension": "xml", "mimetype": "application/xml"},
             "score": {"extension": "svg", "mimetype": "image/svg+xml", "parts": True},
-            "indexmap": {"extension": "json", "mimetype": "application/json"},
     }
 
 
@@ -58,33 +56,33 @@ class Symbtr2Png(compmusic.extractors.ExtractorModule):
         fp, tmpxml = tempfile.mkstemp(".xml")
         os.close(fp)
 
-        mbid_url = 'http://musicbrainz.org/work/%s' % musicbrainzid
-
-        piece = symbtrscore(fpath, symbtrmu2, symbtrname=finfo, mbid_url=mbid_url)
-        piece.convertsymbtr2xml() 
-        piece.writexml(tmpxml)
-        intervals = piece.get_measure_bounds()
-
-        conv = ScoreConverter(tmpxml)
-        conv.run()
-
-
+        tmply = tmpxml.replace(".xml",".ly")
         tmp_dir = tempfile.mkdtemp()
-        call(["lilypond", '-dpaper-size=\"junior-legal\"', "-dbackend=svg", "-o" "%s" % (tmp_dir), tmpxml.replace(".xml",".ly")])
 
-        ret = {'intervals': intervals, 'score': [], 'xmlscore': '', 'indexmap': ''}
-        musicxml = open(tmpxml)
+        # parameters
+        render_metadata = True  # Add the metadata stored in MusicXML to Lilypond
+        svg_paper_size = 'junior-legal'  # The paper size of the svg output pages
+
+        # instantiate analyzer object
+        scoreConverter = ScoreConverter()
+        
+
+
+        xml_output, ly_output, svg_output, txt_ly_mapping = scoreConverter.convert(
+                    fpath, symbtrmu2, symbtr_name=finfo, mbid=musicbrainzid, 
+                    render_metadata=render_metadata, xml_out=tmpxml, ly_out=tmply, 
+                    svg_out=tmp_dir, svg_paper_size=svg_paper_size)
+        
+        ret = {'score': [], 'xmlscore': ''}
+        
+        musicxml = open(xml_output)
         ret['xmlscore'] = musicxml.read()
         musicxml.close()
-        indexmap = open(tmpxml.replace('.xml','.json'))
-        ret['indexmap'] = json.loads(indexmap.read())
-        indexmap.close()
 
         os.unlink(tmpxml)
         os.unlink(tmpxml.replace('.xml','.ly'))
         os.unlink(tmpxml.replace('.xml','.json'))
 
-        regex = re.compile(r'.*<a style="(.*)" xlink:href="textedit:\/\/\/.*:([0-9]+):([0-9]+):([0-9]+)">.*')
         files = [os.path.join(tmp_dir, f) for f in os.listdir(tmp_dir)]
         files = filter(os.path.isfile, files)
         files.sort(key=lambda x: os.path.getmtime(x))
@@ -93,7 +91,7 @@ class Symbtr2Png(compmusic.extractors.ExtractorModule):
             if f.endswith('.svg'):
                 svg_file = open(f)
                 score = svg_file.read()
-                ret['score'].append(regex.sub(r'<a style="\1" id="l\2-f\3-t\4" from="\3" to="\4">',score))
+                ret['score'].append(score)
                 svg_file.close()
                 os.remove(f)
         os.rmdir(tmp_dir)
