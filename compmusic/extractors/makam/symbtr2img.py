@@ -60,7 +60,8 @@ class Symbtr2Png(compmusic.extractors.ExtractorModule):
         tmp_dir = tempfile.mkdtemp()
 
         # parameters
-        render_metadata = True  # Add the metadata stored in MusicXML to Lilypond
+        render_metadata = False  # Don't add the metadata stored in MusicXML to Lilypond 
+        # as they're displayed on the left panel in the recording page in Dunya frontend
         svg_paper_size = 'junior-legal'  # The paper size of the svg output pages
 
         # instantiate analyzer object
