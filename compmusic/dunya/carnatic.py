@@ -24,7 +24,7 @@ def _get_collections():
     extra_headers = None
     if COLLECTIONS:
         extra_headers = {}
-        extra_headers['HTTP_DUNYA_COLLECTION'] = ','.join(COLLECTIONS)
+        extra_headers['Dunya-Collection'] = ','.join(COLLECTIONS)
     return extra_headers
 
 
