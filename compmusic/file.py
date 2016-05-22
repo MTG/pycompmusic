@@ -25,6 +25,9 @@ try:
     eyed3api = "new"
 except ImportError:
     pass
+except AttributeError:
+    eyed3.log.setLevel("ERROR")
+    eyed3api = "new"
 
 try:
     import eyeD3

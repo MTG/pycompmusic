@@ -37,11 +37,15 @@ def set_token(token):
     TOKEN = token
 
 def _get_paged_json(path, **kwargs):
+    extra_headers = None
+    if 'extra_headers' in kwargs:
+        extra_headers = kwargs.get('extra_headers')
+        del kwargs['extra_headers']
+
     nxt = _make_url(path, **kwargs)
     logger.debug("initial paged to %s", nxt)
     ret = []
     while nxt:
-        extra_headers = kwargs.get('extra_headers', None)
         res = _dunya_url_query(nxt, extra_headers=extra_headers)
         res = res.json()
         ret.extend(res.get("results", []))
