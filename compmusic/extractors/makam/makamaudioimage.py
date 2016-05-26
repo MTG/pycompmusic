@@ -54,7 +54,7 @@ class MakamAudioImage(AudioImages):
         ret = super(MakamAudioImage, self).run(musicbrainzid, fname)
 
         pitchfile = util.docserver_get_filename(musicbrainzid, "jointanalysis", "pitch", version="0.1")
-        pitch = np.array(json.load(open(pitchfile, 'r')))
+        pitch = np.array(json.load(open(pitchfile, 'r'))['pitch'])
 
         audioSeyirAnalyzer = audioseyiranalyzer.AudioSeyirAnalyzer()
 
