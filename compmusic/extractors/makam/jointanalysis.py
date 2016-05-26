@@ -133,7 +133,7 @@ class JointAnalysis(compmusic.extractors.ExtractorModule):
             if melodic_progression:
                 AudioSeyirAnalyzer.serialize(melodic_progression)
             output["works_intervals"][w['mbid']] = {"from": min_interval, "to": max_interval}
-            output["pitch"][w['mbid']] = pitch
+            output["pitch"] = pitch
             output["melodic_progression"][w['mbid']] = melodic_progression
             output["tonic"][w['mbid']] = tonic
             output["tempo"][w['mbid']] = tempo
