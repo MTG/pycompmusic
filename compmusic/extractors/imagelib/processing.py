@@ -164,7 +164,7 @@ class AudioProcessor(object):
 
         if resize_if_less and (add_to_start > 0 or add_to_end > 0):
             if add_to_start > 0:
-                samples = numpy.concatenate((numpy.zeros(add_to_start), samples), axis=1)
+                samples = numpy.hstack((numpy.zeros(add_to_start), samples))
 
             if add_to_end > 0:
                 samples = numpy.resize(samples, size)
