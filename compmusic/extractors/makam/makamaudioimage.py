@@ -28,7 +28,7 @@ from seyiranalyzer import audioseyiranalyzer
 
 
 class MakamAudioImage(AudioImages):
-    _version = "0.2"
+    _version = "0.3"
     _sourcetype = "mp3"
     _slug = "makamaudioimages"
     _depends = "dunyapitchmakam"
@@ -46,14 +46,14 @@ class MakamAudioImage(AudioImages):
 
     def run(self, musicbrainzid, fname):
 
-        max_pitch = util.docserver_get_filename(musicbrainzid, "dunyapitchmakam", "pitchmax", version="0.2")
+        max_pitch = util.docserver_get_filename(musicbrainzid, "tomatodunya", "pitchmax", version="0.1")
         pitch = json.load(open(max_pitch))
 
         self._f_min = pitch['min']
         self._f_max = pitch['max']
         ret = super(MakamAudioImage, self).run(musicbrainzid, fname)
 
-        pitchfile = util.docserver_get_filename(musicbrainzid, "correctedpitchmakam", "pitch", version="0.2")
+        pitchfile = util.docserver_get_filename(musicbrainzid, "jointanalysis", "pitch", version="0.1")
         pitch = np.array(json.load(open(pitchfile, 'r')))
 
         audioSeyirAnalyzer = audioseyiranalyzer.AudioSeyirAnalyzer()
