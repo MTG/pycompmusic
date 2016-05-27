@@ -62,10 +62,11 @@ class MakamAudioImage(AudioImages):
         duration = pitch[-1][0]
         min_num_frames = 40
         max_frame_dur = 30
-        frame_size = duration/min_num_frames if duration/min_num_frames<=max_frame_dur else max_frame_dur
-        frame_size = int(5 * round(float(frame_size)/5))  # round to 5 seconds
+        frame_dur = duration/min_num_frames if duration/min_num_frames<=max_frame_dur else max_frame_dur
+        frame_dur = int(5 * round(float(frame_dur)/5))  # round to 5 seconds
 
-        seyir_features = audioSeyirAnalyzer.analyze(pitch, frame_size=frame_size, hop_ratio = 0.5)
+        seyir_features = audioSeyirAnalyzer.analyze(pitch, frame_dur = frame_dur, hop_ratio = 0.5)
+        
         fimage = tempfile.NamedTemporaryFile(mode='w+', suffix=".png")
         plot(seyir_features, fimage.name)
         fimage.flush()
