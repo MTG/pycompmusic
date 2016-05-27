@@ -212,7 +212,7 @@ class TomatoDunyaMakam(compmusic.extractors.ExtractorModule):
                 notes[w['mbid']] = summarized_features['joint'].get('notes', None)
         
 
-        pitch = [p[1] for p in audio_pitch['pitch'].tolist()]
+        pitch = [p[1] for p in audio_pitch['pitch']]
 
         # pitches as bytearray
         packed_pitch = cStringIO.StringIO()
