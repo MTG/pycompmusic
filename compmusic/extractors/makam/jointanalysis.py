@@ -81,7 +81,8 @@ class JointAnalysis(compmusic.extractors.ExtractorModule):
         jointAnalyzer = JointAnalyzer(verbose=True)
 
         # predominant melody extraction
-        audio_pitch = audioAnalyzer.extract_pitch(fname)
+        pitchfile = util.docserver_get_filename(musicbrainzid, "audioanalysis", "pitch", version="0.1")
+        audio_pitch = json.load(open(pitchfile))
 
         output['pitch'] = audio_pitch
         rec_data = dunya.makam.get_recording(musicbrainzid)
