@@ -83,6 +83,7 @@ class JointAnalysis(compmusic.extractors.ExtractorModule):
         # predominant melody extraction
         audio_pitch = audioAnalyzer.extract_pitch(fname)
 
+        output['pitch'] = audio_pitch
         rec_data = dunya.makam.get_recording(musicbrainzid)
         for w in rec_data['works']:
             symbtr_file = util.docserver_get_symbtrtxt(w['mbid'])
@@ -206,9 +207,6 @@ class TomatoDunyaMakam(compmusic.extractors.ExtractorModule):
 
             notes[w['mbid']] = summarized_features['joint'].get('notes', None)
         
-
-        if not len(rec_data['works']) or not len(notes):
-            raise Exception('No works for the recording %s' % musicbrainzid)
 
         pitch = [p[1] for p in audio_pitch['pitch'].tolist()]
 
