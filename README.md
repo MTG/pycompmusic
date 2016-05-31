@@ -69,3 +69,24 @@ One way to do this is to use python from a virtualenv directly:
     env/bin/python /usr/bin/sphinx-build -b html -d build/doctrees docs build/html
 
 Or install sphinx in the virtualenv
+
+Quick reference
+---------------
+
+In order to use the api is required o have a user in dunya. You can register on 
+dunya thorugh the web: http://dunya.compmusic.upf.edu/social/register/ .
+Once your account is active you can start using the api, for example you can get
+the information of all the recording of the makam collections with this url:
+    http://dunya.compmusic.upf.edu/api/makam/recording
+
+In this repository you can find the code to access the API with python. For 
+example to access the recording in the makam collection:
+
+    from compmusic import dunya
+    dunya.set_token("<your_token>")
+    recordings = dunya.makam.get_recordings()
+
+In order to get your API key you have to log in to dunya 
+(http://dunya.compmusic.upf.edu/social/login/) and then go to your profile:
+http://dunya.compmusic.upf.edu/social/profile/ where you will find your key.
+
