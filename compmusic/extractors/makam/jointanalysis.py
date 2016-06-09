@@ -64,16 +64,16 @@ class JointAnalysis(compmusic.extractors.ExtractorModule):
     def run(self, musicbrainzid, fname):
         output = {
                 "works_intervals": {},
-               "tonic": {},
-                "pitch":{}, 
-                "melodic_progression": {}, 
-                "tempo": {}, 
-                "pitch_distribution": {}, 
-                "pitch_class_distribution": {}, 
-                "transposition": {}, 
-                "makam": {}, 
-                "note_models": {}, 
-                "notes": {}, 
+                "tonic": {},
+                "pitch":{},
+                "melodic_progression": {},
+                "tempo": {},
+                "pitch_distribution": {},
+                "pitch_class_distribution": {},
+                "transposition": {},
+                "makam": {},
+                "note_models": {},
+                "notes": {},
                 "sections": {}
                 }
 
