@@ -101,10 +101,10 @@ class JointAnalysis(compmusic.extractors.ExtractorModule):
 
                 # get a summary of the analysis
                 summarized_features = jointAnalyzer.summarize(
-                            score_features=score_features, joint_features=joint_features, 
+                            score_features=score_features, joint_features=joint_features,
                                 score_informed_audio_features=features)
                 audio_pitch = summarized_features['audio'].get('pitch', None)
-            
+
                 pitch = summarized_features['audio'].get('pitch', None)
                 if pitch:
                     pitch['pitch'] = pitch['pitch'].tolist()
@@ -119,14 +119,6 @@ class JointAnalysis(compmusic.extractors.ExtractorModule):
                 notes = summarized_features['joint'].get('notes', None)
                 sections = summarized_features['joint'].get('sections', None)
 
-                min_interval = 9999
-                max_interval = 0
-                for i in notes:
-                    if i['interval'][0] < min_interval:
-                        min_interval = i['interval'][0]
-                    if i['interval'][1] > max_interval:
-                        max_interval = i['interval'][1]
-
                 if pitch_distribution:
                     pitch_distribution = pitch_distribution.to_dict()
                 if pitch_class_distribution:
@@ -135,7 +127,17 @@ class JointAnalysis(compmusic.extractors.ExtractorModule):
                    note_models = to_dict(note_models)
                 if melodic_progression:
                     AudioSeyirAnalyzer.serialize(melodic_progression)
-                output["works_intervals"][w['mbid']] = {"from": min_interval, "to": max_interval}
+
+                if notes:
+                    min_interval = 9999
+                    max_interval = 0
+                    for i in notes:
+                        if i['interval'][0] < min_interval:
+                            min_interval = i['interval'][0]
+                        if i['interval'][1] > max_interval:
+                            max_interval = i['interval'][1]
+
+                    output["works_intervals"][w['mbid']] = {"from": min_interval, "to": max_interval}
                 output["pitch"] = pitch
                 output["melodic_progression"][w['mbid']] = melodic_progression
                 output["tonic"][w['mbid']] = tonic
@@ -147,7 +149,6 @@ class JointAnalysis(compmusic.extractors.ExtractorModule):
                 output["note_models"][w['mbid']] = note_models
                 output["notes"][w['mbid']] = notes
                 output["sections"][w['mbid']] = sections
-
 
         return output
 
