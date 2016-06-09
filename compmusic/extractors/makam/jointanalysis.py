@@ -154,15 +154,17 @@ class JointAnalysis(compmusic.extractors.ExtractorModule):
 def to_dict(note_models):
     ret = {}
     for key in note_models.keys():
-        distribution = note_models[key]['distribution'].to_dict()
         ret[key] = note_models[key]
+        if 'distribution' in note_models[key]:
+            distribution = note_models[key]['distribution'].to_dict()
+            ret[key]['distribution'] = distribution
         if np.isnan(note_models[key]['performed_interval']['value']):
             ret[key]['performed_interval']['value'] = None
-        ret[key]['distribution'] = distribution
         notes = []
         for note in note_models[key]['notes']:
-            pitch = note['PitchTrajectory'].tolist()
-            notes.append(pitch)
+            if 'PitchTrajectory' in note:
+                pitch = note['PitchTrajectory'].tolist()
+                notes.append(pitch)
         ret[key]['notes'] = notes
     return ret
 
