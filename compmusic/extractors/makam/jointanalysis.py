@@ -162,10 +162,11 @@ def to_dict(note_models):
         if np.isnan(note_models[key]['performed_interval']['value']):
             ret[key]['performed_interval']['value'] = None
         notes = []
-        for note in note_models[key]['notes']:
-            if 'PitchTrajectory' in note:
-                pitch = note['PitchTrajectory'].tolist()
-                notes.append(pitch)
+        if 'notes' in note_models[key]:
+            for note in note_models[key]['notes']:
+                if 'PitchTrajectory' in note:
+                    pitch = note['PitchTrajectory'].tolist()
+                    notes.append(pitch)
         ret[key]['notes'] = notes
     return ret
 
