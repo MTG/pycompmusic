@@ -42,7 +42,7 @@ class AudioAnalysis(compmusic.extractors.ExtractorModule):
                 "pitch_distribution": {"extension": "json", "mimetype": "application/json"},
                 "pitch_class_distribution": {"extension": "json", "mimetype": "application/json"},
                 "transposition": {"extension": "json", "mimetype": "application/json"},
-                "stable_notes": {"extension": "json", "mimetype": "application/json"},
+                "note_models": {"extension": "json", "mimetype": "application/json"},
                 "makam": {"extension": "json", "mimetype": "application/json"},
                 }
 
@@ -51,8 +51,8 @@ class AudioAnalysis(compmusic.extractors.ExtractorModule):
 
     # NOTE: This will take several minutes depending on the performance of your machine
     features = audioAnalyzer.analyze(fname)
-    
-    audio_metadata = features.get('audio_metadata', None)
+
+    audio_metadata = features.get('metadata', None)
     pitch = features.get('pitch', None)
     pitch_filtered = features.get('pitch_filtered', None)
     melodic_progression = features.get('melodic_progression', None)
@@ -60,7 +60,7 @@ class AudioAnalysis(compmusic.extractors.ExtractorModule):
     pitch_distribution = features.get('pitch_distribution', None)
     pitch_class_distribution = features.get('pitch_class_distribution', None)
     transposition = features.get('transposition', None)
-    stable_notes = features.get('stable_notes', None)
+    note_models = features.get('note_models', None)
     makam = features.get('makam', None)
 
     for i in self._output.keys():
@@ -72,13 +72,13 @@ class AudioAnalysis(compmusic.extractors.ExtractorModule):
         pitch_distribution = pitch_distribution.to_dict()
     if pitch_class_distribution:
         pitch_class_distribution = pitch_class_distribution.to_dict()
-    if stable_notes:
-        stable_notes.to_dict()
+    if note_models:
+        note_models.to_dict()
     if melodic_progression:
         AudioSeyirAnalyzer.serialize(melodic_progression)
     return {"audio_metadata": audio_metadata, "pitch": pitch, "pitch_filtered": pitch_filtered,
-            "melodic_progression": melodic_progression, "tonic": tonic, 
+            "melodic_progression": melodic_progression, "tonic": tonic,
             "pitch_distribution": pitch_distribution,
             "pitch_class_distribution": pitch_class_distribution,
-            "transposition": transposition, "stable_notes": stable_notes, "makam": makam }
+            "transposition": transposition, "note_models": note_models, "makam": makam }
 
