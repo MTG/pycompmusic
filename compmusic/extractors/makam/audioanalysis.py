@@ -72,6 +72,8 @@ class AudioAnalysis(compmusic.extractors.ExtractorModule):
         pitch_distribution = pitch_distribution.to_dict()
     if pitch_class_distribution:
         pitch_class_distribution = pitch_class_distribution.to_dict()
+    if note_models:
+        note_models = to_dict(note_models)
     if melodic_progression:
         AudioSeyirAnalyzer.serialize(melodic_progression)
     return {"audio_metadata": audio_metadata, "pitch": pitch, "pitch_filtered": pitch_filtered,
@@ -79,4 +81,20 @@ class AudioAnalysis(compmusic.extractors.ExtractorModule):
             "pitch_distribution": pitch_distribution,
             "pitch_class_distribution": pitch_class_distribution,
             "transposition": transposition, "note_models": note_models, "makam": makam }
-
+def to_dict(note_models):
+    ret = {}
+    for key in note_models.keys():
+        ret[key] = note_models[key]
+        if 'distribution' in note_models[key]:
+            distribution = note_models[key]['distribution'].to_dict()
+            ret[key]['distribution'] = distribution
+        if np.isnan(note_models[key]['performed_interval']['value']):
+            ret[key]['performed_interval']['value'] = None
+        notes = []
+        if 'notes' in note_models[key]:
+            for note in note_models[key]['notes']:
+                if 'PitchTrajectory' in note:
+                    pitch = note['PitchTrajectory'].tolist()
+                    notes.append(pitch)
+        ret[key]['notes'] = notes
+    return ret
