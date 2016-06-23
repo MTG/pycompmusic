@@ -72,8 +72,6 @@ class AudioAnalysis(compmusic.extractors.ExtractorModule):
         pitch_distribution = pitch_distribution.to_dict()
     if pitch_class_distribution:
         pitch_class_distribution = pitch_class_distribution.to_dict()
-    if note_models:
-        note_models.to_dict()
     if melodic_progression:
         AudioSeyirAnalyzer.serialize(melodic_progression)
     return {"audio_metadata": audio_metadata, "pitch": pitch, "pitch_filtered": pitch_filtered,
