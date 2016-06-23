@@ -35,7 +35,7 @@ class AudioAnalysis(compmusic.extractors.ExtractorModule):
   _sourcetype = "mp3"
   _slug = "audioanalysis"
   _output = {
-                "audio_metadata": {"extension": "json", "mimetype": "application/json"},
+                "metadata": {"extension": "json", "mimetype": "application/json"},
                 "pitch": {"extension": "json", "mimetype": "application/json"},
                 "pitch_filtered": {"extension": "json", "mimetype": "application/json"},
                 "melodic_progression": {"extension": "json", "mimetype": "application/json"},
@@ -53,7 +53,7 @@ class AudioAnalysis(compmusic.extractors.ExtractorModule):
     # NOTE: This will take several minutes depending on the performance of your machine
     features = audioAnalyzer.analyze(fname)
 
-    audio_metadata = features.get('metadata', None)
+    metadata = features.get('metadata', None)
     pitch = features.get('pitch', None)
     pitch_filtered = features.get('pitch_filtered', None)
     melodic_progression = features.get('melodic_progression', None)
@@ -77,7 +77,7 @@ class AudioAnalysis(compmusic.extractors.ExtractorModule):
         note_models = to_dict(note_models)
     if melodic_progression:
         AudioSeyirAnalyzer.serialize(melodic_progression)
-    return {"audio_metadata": audio_metadata, "pitch": pitch, "pitch_filtered": pitch_filtered,
+    return {"metadata": metadata, "pitch": pitch, "pitch_filtered": pitch_filtered,
             "melodic_progression": melodic_progression, "tonic": tonic,
             "pitch_distribution": pitch_distribution,
             "pitch_class_distribution": pitch_class_distribution,
