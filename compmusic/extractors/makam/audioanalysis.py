@@ -26,6 +26,7 @@ import os
 import warnings
 import json
 import compmusic.extractors
+import numpy as np
 from tomato.audio.audioanalyzer import AudioAnalyzer
 from seyiranalyzer.audioseyiranalyzer import AudioSeyirAnalyzer
 
