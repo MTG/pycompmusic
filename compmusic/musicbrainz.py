@@ -44,14 +44,22 @@ def _get_items_in_collection(collectionid, collectiontype):
     count = 25
     offset = 0
     while offset < count:
-        log.debug("offset", offset)
-        url = "https://beta.musicbrainz.org/ws/2/collection/%s/%s?offset=%d" % (collectionid, collectiontype, offset)
-        req = urllib2.Request(url, headers=headers)
-        xml = urllib2.urlopen(req).read()
-        count, ids = ws_ids(xml)
-        items.extend(ids)
-        offset += 25
-        time.sleep(0.5)
+        try:
+            log.debug("offset", offset)
+            url = "https://beta.musicbrainz.org/ws/2/collection/%s/%s?offset=%d" % (collectionid, collectiontype, offset)
+            req = urllib2.Request(url, headers=headers)
+            xml = urllib2.urlopen(req).read()
+            count, ids = ws_ids(xml)
+            items.extend(ids)
+        except urllib2.HTTPError as e:
+            if e.code != 503:
+                # if we get ratelimited, sleep and try again.
+                # any other error, re-raise
+                raise
+        else:
+            offset += 25
+        finally:
+            time.sleep(1)
     return items
 
 def get_releases_in_collection(collection):
