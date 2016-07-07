@@ -192,7 +192,7 @@ class TomatoDunyaMakam(compmusic.extractors.ExtractorModule):
         for w in rec_data['works']:
             symbtr_file = util.docserver_get_symbtrtxt(w['mbid'])
             print symbtr_file
-            
+
             if symbtr_file:
                 score_features_file = util.docserver_get_filename(w['mbid'], "scoreanalysis", "metadata", version="0.1")
                 score_features = json.load(open(score_features_file))
@@ -205,16 +205,12 @@ class TomatoDunyaMakam(compmusic.extractors.ExtractorModule):
 
                 # get a summary of the analysis
                 summarized_features = jointAnalyzer.summarize(
-                            score_features=score_features, joint_features=joint_features, 
+                            score_features=score_features, joint_features=joint_features,
                                 score_informed_audio_features=features)
-                audio_pitch = summarized_features['audio'].get('pitch', None)
-            
-                #pitch = summarized_features['audio'].get('pitch', None)
-                #if pitch:
-                #    pitch['pitch'] = pitch['pitch'].tolist()           
+                audio_pitch = summarized_features['audio'].get('pitch', audio_pitch)
 
                 notes[w['mbid']] = summarized_features['joint'].get('notes', None)
-        
+
 
         pitch = [p[1] for p in audio_pitch['pitch']]
 
