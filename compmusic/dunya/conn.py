@@ -7,6 +7,8 @@ logger = logging.getLogger("dunya")
 
 HOSTNAME = "dunya.compmusic.upf.edu"
 TOKEN = None
+session = requests.Session()
+session.mount('http://'+HOSTNAME, requests.adapters.HTTPAdapter(max_retries=5))
 
 class HTTPError(Exception):
     pass
@@ -41,7 +43,6 @@ def _get_paged_json(path, **kwargs):
     if 'extra_headers' in kwargs:
         extra_headers = kwargs.get('extra_headers')
         del kwargs['extra_headers']
-
     nxt = _make_url(path, **kwargs)
     logger.debug("initial paged to %s", nxt)
     ret = []
@@ -61,7 +62,7 @@ def _dunya_url_query(url, extra_headers=None):
     if extra_headers:
         headers.update(extra_headers)
 
-    g = requests.get(url, headers=headers)
+    g = session.get(url, headers=headers)
     try:
         g.raise_for_status()
     except requests.exceptions.HTTPError as e:

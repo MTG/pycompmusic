@@ -28,7 +28,7 @@ from seyiranalyzer import audioseyiranalyzer
 
 
 class MakamAudioImage(AudioImages):
-    _version = "0.2"
+    _version = "0.3"
     _sourcetype = "mp3"
     _slug = "makamaudioimages"
     _depends = "dunyapitchmakam"
@@ -46,15 +46,15 @@ class MakamAudioImage(AudioImages):
 
     def run(self, musicbrainzid, fname):
 
-        max_pitch = util.docserver_get_filename(musicbrainzid, "dunyapitchmakam", "pitchmax", version="0.2")
+        max_pitch = util.docserver_get_filename(musicbrainzid, "tomatodunya", "pitchmax", version="0.1")
         pitch = json.load(open(max_pitch))
 
         self._f_min = pitch['min']
         self._f_max = pitch['max']
         ret = super(MakamAudioImage, self).run(musicbrainzid, fname)
 
-        pitchfile = util.docserver_get_filename(musicbrainzid, "correctedpitchmakam", "pitch", version="0.2")
-        pitch = np.array(json.load(open(pitchfile, 'r')))
+        pitchfile = util.docserver_get_filename(musicbrainzid, "jointanalysis", "pitch", version="0.1")
+        pitch = np.array(json.load(open(pitchfile, 'r'))['pitch'])
 
         audioSeyirAnalyzer = audioseyiranalyzer.AudioSeyirAnalyzer()
 
@@ -62,10 +62,11 @@ class MakamAudioImage(AudioImages):
         duration = pitch[-1][0]
         min_num_frames = 40
         max_frame_dur = 30
-        frame_size = duration/min_num_frames if duration/min_num_frames<=max_frame_dur else max_frame_dur
-        frame_size = int(5 * round(float(frame_size)/5))  # round to 5 seconds
+        frame_dur = duration/min_num_frames if duration/min_num_frames<=max_frame_dur else max_frame_dur
+        frame_dur = int(5 * round(float(frame_dur)/5))  # round to 5 seconds
 
-        seyir_features = audioSeyirAnalyzer.analyze(pitch, frame_size=frame_size, hop_ratio = 0.5)
+        seyir_features = audioSeyirAnalyzer.analyze(pitch, frame_dur = frame_dur, hop_ratio = 0.5)
+        
         fimage = tempfile.NamedTemporaryFile(mode='w+', suffix=".png")
         plot(seyir_features, fimage.name)
         fimage.flush()
