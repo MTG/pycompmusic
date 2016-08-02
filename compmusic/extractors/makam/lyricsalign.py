@@ -27,9 +27,15 @@ import tempfile
 
 from align.LyricsAligner  import  LyricsAligner, stereoToMono, loadMakamRecording
 from align.ParametersAlgo import ParametersAlgo
-ParametersAlgo.FOR_MAKAM = 1 
+
 # if on server: 
+ParametersAlgo.FOR_MAKAM = 1 
 ParametersAlgo.POLYPHONIC = 0
+ParametersAlgo.WITH_DURATIONS = 1
+ParametersAlgo.DETECTION_TOKEN_LEVEL= 'syllables'
+
+# if for ISMIR paper note onsets:
+# ParametersAlgo.WITH_DURATIONS = 0
 
 # triple: (acappella name, hasSecondVerse, hasSectionNumberDiscrepancy)
 
