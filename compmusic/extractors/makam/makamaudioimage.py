@@ -53,14 +53,18 @@ class MakamAudioImage(AudioImages):
         self._f_max = pitch['max']
         ret = super(MakamAudioImage, self).run(musicbrainzid, fname)
 
-        pitchfile = util.docserver_get_filename(musicbrainzid, "jointanalysis", "pitch", version="0.1")
-        loaded_pitch = json.load(open(pitchfile, 'r'))['pitch']
-        # If pitch extraction from jointanalysis failed then load it from audioanlysis
-        if not loaded_pitch:
-          pitchfile = util.docserver_get_filename(musicbrainzid, "audioanalysis", "pitch", version="0.1")
-          loaded_pitch = json.load(open(pitchfile, 'r'))['pitch']
+        try:
+            pitchfile = util.docserver_get_filename(musicbrainzid, "jointanalysis", "pitch", version="0.1")
+            loaded_pitch = json.load(open(pitchfile, 'r'))
+            # If pitch extraction from jointanalysis failed then load it from audioanlysis
+            if not loaded_pitch:
+              pitchfile = util.docserver_get_filename(musicbrainzid, "audioanalysis", "pitch", version="0.1")
+              loaded_pitch = json.load(open(pitchfile, 'r'))
+        except util.NoFileException:
+            pitchfile = util.docserver_get_filename(musicbrainzid, "audioanalysis", "pitch", version="0.1")
+            loaded_pitch = json.load(open(pitchfile, 'r'))
 
-        pitch = np.array(loaded_pitch)
+        pitch = np.array(loaded_pitch['pitch'])
 
         audioSeyirAnalyzer = audioseyiranalyzer.AudioSeyirAnalyzer()
 
