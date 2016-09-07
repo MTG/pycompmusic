@@ -207,7 +207,8 @@ class TomatoDunyaMakam(compmusic.extractors.ExtractorModule):
                 summarized_features = jointAnalyzer.summarize(
                             score_features=score_features, joint_features=joint_features,
                                 score_informed_audio_features=features)
-                audio_pitch = summarized_features['audio'].get('pitch', audio_pitch)
+
+                audio_pitch = summarized_features['audio'].get('pitch', None)
 
                 notes[w['mbid']] = summarized_features['joint'].get('notes', None)
 
