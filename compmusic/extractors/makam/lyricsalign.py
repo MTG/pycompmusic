@@ -78,7 +78,8 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
 
 
 
-    def __init__(self, dataDir, hasSecondVerse, hasSectionNumberDiscrepancy ):
+    def __init__(self, dataDir=None, hasSecondVerse=None, hasSectionNumberDiscrepancy=None, **kwargs):
+        super(LyricsAlign, self).__init__()
         self.dataDir = dataDir
         self.hasSecondVerse = hasSecondVerse
         self.hasSectionNumberDiscrepancy = hasSectionNumberDiscrepancy
