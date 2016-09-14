@@ -19,7 +19,7 @@ if pathAlignmentDur not in sys.path:
 
 
 import compmusic.extractors
-from docserver import util
+# from docserver import util
 from compmusic import dunya
 from compmusic.dunya import makam
 import tempfile
@@ -30,7 +30,7 @@ from align.ParametersAlgo import ParametersAlgo
 
 # if on server: 
 ParametersAlgo.FOR_MAKAM = 1 
-ParametersAlgo.POLYPHONIC = 0
+ParametersAlgo.POLYPHONIC = 1
 ParametersAlgo.WITH_DURATIONS = 1
 ParametersAlgo.DETECTION_TOKEN_LEVEL= 'syllables'
 
@@ -63,7 +63,7 @@ dunya.set_token("69ed3d824c4c41f59f0bc853f696a7dd80707779")
 WITH_SECTION_ANNOTATIONS = 1
 PATH_TO_HCOPY= '/usr/local/bin/HCopy'
 # ANDRES. On kora.s.upf.edu
-PATH_TO_HCOPY= '/srv/htkBuilt/bin/HCopy'
+# PATH_TO_HCOPY= '/srv/htkBuilt/bin/HCopy'
 
 class LyricsAlign(compmusic.extractors.ExtractorModule):
     _version = "0.1"
@@ -78,11 +78,11 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
 
 
 
-    def __init__(self, dataDir=None, hasSecondVerse=None, hasSectionNumberDiscrepancy=None, **kwargs):
-        super(LyricsAlign, self).__init__()
-        self.dataDir = dataDir
-        self.hasSecondVerse = hasSecondVerse
-        self.hasSectionNumberDiscrepancy = hasSectionNumberDiscrepancy
+#     def __init__(self, dataDir=None, hasSecondVerse=None, hasSectionNumberDiscrepancy=None, **kwargs):
+#         super(LyricsAlign, self).__init__()
+#         self.dataDir = dataDir
+#         self.hasSecondVerse = hasSecondVerse
+#         self.hasSectionNumberDiscrepancy = hasSectionNumberDiscrepancy
 
   
 
@@ -148,11 +148,11 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
             sys.exit("no initialmakampitch series could be downloaded.  ")
         
 #  on dunya server       
-        wavFileURI, created = util.docserver_get_wav_filename(musicbrainzid)
+#         wavFileURI, created = util.docserver_get_wav_filename(musicbrainzid)
 
 # on other computer
         
-#         wavFileURI = get_audio(self.dataDir,  musicbrainzid)
+        wavFileURI = get_audio(self.dataDir,  musicbrainzid)
                  
 
         
