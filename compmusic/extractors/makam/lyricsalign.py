@@ -19,7 +19,7 @@ if pathAlignmentDur not in sys.path:
 
 
 import compmusic.extractors
-# from docserver import util
+from docserver import util
 from compmusic import dunya
 from compmusic.dunya import makam
 import tempfile
@@ -34,36 +34,13 @@ ParametersAlgo.POLYPHONIC = 1
 ParametersAlgo.WITH_DURATIONS = 1
 ParametersAlgo.DETECTION_TOKEN_LEVEL= 'syllables'
 
-# if for ISMIR paper note onsets:
-# ParametersAlgo.WITH_DURATIONS = 0
-
-# triple: (acappella name, hasSecondVerse, hasSectionNumberDiscrepancy)
-
-recMBIDs = {} 
-# recMBIDs['727cff89-392f-4d15-926d-63b2697d7f3f'] = ('18_Munir_Nurettin_Selcuk_-_Gel_Guzelim_Camlicaya',0,0)             # done. no notes annotation 
-
-# recMBIDs['f5a89c06-d9bc-4425-a8e6-0f44f7c108ef'] = ('04_Hamiyet_Yuceses_-_Bakmiyor_Cesm-i_Siyah_Feryade',0, 0) # done
-# recMBIDs['b49c633c-5059-4658-a6e0-9f84a1ffb08b'] = ('2-15_Nihavend_Aksak_Sarki',1)  # done. 
-recMBIDs['567b6a3c-0f08-42f8-b844-e9affdc9d215'] = ('03_Bekir_Unluataer_-_Kimseye_Etmem_Sikayet_Aglarim_Ben_Halime',0,0)  # done
-###### recMBIDs['feda89e3-a50d-4ff8-87d4-c1e531cc1233'] = ('Melihat_Gulses',1) # done. 
-##### recMBIDs['dd536d18-aa84-451c-b7e5-d97271300b8c'] =  '05_Semahat_Ozdenses_-_Bir_Ihtimal_Daha_Var' # no notes annotation. NOT DONE
-# recMBIDs['9c26ff74-8541-4282-8a6e-5ba9aa5cc8a1'] =  ('Sakin--Gec--Kalma', 1,1) # done
-
-# recMBIDs['bd1758b6-297b-47fe-97b7-bf5d94f23049'] = ('21_Recep_Birgit_-_Olmaz_Ilac_Sine-i_Sad_Pareme',0) # no second verse. no acapella whole recording could be found
-#### recMBIDs['43745ff1-0848-4592-b1ad-9e7b172b0ebd'] =  ('06_Semahat_Ozdenses_-_Aksam_Oldu_Huzunlendim',1) # done. no notes annoations
-#### recMBIDs['338e24ba-1f19-49a1-ad6a-2b89e0e09c38'] =  'Semahat_Ozdenses' # not present in sertans section-link annotations. text score sections are 14 and sectionsMetadata with new labels are 32. TODO: redo section Anno with 32 sections ( maybe use annotation from TextGrid) 
-#### recMBIDs['8c7eccf5-0d9e-4f33-89f0-87e95b7da970'] =   ('Eda_Simsek',0) # no second verse.  no notes anno. not present in sertans section-link annotations. has 36 score sections in new metadata (12 old). TODO: redo section Anno with 36 sections ( maybe use annotation from TextGrid) 
-#### recMBIDs['1701ceba-bd5a-477e-b883-5dacac67da43'] = ('Nurten_Demirkol',0) #  not present in sertans section-link annotations. has 10 score sections in new metadata (20 old). TODO: redo section Anno with 36 sections ( maybe use annotation from TextGrid) 
-
-### these are needed for extend sectionMetadata script:
-# recordingDirs =  [
 
 dunya.set_token("69ed3d824c4c41f59f0bc853f696a7dd80707779")
 
 WITH_SECTION_ANNOTATIONS = 1
 PATH_TO_HCOPY= '/usr/local/bin/HCopy'
 # ANDRES. On kora.s.upf.edu
-# PATH_TO_HCOPY= '/srv/htkBuilt/bin/HCopy'
+PATH_TO_HCOPY= '/srv/htkBuilt/bin/HCopy'
 
 class LyricsAlign(compmusic.extractors.ExtractorModule):
     _version = "0.1"
@@ -78,11 +55,15 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
 
 
 
-#     def __init__(self, dataDir=None, hasSecondVerse=None, hasSectionNumberDiscrepancy=None, **kwargs):
-#         super(LyricsAlign, self).__init__()
-#         self.dataDir = dataDir
+    def __init__(self, dataDir=None, hasSecondVerse=None, hasSectionNumberDiscrepancy=None, **kwargs):
+        super(LyricsAlign, self).__init__()
+#         self.dataOutputDir = dataOutputDir
 #         self.hasSecondVerse = hasSecondVerse
 #         self.hasSectionNumberDiscrepancy = hasSectionNumberDiscrepancy
+
+        self.dataOutputDir = tempfile.mkdtemp()
+        self.hasSecondVerse = False
+        self.hasSectionNumberDiscrepancy = False
 
   
 
@@ -96,20 +77,18 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
         #### output
         ret = {'alignedLyricsSyllables':{}, 'sectionlinks':{} }
             
-        outputDir = tempfile.mkdtemp()
-        outputDir = '/Users/joro/Downloads/'
         
-        recIDoutputDir = os.path.join(self.dataDir, musicbrainzid)         
+        recIDoutputDir = os.path.join(self.dataOutputDir, musicbrainzid)         
         if not os.path.isdir(recIDoutputDir):
                 os.mkdir(recIDoutputDir)
 
         w = getWork(musicbrainzid)
         
         # TODO: mark second verse symbTr second verse and get from a separate reposotory 
-# on dunya server
-#         symbtrtxtURI = util.docserver_get_symbtrtxt(w['mbid'])
+# on dunya server. API might be outdated, as some symbtr names are changed. better use line below
+        symbtrtxtURI = util.docserver_get_symbtrtxt(w['mbid'])
         
-# on other computer
+# on other computer. fetch directly from github
         symbtrtxtURI = downloadSymbTr(w['mbid'], recIDoutputDir, self.hasSecondVerse)
         
         if not symbtrtxtURI:
@@ -128,7 +107,7 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
         if WITH_SECTION_ANNOTATIONS:    #  because complying with section annotations
             try:
                 dir_ = 'audio_metadata/'
-                sectionLinksDict = get_section_annotaions_dict(musicbrainzid, dir_, outputDir, self.hasSectionNumberDiscrepancy)
+                sectionLinksDict = get_section_annotaions_dict(musicbrainzid, dir_, self.dataOutputDir, self.hasSectionNumberDiscrepancy)
             except Exception,e:
                 sys.exit("no section annotations found for audio {} ".format(musicbrainzid))
                  
@@ -144,15 +123,16 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
         
         try:    
             extractedPitch = dunya.docserver.get_document_as_json(musicbrainzid, "jointanalysis", "pitch", 1, version="0.1")
+            extractedPitch = extractedPitch['pitch']
         except Exception,e:
             sys.exit("no initialmakampitch series could be downloaded.  ")
         
 #  on dunya server       
-#         wavFileURI, created = util.docserver_get_wav_filename(musicbrainzid)
+        wavFileURI, created = util.docserver_get_wav_filename(musicbrainzid)
 
 # on other computer
         
-        wavFileURI = get_audio(self.dataDir,  musicbrainzid)
+#         wavFileURI = get_audio(self.dataOutputDir,  musicbrainzid)
                  
 
         
@@ -164,7 +144,7 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
         recording = loadMakamRecording(musicbrainzid, wavFileURIMono, symbtrtxtURI, sectionMetadataDict, sectionLinksDict,  WITH_SECTION_ANNOTATIONS)
         lyricsAligner = LyricsAligner(recording, WITH_SECTION_ANNOTATIONS, PATH_TO_HCOPY)
     
-        totalDetectedTokenList, sectionLinksDict =  lyricsAligner.alignRecording( extractedPitch, outputDir)
+        totalDetectedTokenList, sectionLinksDict =  lyricsAligner.alignRecording( extractedPitch, self.dataOutputDir)
         lyricsAligner.evalAccuracy()
 
         
@@ -317,15 +297,6 @@ def fetchFileFromURL(URL, outputFileURI):
             f.write(a)
 
 
-def doitAllRecs(la, recMBIDs):
-
-    for recMBID in  recMBIDs:
-        la = LyricsAlign(dataset, recMBIDs[recMBID][1], recMBIDs[recMBID][2] )  
-        ret = la.run(recMBID, 'testName')
-#         with open('/Users/joro/Downloads/bu_aksam_gun.json', 'w') as f:
-#             json.dump( ret, f, indent=4 )
-#         raw_input('press enter...')
-
        
         
 
@@ -336,18 +307,9 @@ if __name__=='__main__':
     
 #     if len(sys.argv) != 2:
 #         sys.exit('usage: {} <localpath>')
-#     la = LyricsAlign(sys.argv[1])
-    
 
-    if ParametersAlgo.POLYPHONIC:
-        dataset = '/Users/joro/Downloads/lyrics-2-audio-test-data/'
-    else:
-        dataset = '/Users/joro/Downloads/ISTANBULSymbTr2/'
-
-    
-    doitAllRecs(dataset, recMBIDs)
-    
-#     la.run('727cff89-392f-4d15-926d-63b2697d7f3f','b')
+    la = LyricsAlign()
+    la.run('727cff89-392f-4d15-926d-63b2697d7f3f','b')
 #     la.run('567b6a3c-0f08-42f8-b844-e9affdc9d215','b')
        
         
