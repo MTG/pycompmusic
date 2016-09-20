@@ -186,6 +186,7 @@ class TomatoDunyaMakam(compmusic.extractors.ExtractorModule):
         # predominant melody extraction
         audio_pitch = audioAnalyzer.extract_pitch(fname)
 
+        joint_pitch = None
         notes = {}
         rec_data = dunya.makam.get_recording(musicbrainzid)
         for w in rec_data['works']:
