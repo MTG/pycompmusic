@@ -44,6 +44,12 @@ class MakamAudioImage(AudioImages):
     _pallete = 2
 
     def run(self, musicbrainzid, fname):
+        max_pitch = util.docserver_get_filename(musicbrainzid, "tomatodunya", "pitchmax", version="0.1")
+        pitch = json.load(open(max_pitch))
+
+        self._f_min = pitch['min']
+        self._f_max = pitch['max']
+        ret = super(MakamAudioImage, self).run(musicbrainzid, fname)
 
         try:
             pitchfile = util.docserver_get_filename(musicbrainzid, "jointanalysis", "pitch", version="0.1")
@@ -55,19 +61,6 @@ class MakamAudioImage(AudioImages):
         except util.NoFileException:
             pitchfile = util.docserver_get_filename(musicbrainzid, "audioanalysis", "pitch", version="0.1")
             loaded_pitch = json.load(open(pitchfile, 'r'))
-
-
-        pitch = [p[1] for p in loaded_pitch['pitch']]
-
-        # pitches as bytearray
-        packed_pitch = cStringIO.StringIO()
-        max_pitch = max(pitch)
-        temp = [p for p in pitch if p>0]
-        min_pitch = min(temp)
-
-        self._f_min = min_pitch
-        self._f_max = max_pitch
-        ret = super(MakamAudioImage, self).run(musicbrainzid, fname)
 
         pitch = np.array(loaded_pitch['pitch'])
 
