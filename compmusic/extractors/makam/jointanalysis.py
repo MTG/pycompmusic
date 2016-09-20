@@ -179,41 +179,18 @@ class TomatoDunyaMakam(compmusic.extractors.ExtractorModule):
           "pitchmax": { "extension": "json", "mimetype": "application/json"},
     }
     def run(self, musicbrainzid, fname):
+        try:
+            pitchfile = util.docserver_get_filename(musicbrainzid, "jointanalysis", "pitch", version="0.1")
+            loaded_pitch = json.load(open(pitchfile, 'r'))
+            # If pitch extraction from jointanalysis failed then load it from audioanlysis
+            if not loaded_pitch:
+              pitchfile = util.docserver_get_filename(musicbrainzid, "audioanalysis", "pitch", version="0.1")
+              loaded_pitch = json.load(open(pitchfile, 'r'))
+        except util.NoFileException:
+            pitchfile = util.docserver_get_filename(musicbrainzid, "audioanalysis", "pitch", version="0.1")
+            loaded_pitch = json.load(open(pitchfile, 'r'))
 
-        audioAnalyzer = AudioAnalyzer(verbose=True)
-        jointAnalyzer = JointAnalyzer(verbose=True)
-
-        audioAnalyzer.set_pitch_extractor_params(hop_size=196, bin_resolution=7.5)
-        # predominant melody extraction
-        audio_pitch = audioAnalyzer.extract_pitch(fname)
-
-        notes = {}
-        rec_data = dunya.makam.get_recording(musicbrainzid)
-        for w in rec_data['works']:
-            symbtr_file = util.docserver_get_symbtrtxt(w['mbid'])
-            print symbtr_file
-
-            if symbtr_file:
-                score_features_file = util.docserver_get_filename(w['mbid'], "scoreanalysis", "metadata", version="0.1")
-                score_features = json.load(open(score_features_file))
-                joint_features, features = jointAnalyzer.analyze(
-                            symbtr_file, score_features, fname, audio_pitch)
-
-                # redo some steps in audio analysis
-                features = audioAnalyzer.analyze(
-                            metadata=False, pitch=False, **features)
-
-                # get a summary of the analysis
-                summarized_features = jointAnalyzer.summarize(
-                            score_features=score_features, joint_features=joint_features,
-                                score_informed_audio_features=features)
-
-                audio_pitch = summarized_features['audio'].get('pitch', None)
-
-                notes[w['mbid']] = summarized_features['joint'].get('notes', None)
-
-
-        pitch = [p[1] for p in audio_pitch['pitch']]
+        pitch = [p[1] for p in loaded_pitch['pitch']]
 
         # pitches as bytearray
         packed_pitch = cStringIO.StringIO()
