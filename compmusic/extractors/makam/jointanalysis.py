@@ -179,7 +179,6 @@ class TomatoDunyaMakam(compmusic.extractors.ExtractorModule):
           "pitchmax": { "extension": "json", "mimetype": "application/json"},
     }
     def run(self, musicbrainzid, fname):
-
         audioAnalyzer = AudioAnalyzer(verbose=True)
         jointAnalyzer = JointAnalyzer(verbose=True)
 
@@ -208,10 +207,12 @@ class TomatoDunyaMakam(compmusic.extractors.ExtractorModule):
                             score_features=score_features, joint_features=joint_features,
                                 score_informed_audio_features=features)
 
-                audio_pitch = summarized_features['audio'].get('pitch', None)
+                joint_pitch = summarized_features['audio'].get('pitch', None)
 
                 notes[w['mbid']] = summarized_features['joint'].get('notes', None)
 
+        if joint_pitch:
+            audio_pitch = joint_pitch
 
         pitch = [p[1] for p in audio_pitch['pitch']]
 
