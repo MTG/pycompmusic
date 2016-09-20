@@ -31,7 +31,6 @@ class MakamAudioImage(AudioImages):
     _version = "0.3"
     _sourcetype = "mp3"
     _slug = "makamaudioimages"
-    _depends = "dunyapitchmakam"
 
     _output = {
             "waveform8": {"extension": "png", "mimetype": "image/png", "parts": True},
