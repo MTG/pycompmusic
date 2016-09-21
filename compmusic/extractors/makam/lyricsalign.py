@@ -145,7 +145,7 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
         lyricsAligner = LyricsAligner(recording, WITH_SECTION_ANNOTATIONS, PATH_TO_HCOPY)
     
         totalDetectedTokenList, sectionLinksDict =  lyricsAligner.alignRecording( extractedPitch, self.dataOutputDir)
-        lyricsAligner.evalAccuracy()
+#         lyricsAligner.evalAccuracy()
 
         
         ret['alignedLyricsSyllables'] = totalDetectedTokenList
