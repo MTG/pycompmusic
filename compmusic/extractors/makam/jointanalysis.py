@@ -84,7 +84,7 @@ class JointAnalysis(compmusic.extractors.ExtractorModule):
         pitchfile = util.docserver_get_filename(musicbrainzid, "audioanalysis", "pitch", version="0.1")
         audio_pitch = json.load(open(pitchfile))
 
-        output['pitch'] = audio_pitch
+        output['pitch'] = None
         rec_data = dunya.makam.get_recording(musicbrainzid)
         for w in rec_data['works']:
             symbtr_file = util.docserver_get_symbtrtxt(w['mbid'])
