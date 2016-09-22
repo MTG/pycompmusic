@@ -269,6 +269,21 @@ def get_usul(uid):
     """
     return conn._dunya_query_json("api/makam/usul/%s" % str(uid))
 
+def get_works_by_query(mid='', uid='', fid='', cmbid='', ambid=''):
+    """ Get the works filtered according to the input makam uuid, usul uuid
+	form uuid, composer mbid and artist mbid
+
+    :param mid: A makam id or uuid
+    :param uid: An usul id or uuid
+    :param fid: A form id or uuid
+    :param cmbid: A composer mbid
+    :param ambid: An artist mbid
+    :return: A list of dictionaries containing work/s
+    """
+    path = 'work?usul={0}&performer={1}&form={2}&artist={3}&makam={4}'
+    path = path.format(uid, ambid, fid, cmbid, mid)
+    return conn._get_paged_json("api/makam/" + path)
+
 def download_mp3(recordingid, location, slugify=False):
     """Download the mp3 of a document and save it to the specificed directory.
 
