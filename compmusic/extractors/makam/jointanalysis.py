@@ -139,11 +139,11 @@ class JointAnalysis(compmusic.extractors.ExtractorModule):
 
                     output["works_intervals"][w['mbid']] = {"from": min_interval, "to": max_interval}
                 output["pitch"] = pitch
-                output["melodic_progression"][w['mbid']] = melodic_progression
-                output["tonic"][w['mbid']] = tonic
+                output["melodic_progression"] = melodic_progression
+                output["pitch_distribution"] = pitch_distribution
+                output["pitch_class_distribution"] = pitch_class_distribution
                 output["tempo"][w['mbid']] = tempo
-                output["pitch_distribution"][w['mbid']] = pitch_distribution
-                output["pitch_class_distribution"][w['mbid']] = pitch_class_distribution
+                output["tonic"][w['mbid']] = tonic
                 output["transposition"][w['mbid']] = transposition
                 output["makam"][w['mbid']] = makam
                 output["note_models"][w['mbid']] = note_models
