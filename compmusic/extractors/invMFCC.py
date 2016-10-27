@@ -28,6 +28,7 @@ class InvMFCC(compmusic.extractors.ExtractorModule):
     _version = "0.1"
     _sourcetype = "mp3"
     _slug = "invMFCC"
+    _output = {"pitch": {"extension": "json", "mimetype": "application/json"}},
 
     def setup(self):
         # Hop size is 44100*4/900 because our smallest view is 4 seconds long
