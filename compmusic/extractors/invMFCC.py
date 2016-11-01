@@ -22,6 +22,7 @@ from numpy.linalg import inv
 
 import essentia.standard
 from numpy import meshgrid, sqrt, cos, pi
+from matplotlib.pyplot import imshow
 
 
 class InvMFCC(compmusic.extractors.ExtractorModule):
@@ -64,12 +65,13 @@ class InvMFCC(compmusic.extractors.ExtractorModule):
         ### inverse DCT computation
         invD = inv(self.dctmtx(self.settings.BANDS))[:,1:self.settings.COEFS] # The inverse DCT matrix. Change the index to [0:COEFS] if you want to keep the 0-th coefficient
         inv_mfccs = np.dot(invD, mfccs[1:,:])
-#         imshow(invMFCC, aspect="auto", interpolation="none", origin="lower")
         
-        self.logger.info('done')
+#         imshow(inv_mfccs, aspect="auto", interpolation="none", origin="lower")
+        self.logger.info('done') 
 
         #generating time stamps (because its equally hopped)
         TStamps = np.array(range(0, inv_mfccs.shape[1])) * np.float(self.settings.HopSize)/sampleRate
+        print inv_mfccs.shape
         inv_mfccs_and_ts = inv_mfccs.transpose()
 
         return {"invMFCC": inv_mfccs_and_ts.tolist()}

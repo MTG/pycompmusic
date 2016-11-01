@@ -202,7 +202,28 @@ class AudioProcessor(object):
 
         return (spectral_centroid, db_spectrum)
 
+    def inv_mfcc(self, seek_point):
+        '''
+        Compute the inverse DCT of MFCC for one frame. 
+        
+        Parameters
+        -----------------------------
+        seek_point -  seek_point - point in audio samples, around which window is centered 
+        
+        Returns 
+        -------------------------------
+        mel_spectrum - the mel spectrum with 26 dimnsions 
+        
+        '''
+        samples = self.read(seek_point - self.fft_size/2, self.fft_size, True)
 
+        samples *= self.window
+        fft = numpy.fft.rfft(samples)
+        mel_spectrum = self.scale * numpy.abs(fft) # normalized abs(FFT) between 0 and 1
+
+        # scale the db mel_spectrum from [- spec_range db ... 0 db] > [0..1]
+        return mel_spectrum[:26]
+    
     def peaks(self, start_seek, end_seek):
         """ read all samples between start_seek and end_seek, then find the minimum and maximum peak
         in that range. Returns that pair in the order they were found. So if min was found first,
@@ -472,7 +493,7 @@ class SpectrogramImage(object):
         self.image.transpose(Image.ROTATE_90).save(filename, quality=quality)
 
 
-def create_wave_images(input_filename, output_filename_w, output_filename_s, image_width, image_height, fft_size, progress_callback=None, f_min=None, f_max=None, scale_exp=None, pallete=None):
+def create_wave_images(input_filename, output_filename_w, output_filename_s, output_filename_m, image_width, image_height, fft_size, progress_callback=None, f_min=None, f_max=None, scale_exp=None, pallete=None):
     """
     Utility function for creating both wavefile and spectrum images from an audio input file.
     """
@@ -481,7 +502,8 @@ def create_wave_images(input_filename, output_filename_w, output_filename_s, ima
 
     waveform = WaveformImage(image_width, image_height)
     spectrogram = SpectrogramImage(image_width, image_height, fft_size, f_min, f_max, scale_exp, pallete)
-
+    inv_mfcc_spectrogram = SpectrogramImage(image_width, image_height, fft_size, f_min, f_max, scale_exp, pallete)
+    
     for x in range(image_width):
 
         if image_width >= 10:
@@ -494,15 +516,18 @@ def create_wave_images(input_filename, output_filename_w, output_filename_s, ima
         (spectral_centroid, db_spectrum) = processor.spectral_centroid(seek_point)
         peaks = processor.peaks(seek_point, next_seek_point)
 
+        inv_mfcc_spectrum = processor.inv_mfcc(seek_point) # inv MFCC computation results in a mel spectrogram
+
         waveform.draw_peaks(x, peaks, spectral_centroid)
         spectrogram.draw_spectrum(x, db_spectrum)
+        inv_mfcc_spectrogram.draw_spectrum(x, inv_mfcc_spectrum)
 
     if progress_callback:
         progress_callback(100)
 
     waveform.save(output_filename_w)
     spectrogram.save(output_filename_s)
-
+    inv_mfcc_spectrogram.save(output_filename_m)
 
 class NoSpaceLeftException(Exception):
     pass

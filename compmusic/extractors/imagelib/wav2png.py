@@ -50,8 +50,8 @@ def progress_callback(percentage):
    
     # process all files so the user can use wildcards like *.wav
     
-def genimages(input_file,output_file_w, output_file_s, options):
-    args = (input_file, output_file_w, output_file_s, options.image_width, options.image_height, options.fft_size, progress_callback, options.f_min, options.f_max, options.scale_exp, options.pallete)
+def genimages(input_file,output_file_w, output_file_s, output_file_m, options):
+    args = (input_file, output_file_w, output_file_s, output_file_m, options.image_width, options.image_height, options.fft_size, progress_callback, options.f_min, options.f_max, options.scale_exp, options.pallete)
     print "processing file %s:\n\t" % input_file,
     try:
         create_wave_images(*args)

@@ -28,6 +28,7 @@ import math
 from StringIO import StringIO
 
 from docserver import util
+# from compmusic.extractors.makam.lyricalign_local import get_audio
 
 class AudioImages(compmusic.extractors.ExtractorModule):
     _version = "0.2"
@@ -77,7 +78,9 @@ class AudioImages(compmusic.extractors.ExtractorModule):
         baseFname, ext = os.path.splitext(os.path.basename(fname))
         
         wavfname, created = util.docserver_get_wav_filename(musicbrainzid)
-
+#         wavfname = get_audio('/home/georgid/Downloads/',  musicbrainzid) ;  created = True
+       
+        
         panelWidth = 900		              # pixels
         panelHeight = 255		              # pixels
         zoomlevels = self._zoom_levels      	      # seconds
@@ -106,8 +109,10 @@ class AudioImages(compmusic.extractors.ExtractorModule):
 
             wfname = "waveform%s" % zoom
             specname = "spectrum%s" % zoom
+            inv_mfcc_name = "inv_mfcc_spectrum%s" % zoom
             wfdata = []
             specdata = []
+            inv_mfcc_data = []
 
             sumframes = 0
             while sumframes < totalframes:
@@ -126,21 +131,25 @@ class AudioImages(compmusic.extractors.ExtractorModule):
                 wavout.writeframes(data)
                 wavout.close()
                 sumframes += framesperimage
-
+                
                 specio = StringIO()
                 # Set the name attr so that PIL gets the filetype hint
                 specio.name = "spec.png"
                 wavio = StringIO()
                 wavio.name = "wav.png"
-
-                w2png.genimages(smallname, wavio, specio, options)
+                in_mfcc_io = StringIO()
+                in_mfcc_io.name = "melspec.png"
+                 
+                w2png.genimages(smallname, wavio, specio, in_mfcc_io, options)
                 os.unlink(smallname)
 
                 specdata.append(specio.getvalue())
                 wfdata.append(wavio.getvalue())
+                inv_mfcc_data.append(in_mfcc_io.getvalue())
 
             ret[wfname] = wfdata
             ret[specname] = specdata
+            ret[inv_mfcc_name] = inv_mfcc_data
 
         ret["smallfull"] = self.make_mini(wavfname)
         if created:
@@ -148,5 +157,7 @@ class AudioImages(compmusic.extractors.ExtractorModule):
 
         return ret
 
-
-
+if __name__=='__main__':
+    ai = AudioImages()
+    ret = ai.run('727cff89-392f-4d15-926d-63b2697d7f3f','b')
+    pass
