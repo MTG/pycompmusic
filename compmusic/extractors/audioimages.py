@@ -71,7 +71,9 @@ class AudioImages(compmusic.extractors.ExtractorModule):
         # We don't use the spectogram, but need to provide it anyway
         smallfullspecio = StringIO()
         smallfullspecio.name = "spec.png"
-        w2png.genimages(wavfname, smallfullio, smallfullspecio, smallfulloptions)
+        invmfccio = StringIO()
+        invmfccio.name = "spec.png"
+        w2png.genimages(wavfname, smallfullio, smallfullspecio, invmfccio, smallfulloptions)
         return smallfullio.getvalue()
 
     def run(self, musicbrainzid, fname):
