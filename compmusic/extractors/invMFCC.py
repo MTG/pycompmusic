@@ -41,6 +41,13 @@ class InvMFCC(compmusic.extractors.ExtractorModule):
                           GuessUnvoiced=False,
                           BANDS = 40,                              
                           COEFS = 13)
+        
+        ### prepare stage for MFCCs
+        self.w = essentia.standard.Windowing(type = 'hann')
+        self.spectrum = essentia.standard.Spectrum()
+        self.mfcc = essentia.standard.MFCC(numberBands=self.settings.BANDS, numberCoefficients=self.settings.COEFS)
+        self.inv_DCT = inv(self.dctmtx(self.settings.BANDS))[:,1:self.settings.COEFS] # The inverse DCT matrix. Change the index to [0:COEFS] if you want to keep the 0-th coefficient
+        
 
     def run(self, musicbrainzid, fname):
         audioLoader = essentia.standard.EasyLoader(filename=fname)
@@ -49,33 +56,47 @@ class InvMFCC(compmusic.extractors.ExtractorModule):
         sampleRate = monoLoader.paramValue("sampleRate")
         equalLoudness = essentia.standard.EqualLoudness(sampleRate=sampleRate)
         audio = equalLoudness(audioLoader())
-        self.logger.info('Calculating inverse MFCCs')
         
-        ### compute MFCCs
-        w = essentia.standard.Windowing(type = 'hann')
-        spectrum = essentia.standard.Spectrum()
-        mfcc = essentia.standard.MFCC(numberBands=self.settings.BANDS, numberCoefficients=self.settings.COEFS)
+
+        self.logger.info('Calculating MFCCs...')            
          
         mfccs = []
         for frame in essentia.standard.FrameGenerator(audio, frameSize = self.settings.FrameSize, hopSize = self.settings.HopSize):
-            mfcc_bands, mfcc_coeffs = mfcc(spectrum(w(frame)))
+            mfcc_bands, mfcc_coeffs = self.frame_to_mfcc(frame) 
             mfccs.append(mfcc_coeffs)
         mfccs = essentia.array(mfccs).T
-         
+        
+        self.logger.info('Calculating inverse MFCCs...')
         ### inverse DCT computation
-        invD = inv(self.dctmtx(self.settings.BANDS))[:,1:self.settings.COEFS] # The inverse DCT matrix. Change the index to [0:COEFS] if you want to keep the 0-th coefficient
-        inv_mfccs = np.dot(invD, mfccs[1:,:])
+        
+        inv_mfccs = np.dot(self.inv_DCT, mfccs[1:,:])
         
 #         imshow(inv_mfccs, aspect="auto", interpolation="none", origin="lower")
         self.logger.info('done') 
 
         #generating time stamps (because its equally hopped)
         TStamps = np.array(range(0, inv_mfccs.shape[1])) * np.float(self.settings.HopSize)/sampleRate
-        print inv_mfccs.shape
         inv_mfccs_and_ts = inv_mfccs.transpose()
 
         return {"invMFCC": inv_mfccs_and_ts.tolist()}
-
+    
+    def frame_to_mfcc(self, frame):
+        '''
+        Parameters
+        ----------
+        frame : array of float32 
+            frame of audio samples
+        
+        Returns
+        -------
+        mfcc : array of float32
+            mfcc - array
+        
+        '''
+        mfcc_bands, mfcc_coeffs = self.mfcc(self.spectrum(self.w(frame)))
+        
+        return mfcc_bands, mfcc_coeffs
+        
     def dctmtx(self, n):
         """
         Return the DCT-II matrix of order n as a numpy array.

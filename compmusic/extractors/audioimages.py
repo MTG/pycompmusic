@@ -27,8 +27,8 @@ import math
 
 from StringIO import StringIO
 
-from docserver import util
-# from compmusic.extractors.makam.lyricalign_local import get_audio
+# from docserver import util
+from compmusic.extractors.makam.lyricalign_local import get_audio
 
 class AudioImages(compmusic.extractors.ExtractorModule):
     _version = "0.2"
@@ -79,8 +79,8 @@ class AudioImages(compmusic.extractors.ExtractorModule):
     def run(self, musicbrainzid, fname):
         baseFname, ext = os.path.splitext(os.path.basename(fname))
         
-        wavfname, created = util.docserver_get_wav_filename(musicbrainzid)
-#         wavfname = get_audio('/home/georgid/Downloads/',  musicbrainzid) ;  created = True
+#         wavfname, created = util.docserver_get_wav_filename(musicbrainzid)
+        wavfname = get_audio('/home/georgid/Downloads/',  musicbrainzid) ;  created = True
        
         
         panelWidth = 900		              # pixels

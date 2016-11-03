@@ -21,9 +21,10 @@
 #
 # 03/10/2013: Modified from original code 
 
-from processing import create_wave_images, AudioProcessingException
+from processing import  AudioProcessingException
 import optparse
 import sys
+from compmusic.extractors.imagelib.MelSpectrogramImage import create_wave_images
 '''
 parser = optparse.OptionParser("usage: %prog [options] input-filename", conflict_handler="resolve")
 parser.add_option("-a", "--waveout", action="store", dest="output_filename_w", type="string", help="output waveform image (default input filename + _w.png)")
