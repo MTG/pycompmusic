@@ -92,6 +92,7 @@ class MakamAudioImage(AudioImages):
 def plot(seyir_features, file_location, plot_average_pitch=True, plot_stable_pitches=True,
              plot_distribution=False):
 
+    plt.switch_backend('Agg')
     fig = plt.figure(frameon=False)
     if plot_distribution:
         time_starts = [sf['time_interval'][0] for sf in seyir_features]
@@ -109,10 +110,10 @@ def plot(seyir_features, file_location, plot_average_pitch=True, plot_stable_pit
             for sp in sf['stable_pitches']:
                 clr = 'r' if sp['value'] == max_peak else 'b'
                 # map the values from 0-1 to 1-6
-                marker_thickness = sp['value']*5+1 
+                marker_thickness = sp['value']*5+1
                 plt.plot(t_st, sp['frequency'], 'o', color = clr, ms=marker_thickness)
 
-            
+
     if plot_average_pitch:
         tt = [sf['time_interval'][0] for sf in seyir_features]
         pp = [sf['average_pitch'] for sf in seyir_features]
@@ -124,4 +125,4 @@ def plot(seyir_features, file_location, plot_average_pitch=True, plot_stable_pit
     plt.axis('off')
     plt.margins(0,0)
 
-    plt.savefig(file_location, bbox_inches='tight', pad_inches=0) 
+    plt.savefig(file_location, bbox_inches='tight', pad_inches=0)
