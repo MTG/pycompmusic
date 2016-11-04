@@ -42,7 +42,7 @@ def _get_module_by_slug(slug):
             loaded = importlib.import_module(m)
             for name, mod in inspect.getmembers(loaded, inspect.isclass):
                 if issubclass(mod, extractors.ExtractorModule) and name != "ExtractorModule":
-                    if mod.__slug__ == slug:
+                    if mod._slug == slug:
                         matching.append(mod)
         except ImportError:
             unloaded.append(m)
@@ -85,7 +85,7 @@ class NumPyArangeEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 def save_data(module, data):
-    modulemeta = module.__output__
+    modulemeta = module._output
     mbid = module.musicbrainz_id
     for key, d in data.items():
         ext = modulemeta[key]["extension"]
@@ -107,7 +107,7 @@ def run_file(module, filename, mbid=None):
             mbid = md["meta"]["recordingid"]
     if mbid:
         module.musicbrainz_id = mbid
-        ret = module.run(filename)
+        ret = module.run(mbid, filename)
         save_data(module, ret)
     else:
         logging.error("Cannot find a mbid in this file. Use the mbid argument")
