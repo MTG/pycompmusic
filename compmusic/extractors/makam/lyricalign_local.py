@@ -43,7 +43,8 @@ ParametersAlgo.DETECTION_TOKEN_LEVEL= 'words'
 ParametersAlgo.WITH_ORACLE_ONSETS = 1
 
 if ParametersAlgo.POLYPHONIC:
-    dataDir = '/Users/joro/Documents/lyrics-2-audio-test-data/'
+#     dataDir = '/Users/joro/Documents/lyrics-2-audio-test-data/'
+    sys.exit('path to audio not given')
 else:
     dataDir = '/home/georgid/Documents/makam_acapella/'
 
@@ -207,7 +208,6 @@ def getWork( musicbrainzid):
         return w
 
 def get_audio(dataDir, musicbrainzid):
-        ParametersAlgo.POLYPHONIC = 1
         recIDoutputDir = os.path.join(dataDir, musicbrainzid)        
         if not os.path.isdir(recIDoutputDir):
             os.mkdir(recIDoutputDir)

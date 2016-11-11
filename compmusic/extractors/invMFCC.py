@@ -47,7 +47,6 @@ class InvMFCC(compmusic.extractors.ExtractorModule):
         self.spectrum = essentia.standard.Spectrum()
         self.mfcc = essentia.standard.MFCC(numberBands=self.settings.BANDS, numberCoefficients=self.settings.COEFS)
         self.inv_DCT = inv(self.dctmtx(self.settings.BANDS))[:,1:self.settings.COEFS] # The inverse DCT matrix. Change the index to [0:COEFS] if you want to keep the 0-th coefficient
-        
 
     def run(self, musicbrainzid, fname):
         audioLoader = essentia.standard.EasyLoader(filename=fname)
@@ -61,8 +60,10 @@ class InvMFCC(compmusic.extractors.ExtractorModule):
         self.logger.info('Calculating MFCCs...')            
          
         mfccs = []
+        mfcc_bands_array = []
         for frame in essentia.standard.FrameGenerator(audio, frameSize = self.settings.FrameSize, hopSize = self.settings.HopSize):
             mfcc_bands, mfcc_coeffs = self.frame_to_mfcc(frame) 
+            mfcc_bands_array.append(mfcc_bands)
             mfccs.append(mfcc_coeffs)
         mfccs = essentia.array(mfccs).T
         
@@ -76,9 +77,9 @@ class InvMFCC(compmusic.extractors.ExtractorModule):
 
         #generating time stamps (because its equally hopped)
         TStamps = np.array(range(0, inv_mfccs.shape[1])) * np.float(self.settings.HopSize)/sampleRate
-        inv_mfccs_and_ts = inv_mfccs.transpose()
-
-        return {"invMFCC": inv_mfccs_and_ts.tolist()}
+        inv_mfccs_T = inv_mfccs.transpose()
+        
+        return {"invMFCC": inv_mfccs_T.tolist()}
     
     def frame_to_mfcc(self, frame):
         '''
@@ -112,5 +113,9 @@ if __name__=='__main__':
     recMBID = '727cff89-392f-4d15-926d-63b2697d7f3f'
     la = InvMFCC()  
     ret = la.run(recMBID, '/home/georgid/workspace/SourceFilterContoursMelody/smstools/sounds/vignesh.wav')
-    print ret
+#     print ret
+#     mfccs = ret['invMFCC']
+#     from matplotlib import pyplot as plt
+#     plt.imshow(mfccs, aspect='auto')
+#     plt.show()
     
