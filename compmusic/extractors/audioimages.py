@@ -36,7 +36,7 @@ class AudioImages(compmusic.extractors.ExtractorModule):
     _slug = "audioimages"
 
     __depends = "wav"
-    
+
     _output = {"waveform4": {"extension": "png", "mimetype": "image/png", "parts": True},
             "spectrum4": {"extension": "png", "mimetype": "image/png", "parts": True},
             "waveform8": {"extension": "png", "mimetype": "image/png", "parts": True},
@@ -78,11 +78,9 @@ class AudioImages(compmusic.extractors.ExtractorModule):
 
     def run(self, musicbrainzid, fname):
         baseFname, ext = os.path.splitext(os.path.basename(fname))
-        
+
         wavfname, created = util.docserver_get_wav_filename(musicbrainzid)
-#         wavfname = get_audio('/home/georgid/Downloads/',  musicbrainzid) ;  created = True
-       
-        
+
         panelWidth = 900		              # pixels
         panelHeight = 255		              # pixels
         zoomlevels = self._zoom_levels      	      # seconds
@@ -91,7 +89,7 @@ class AudioImages(compmusic.extractors.ExtractorModule):
         options.fft_size = self._fft_size
         options.f_min = self._f_min
         options.f_max = self._f_max
-        options.pallete = self._pallete 
+        options.pallete = self._pallete
         options.scale_exp = self._scale_exp
 
 
@@ -133,7 +131,7 @@ class AudioImages(compmusic.extractors.ExtractorModule):
                 wavout.writeframes(data)
                 wavout.close()
                 sumframes += framesperimage
-                
+
                 specio = StringIO()
                 # Set the name attr so that PIL gets the filetype hint
                 specio.name = "spec.png"
@@ -141,7 +139,7 @@ class AudioImages(compmusic.extractors.ExtractorModule):
                 wavio.name = "wav.png"
                 in_mfcc_io = StringIO()
                 in_mfcc_io.name = "melspec.png"
-                 
+
                 w2png.genimages(smallname, wavio, specio, in_mfcc_io, options)
                 os.unlink(smallname)
 
@@ -159,7 +157,3 @@ class AudioImages(compmusic.extractors.ExtractorModule):
 
         return ret
 
-if __name__=='__main__':
-    ai = AudioImages()
-    ret = ai.run('727cff89-392f-4d15-926d-63b2697d7f3f','b')
-    pass
