@@ -34,6 +34,7 @@ class MakamAudioImage(AudioImages):
 
     _output = {
             "waveform8": {"extension": "png", "mimetype": "image/png", "parts": True},
+            "inv_mfcc_spectrum8": {"extension": "png", "mimetype": "image/png", "parts": True},
             "spectrum8": {"extension": "png", "mimetype": "image/png", "parts": True},
             "smallfull": {"extension": "png", "mimetype": "image/png"},
         }

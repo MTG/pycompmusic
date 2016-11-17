@@ -202,7 +202,28 @@ class AudioProcessor(object):
 
         return (spectral_centroid, db_spectrum)
 
+    def inv_mfcc(self, seek_point):
+        '''
+        Compute the inverse DCT of MFCC for one frame. 
+        
+        Parameters
+        -----------------------------
+        seek_point -  seek_point - point in audio samples, around which window is centered 
+        
+        Returns 
+        -------------------------------
+        mel_spectrum - the mel spectrum with 26 dimnsions 
+        
+        '''
+        samples = self.read(seek_point - self.fft_size/2, self.fft_size, True)
 
+        samples *= self.window
+        fft = numpy.fft.rfft(samples)
+        mel_spectrum = self.scale * numpy.abs(fft) # normalized abs(FFT) between 0 and 1
+
+        # scale the db mel_spectrum from [- spec_range db ... 0 db] > [0..1]
+        return mel_spectrum[:26]
+    
     def peaks(self, start_seek, end_seek):
         """ read all samples between start_seek and end_seek, then find the minimum and maximum peak
         in that range. Returns that pair in the order they were found. So if min was found first,
@@ -461,7 +482,8 @@ class SpectrogramImage(object):
     def draw_spectrum(self, x, spectrum):
         # for all frequencies, draw the pixels
         for (index, alpha) in self.y_to_bin:
-            self.pixels.append( self.palette[int((255.0-alpha) * (spectrum[index]**self.exp) + alpha * (spectrum[index + 1]**self.exp))] )
+            palette_idx = int((255.0-alpha) * (spectrum[index]**self.exp) + alpha * (spectrum[index + 1]**self.exp))
+            self.pixels.append( self.palette[palette_idx] )
 
         # if the FFT is too small to fill up the image, fill with black to the top
         for y in range(len(self.y_to_bin), self.image_height): #@UnusedVariable
@@ -470,38 +492,6 @@ class SpectrogramImage(object):
     def save(self, filename, quality=80):
         self.image.putdata(self.pixels)
         self.image.transpose(Image.ROTATE_90).save(filename, quality=quality)
-
-
-def create_wave_images(input_filename, output_filename_w, output_filename_s, image_width, image_height, fft_size, progress_callback=None, f_min=None, f_max=None, scale_exp=None, pallete=None):
-    """
-    Utility function for creating both wavefile and spectrum images from an audio input file.
-    """
-    processor = AudioProcessor(input_filename, fft_size, numpy.hanning)
-    samples_per_pixel = processor.audio_file.nframes / float(image_width)
-
-    waveform = WaveformImage(image_width, image_height)
-    spectrogram = SpectrogramImage(image_width, image_height, fft_size, f_min, f_max, scale_exp, pallete)
-
-    for x in range(image_width):
-
-        if image_width >= 10:
-            if progress_callback and x % (image_width/10) == 0:
-                progress_callback((x*100)/image_width)
-
-        seek_point = int(x * samples_per_pixel)
-        next_seek_point = int((x + 1) * samples_per_pixel)
-
-        (spectral_centroid, db_spectrum) = processor.spectral_centroid(seek_point)
-        peaks = processor.peaks(seek_point, next_seek_point)
-
-        waveform.draw_peaks(x, peaks, spectral_centroid)
-        spectrogram.draw_spectrum(x, db_spectrum)
-
-    if progress_callback:
-        progress_callback(100)
-
-    waveform.save(output_filename_w)
-    spectrogram.save(output_filename_s)
 
 
 class NoSpaceLeftException(Exception):

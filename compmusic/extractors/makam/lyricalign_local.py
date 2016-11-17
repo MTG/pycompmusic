@@ -39,10 +39,12 @@ ParametersAlgo.WITH_DURATIONS = 0
 ParametersAlgo.FOR_MAKAM = 1
 ParametersAlgo.POLYPHONIC = 0
 ParametersAlgo.DETECTION_TOKEN_LEVEL= 'words'
-ParametersAlgo.WITH_ORACLE_ONSETS = -1
+# ParametersAlgo.DETECTION_TOKEN_LEVEL= 'syllables'
+ParametersAlgo.WITH_ORACLE_ONSETS = 1
 
 if ParametersAlgo.POLYPHONIC:
-    dataDir = '/Users/joro/Documents/lyrics-2-audio-test-data/'
+#     dataDir = '/Users/joro/Documents/lyrics-2-audio-test-data/'
+    sys.exit('path to audio not given')
 else:
     dataDir = '/home/georgid/Documents/makam_acapella/'
 
@@ -51,11 +53,11 @@ else:
 # these 6 have annotation on R2
 recMBIDs = {}
 recMBIDs['727cff89-392f-4d15-926d-63b2697d7f3f'] = ('18_Munir_Nurettin_Selcuk_-_Gel_Guzelim_Camlicaya',0,0)             # done
-# recMBIDs['feda89e3-a50d-4ff8-87d4-c1e531cc1233'] = ('Melihat_Gulses',0,0) # done.
-# recMBIDs['f5a89c06-d9bc-4425-a8e6-0f44f7c108ef'] = ('04_Hamiyet_Yuceses_-_Bakmiyor_Cesm-i_Siyah_Feryade',0, 0) # done
-# recMBIDs['b49c633c-5059-4658-a6e0-9f84a1ffb08b'] = ('2-15_Nihavend_Aksak_Sarki',0,0)  # done.
-# recMBIDs['567b6a3c-0f08-42f8-b844-e9affdc9d215'] = ('03_Bekir_Unluataer_-_Kimseye_Etmem_Sikayet_Aglarim_Ben_Halime',0,0)  # done
-# recMBIDs['2ec806b4-7df2-4fd4-9752-140a0bcc9730'] = ('21_Recep_Birgit_-_Olmaz_Ilac_Sine-i_Sad_Pareme',1, 1) #  
+recMBIDs['feda89e3-a50d-4ff8-87d4-c1e531cc1233'] = ('Melihat_Gulses',0,0) # done.
+recMBIDs['f5a89c06-d9bc-4425-a8e6-0f44f7c108ef'] = ('04_Hamiyet_Yuceses_-_Bakmiyor_Cesm-i_Siyah_Feryade',0, 0) # done
+recMBIDs['b49c633c-5059-4658-a6e0-9f84a1ffb08b'] = ('2-15_Nihavend_Aksak_Sarki',0,0)  # done.
+recMBIDs['567b6a3c-0f08-42f8-b844-e9affdc9d215'] = ('03_Bekir_Unluataer_-_Kimseye_Etmem_Sikayet_Aglarim_Ben_Halime',0,0)  # done
+# recMBIDs['2ec806b4-7df2-4fd4-9752-140a0bcc9730'] = ('21_Recep_Birgit_-_Olmaz_Ilac_Sine-i_Sad_Pareme',0, 0) #  
 
 
 # following 6 do not have annotation on Rules
