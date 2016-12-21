@@ -47,7 +47,15 @@ class InvMFCC(compmusic.extractors.ExtractorModule):
         self.spectrum = essentia.standard.Spectrum()
         self.mfcc = essentia.standard.MFCC(numberBands=self.settings.BANDS, numberCoefficients=self.settings.COEFS)
         self.inv_DCT = inv(self.dctmtx(self.settings.BANDS))[:,1:self.settings.COEFS] # The inverse DCT matrix. Change the index to [0:COEFS] if you want to keep the 0-th coefficient
-
+        self.melsEssentia = essentia.standard.MelBands(inputSize = self.settings.FrameSize,
+                    type = 'power', 
+                    warpingFormula = 'htkMel',
+                    weighting = 'linear',
+                    highFrequencyBound = 8000,
+                    lowFrequencyBound = 0,
+                    numberBands = 26,
+                    normalize = 'unit_max')
+        
     def run(self, musicbrainzid, fname):
         audioLoader = essentia.standard.EasyLoader(filename=fname)
         monoLoader = essentia.standard.MonoLoader(filename=fname)
@@ -95,8 +103,10 @@ class InvMFCC(compmusic.extractors.ExtractorModule):
         
         '''
         mfcc_bands, mfcc_coeffs = self.mfcc(self.spectrum(self.w(frame)))
+        mfcc_bands = self.melsEssentia(self.spectrum(self.w(frame)))
         
         return mfcc_bands, mfcc_coeffs
+    
         
     def dctmtx(self, n):
         """
