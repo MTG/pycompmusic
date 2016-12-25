@@ -28,7 +28,6 @@ import math
 from StringIO import StringIO
 
 from docserver import util
-# from compmusic.extractors.makam.lyricalign_local import get_audio
 
 class AudioImages(compmusic.extractors.ExtractorModule):
     _version = "0.2"
