@@ -201,28 +201,6 @@ class AudioProcessor(object):
             spectral_centroid = (math.log10(self.clip(spectral_centroid, self.lower, self.higher)) - self.lower_log) / (self.higher_log - self.lower_log)
 
         return (spectral_centroid, db_spectrum)
-
-    def inv_mfcc(self, seek_point):
-        '''
-        Compute the inverse DCT of MFCC for one frame. 
-        
-        Parameters
-        -----------------------------
-        seek_point -  seek_point - point in audio samples, around which window is centered 
-        
-        Returns 
-        -------------------------------
-        mel_spectrum - the mel spectrum with 26 dimnsions 
-        
-        '''
-        samples = self.read(seek_point - self.fft_size/2, self.fft_size, True)
-
-        samples *= self.window
-        fft = numpy.fft.rfft(samples)
-        mel_spectrum = self.scale * numpy.abs(fft) # normalized abs(FFT) between 0 and 1
-
-        # scale the db mel_spectrum from [- spec_range db ... 0 db] > [0..1]
-        return mel_spectrum[:26]
     
     def peaks(self, start_seek, end_seek):
         """ read all samples between start_seek and end_seek, then find the minimum and maximum peak
