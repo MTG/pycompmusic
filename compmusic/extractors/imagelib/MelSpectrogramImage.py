@@ -111,9 +111,9 @@ class InvMFCCAudioProcessor(AudioProcessor):
         
        
         spect = self.spectrum(self.w(samples_frame))
+
         mfcc_bands, mfcc_coeffs = self.mfcc(spect)
         mel_bands = np.exp(self.idct(mfcc_coeffs))
-        
         
 #         db_inv_mfcc_spectrum = ((inv_mfccs_spectrum).clip(-spec_range, 0.0) + spec_range) /spec_range
         db_mel_bands =   ((20*(np.log10(mel_bands + 1e-60))).clip(-spec_range, 0.0) + spec_range)/spec_range # db  and scale from [- range db ... 0 db] > [0..1] 

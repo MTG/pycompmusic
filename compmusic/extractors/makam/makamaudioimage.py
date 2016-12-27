@@ -44,7 +44,7 @@ class MakamAudioImage(AudioImages):
     _pallete = 2
 
     def run(self, musicbrainzid, fname):
-        max_pitch = util.docserver_get_filename(musicbrainzid, "tomatodunya", "pitchmax", version="0.1")
+        max_pitch = util.docserver_get_filename(musicbrainzid, "tomatodunya", "pitchmax", part=1, version="0.1")
         pitch = json.load(open(max_pitch))
 
         self._f_min = pitch['min']
