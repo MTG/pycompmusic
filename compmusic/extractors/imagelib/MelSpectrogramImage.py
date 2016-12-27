@@ -55,7 +55,7 @@ class InvMFCCAudioProcessor(AudioProcessor):
         self.framesize = 1102 #  default frame size in htk, at rate of 44100
         zeroPadding = fft_size - self.framesize
         self.w = ess.Windowing(type = 'hamming', 
-                    size = frameSize, 
+                    size = self.framesize, 
                     zeroPadding = zeroPadding,
                     normalized = False,
                     zeroPhase = False)
