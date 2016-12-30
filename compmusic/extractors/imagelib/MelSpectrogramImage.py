@@ -24,16 +24,15 @@ class MelSpectrogramImage(SpectrogramImage):
         SpectrogramImage.__init__(self, image_width, image_height, fft_size, f_min, f_max, scale_exp, pallete)
         
         
-         # generate the lookup which translates y-coordinate to mel-spectrum-bin
+         # generate the lookup which translates y-coordinate to mel-spectrum-bin_index
         self.y_to_bin = []
         
-        band_bins = np.linspace(0, num_mel_bands, image_height) # num_mel_bands-1 is a workaround because index + 1 is called in compmusic.extractors.imagelib.processing.SpectrogramImage.draw_spectrum
-        for i,y in enumerate(range(self.image_height)):
-            bin = band_bins[i] 
-            if bin < num_mel_bands - 1:
-                alpha = bin - int(bin)
-                
-                self.y_to_bin.append((int(bin), alpha * 255))
+        mel_band_bins = np.linspace(0, num_mel_bands, image_height)
+        for i in range(len(mel_band_bins)):
+            bin_index = mel_band_bins[i] 
+            if bin_index < num_mel_bands - 1:  # make sure less than len(spectrum) -1, becasue index + 1 in compmusic.extractors.imagelib.processing.SpectrogramImage.draw_spectrum
+                alpha = bin_index - int(bin_index) # how much content of next bin_index 
+                self.y_to_bin.append((int(bin_index), alpha * 255))
 
 class InvMFCCAudioProcessor(AudioProcessor):
     '''

@@ -444,13 +444,13 @@ class SpectrogramImage(object):
         freqs = numpy.linspace(f_min,f_max,image_height)
         for i,y in enumerate(range(self.image_height)):
             #freq = math.pow(10.0, y_min + y / (image_height - 1.0) *(y_max - y_min))
-	    freq = freqs[i]
+            freq = freqs[i]
             bin = freq / 22050.0 * (self.fft_size/2 + 1)
 
-            if bin < self.fft_size/2:
-                alpha = bin - int(bin)
+            if bin < self.fft_size/2: # make sure less than len(spectrum) -1, because  on draw_spectrum is called spectrum[index + 1]
+                alpha = bin - int(bin)  # how much content of next bin 
 
-                self.y_to_bin.append((int(bin), alpha * 255))
+                self.y_to_bin.append((int(bin), alpha * 255)) 
 
         # this is a bit strange, but using image.load()[x,y] = ... is
         # a lot slower than using image.putadata and then rotating the image
@@ -460,7 +460,7 @@ class SpectrogramImage(object):
     def draw_spectrum(self, x, spectrum):
         # for all frequencies, draw the pixels
         for (index, alpha) in self.y_to_bin:
-            palette_idx = int((255.0-alpha) * (spectrum[index]**self.exp) + alpha * (spectrum[index + 1]**self.exp))
+            palette_idx = int((255.0-alpha) * (spectrum[index]**self.exp) + alpha * (spectrum[index + 1]**self.exp)) # take  part (1-alpha) of current spectral bin and part (alpha) of next 
             self.pixels.append( self.palette[palette_idx] )
 
         # if the FFT is too small to fill up the image, fill with black to the top
