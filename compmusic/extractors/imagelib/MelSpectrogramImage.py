@@ -57,7 +57,7 @@ class InvMFCCAudioProcessor(AudioProcessor):
         self.w = ess.Windowing(type = 'hamming', 
                     size = self.framesize, 
                     zeroPadding = zeroPadding,
-                    normalized = False,
+#                     normalized = False,
                     zeroPhase = False)
         
         spectrumSize= fft_size//2+1

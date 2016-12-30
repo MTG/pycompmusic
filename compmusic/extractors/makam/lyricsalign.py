@@ -31,7 +31,6 @@ from compmusic.extractors.makam.fetch_tools import getWork, fetchNoteOnsetFile,\
     get_section_annotaions_dict, downloadSymbTr, get_section_metadata_dict
 parentDir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__) ), os.path.pardir,  os.path.pardir,  os.path.pardir,  os.path.pardir)) 
 pathAlignmentDur = os.path.join(parentDir, 'AlignmentDuration')
-print pathAlignmentDur
 
 if pathAlignmentDur not in sys.path:
     sys.path.append(pathAlignmentDur)
