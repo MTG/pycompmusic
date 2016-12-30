@@ -112,12 +112,13 @@ class InvMFCCAudioProcessor(AudioProcessor):
         spect = self.spectrum(self.w(samples_frame))
 
         mfcc_bands, mfcc_coeffs = self.mfcc(spect)
-        mel_bands = np.exp(self.idct(mfcc_coeffs))
-        mel_bands = np.array(mel_bands)
+        mel_bands_smoothed = np.exp(self.idct(mfcc_coeffs))
+        print mel_bands_smoothed
+        mel_bands = np.array(mel_bands_smoothed)
         
 #         db_inv_mfcc_spectrum = ((inv_mfccs_spectrum).clip(-spec_range, 0.0) + spec_range) /spec_range
-        db_mel_bands =   ((20*(np.log10(mel_bands + 1e-60))).clip(-spec_range, 0.0) + spec_range)/spec_range # db  and scale from [- range db ... 0 db] > [0..1] 
-
+        db_mel_bands =   ((20*(np.log10(mel_bands_smoothed + 1e-60))).clip(-spec_range, 0.0) + spec_range)/spec_range # db  and scale from [- range db ... 0 db] > [0..1] 
+        print db_mel_bands
         return db_mel_bands
 
 def create_wave_images(input_filename, output_filename_w, output_filename_s, output_filename_m, image_width, image_height, fft_size, progress_callback=None, f_min=None, f_max=None, scale_exp=None, pallete=None):
@@ -146,7 +147,7 @@ def create_wave_images(input_filename, output_filename_w, output_filename_s, out
         peaks = processor.peaks(seek_point, next_seek_point)
 
         inv_mfcc_spectrum = inv_processor.compute_inv_mfcc(seek_point) # inv MFCC computation results in a mel spectrogram
-        print 'shape inv mfcc : {} ,{}' .format(inv_mfcc_spectrum.shape[0], inv_mfcc_spectrum.shape[1])
+#         print 'shape inv mfcc : {} ,{}' .format(inv_mfcc_spectrum.shape[0], inv_mfcc_spectrum.shape[1])
         waveform.draw_peaks(x, peaks, spectral_centroid)
         spectrogram.draw_spectrum(x, db_spectrum) 
 #         mel_spectrogram.draw_spectrum(x, inv_mfcc_spectrum)
