@@ -51,33 +51,38 @@ class InvMFCCAudioProcessor(AudioProcessor):
 
 #             self.inv_mfcc_transform = InvMFCC() # inverse mfcc transform
 #             self.inv_mfcc_transform.setup()
-        self.framesize = 1102 #  default frame size in htk, at rate of 44100
-        zeroPadding = fft_size - self.framesize
-        self.w = ess.Windowing(type = 'hamming', 
-                    size = self.framesize, 
-                    zeroPadding = zeroPadding,
-#                     normalized = False,
-                    zeroPhase = False)
-        
-        spectrumSize= fft_size//2+1
-        self.spectrum = ess.Spectrum(size = fft_size)
-        self.mfcc = ess.MFCC(inputSize = spectrumSize, # htk-like  mfccs
-                    type = 'magnitude', 
-                    warpingFormula = 'htkMel',
-                    weighting = 'linear',
-                    highFrequencyBound = 8000,
-                    lowFrequencyBound = 0,
-                    numberBands = numMelBands,
-                    numberCoefficients = 13,
-                    normalize = 'unit_max',
-                    dctType = 3,
-                    logType = 'log',
-                    liftering = 22)
+        self.framesize = 2048 #  
+#         self.framesize = 1102 #  default frame size in htk, at rate of 44100
+#         zeroPadding = fft_size - self.framesize
+#         self.w = ess.Windowing(type = 'hamming', 
+#                     size = self.framesize, 
+#                     zeroPadding = zeroPadding,
+# #                     normalized = False,
+#                     zeroPhase = False)
+#         
+#         spectrumSize= fft_size//2+1
+#         self.spectrum = ess.Spectrum(size = fft_size)
+#         self.mfcc = ess.MFCC(inputSize = spectrumSize, # htk-like  mfccs
+#                     type = 'magnitude', 
+#                     warpingFormula = 'htkMel',
+#                     weighting = 'linear',
+#                     highFrequencyBound = 8000,
+#                     lowFrequencyBound = 0,
+#                     numberBands = numMelBands,
+#                     numberCoefficients = 13,
+#                     normalize = 'unit_max',
+#                     dctType = 3,
+#                     logType = 'log',
+#                     liftering = 22)
 
         self.idct = ess.IDCT(inputSize = InvMFCCAudioProcessor.NUM_MFCC_COEFFS, 
                 outputSize=numMelBands, 
                 dctType = 3, 
                 liftering = 22)
+        self.w = ess.Windowing(type = 'hann')
+        self.spectrum = ess.Spectrum()
+        self.mfcc = essentia.standard.MFCC(numberBands=numMelBands, numberCoefficients=InvMFCCAudioProcessor.NUM_MFCC_COEFFS)
+
         
 
     def compute_inv_mfcc(self, seek_point, spec_range = 110):
@@ -116,7 +121,7 @@ class InvMFCCAudioProcessor(AudioProcessor):
         mel_bands_smoothed = np.array(mel_bands_smoothed)
         
 #         db_inv_mfcc_spectrum = ((inv_mfccs_spectrum).clip(-spec_range, 0.0) + spec_range) /spec_range
-        db_mel_bands =   ((20*(np.log10(mel_bands_smoothed + 1e-60))).clip(-spec_range, 0.0) + spec_range)/spec_range # db  and scale from [- range db ... 0 db] > [0..1] 
+        db_mel_bands =   ((20*(np.log10(mfcc_bands + 1e-60))).clip(-spec_range, 0.0) + spec_range)/spec_range # db  and scale from [- range db ... 0 db] > [0..1] 
         return db_mel_bands
 
 def create_wave_images(input_filename, output_filename_w, output_filename_s, output_filename_m, image_width, image_height, fft_size, progress_callback=None, f_min=None, f_max=None, scale_exp=None, pallete=None):
@@ -145,7 +150,6 @@ def create_wave_images(input_filename, output_filename_w, output_filename_s, out
         peaks = processor.peaks(seek_point, next_seek_point)
 
         inv_mfcc_spectrum = inv_processor.compute_inv_mfcc(seek_point) # inv MFCC computation results in a mel spectrogram
-        print 'shape inv mfcc : {} ' .format(inv_mfcc_spectrum.shape[0])
         waveform.draw_peaks(x, peaks, spectral_centroid)
         spectrogram.draw_spectrum(x, db_spectrum) 
         mel_spectrogram.draw_spectrum(x, inv_mfcc_spectrum)

@@ -16,14 +16,14 @@
 import json
 import cStringIO
 from compmusic.extractors.audioimages import AudioImages
-from docserver import util
+# from docserver import util
 import struct
 import tempfile
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from seyiranalyzer import audioseyiranalyzer
+# from seyiranalyzer import audioseyiranalyzer
 
 
 class MakamAudioImage(AudioImages):
@@ -44,48 +44,48 @@ class MakamAudioImage(AudioImages):
     _pallete = 2
 
     def run(self, musicbrainzid, fname):
-        max_pitch = util.docserver_get_filename(musicbrainzid, "tomatodunya", "pitchmax", part=1, version="0.1")
-        pitch = json.load(open(max_pitch))
-
-        self._f_min = pitch['min']
-        self._f_max = pitch['max']
+#         max_pitch = util.docserver_get_filename(musicbrainzid, "tomatodunya", "pitchmax", part=1, version="0.1")
+#         pitch = json.load(open(max_pitch))
+# 
+#         self._f_min = pitch['min']
+#         self._f_max = pitch['max']
         ret = super(MakamAudioImage, self).run(musicbrainzid, fname)
 
-        try:
-            pitchfile = util.docserver_get_filename(musicbrainzid, "jointanalysis", "pitch", part=1, version="0.1")
-            loaded_pitch = json.load(open(pitchfile, 'r'))
-            # If pitch extraction from jointanalysis failed then load it from audioanlysis
-            if not loaded_pitch:
-              pitchfile = util.docserver_get_filename(musicbrainzid, "audioanalysis", "pitch", part=1, version="0.1")
-              loaded_pitch = json.load(open(pitchfile, 'r'))
-        except util.NoFileException:
-            pitchfile = util.docserver_get_filename(musicbrainzid, "audioanalysis", "pitch", part=1, version="0.1")
-            loaded_pitch = json.load(open(pitchfile, 'r'))
-
-        pitch = np.array(loaded_pitch['pitch'])
-
-        audioSeyirAnalyzer = audioseyiranalyzer.AudioSeyirAnalyzer()
-
-        # compute number of frames from some simple rules set by the user
-        duration = pitch[-1][0]
-        min_num_frames = 40
-        max_frame_dur = 30
-        frame_dur = duration/min_num_frames if duration/min_num_frames<=max_frame_dur else max_frame_dur
-        frame_dur = int(5 * round(float(frame_dur)/5))  # round to 5 seconds
-        if not frame_dur:
-            frame_dur = 5
-
-        seyir_features = audioSeyirAnalyzer.analyze(pitch, frame_dur = frame_dur, hop_ratio = 0.5)
-
-        fimage = tempfile.NamedTemporaryFile(mode='w+', suffix=".png")
-        plot(seyir_features, fimage.name)
-        fimage.flush()
-        fileContent = None
-        with open(fimage.name, mode='rb') as file:
-            file_content = file.read()
-        if not file_content:
-            raise Exception("No image generated")
-        ret['smallfull'] = file_content
+#         try:
+#             pitchfile = util.docserver_get_filename(musicbrainzid, "jointanalysis", "pitch", part=1, version="0.1")
+#             loaded_pitch = json.load(open(pitchfile, 'r'))
+#             # If pitch extraction from jointanalysis failed then load it from audioanlysis
+#             if not loaded_pitch:
+#               pitchfile = util.docserver_get_filename(musicbrainzid, "audioanalysis", "pitch", part=1, version="0.1")
+#               loaded_pitch = json.load(open(pitchfile, 'r'))
+#         except util.NoFileException:
+#             pitchfile = util.docserver_get_filename(musicbrainzid, "audioanalysis", "pitch", part=1, version="0.1")
+#             loaded_pitch = json.load(open(pitchfile, 'r'))
+# 
+#         pitch = np.array(loaded_pitch['pitch'])
+# 
+#         audioSeyirAnalyzer = audioseyiranalyzer.AudioSeyirAnalyzer()
+# 
+#         # compute number of frames from some simple rules set by the user
+#         duration = pitch[-1][0]
+#         min_num_frames = 40
+#         max_frame_dur = 30
+#         frame_dur = duration/min_num_frames if duration/min_num_frames<=max_frame_dur else max_frame_dur
+#         frame_dur = int(5 * round(float(frame_dur)/5))  # round to 5 seconds
+#         if not frame_dur:
+#             frame_dur = 5
+# 
+#         seyir_features = audioSeyirAnalyzer.analyze(pitch, frame_dur = frame_dur, hop_ratio = 0.5)
+# 
+#         fimage = tempfile.NamedTemporaryFile(mode='w+', suffix=".png")
+#         plot(seyir_features, fimage.name)
+#         fimage.flush()
+#         fileContent = None
+#         with open(fimage.name, mode='rb') as file:
+#             file_content = file.read()
+#         if not file_content:
+#             raise Exception("No image generated")
+#         ret['smallfull'] = file_content
 
         return ret
 

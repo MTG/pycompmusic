@@ -27,7 +27,7 @@ import math
 
 from StringIO import StringIO
 
-from docserver import util
+# from docserver import util
 
 class AudioImages(compmusic.extractors.ExtractorModule):
     _version = "0.2"
@@ -78,8 +78,10 @@ class AudioImages(compmusic.extractors.ExtractorModule):
     def run(self, musicbrainzid, fname):
         baseFname, ext = os.path.splitext(os.path.basename(fname))
 
-        wavfname, created = util.docserver_get_wav_filename(musicbrainzid)
-
+#         wavfname, created = util.docserver_get_wav_filename(musicbrainzid)
+        wavfname = fname
+        created = False
+        
         panelWidth = 900		              # pixels
         panelHeight = 255		              # pixels
         zoomlevels = self._zoom_levels      	      # seconds
