@@ -46,7 +46,7 @@ class MakamAudioImage(AudioImages):
     def run(self, musicbrainzid, fname):
         max_pitch = util.docserver_get_filename(musicbrainzid, "tomatodunya", "pitchmax", part=1, version="0.1")
         pitch = json.load(open(max_pitch))
-
+ 
         self._f_min = pitch['min']
         self._f_max = pitch['max']
         ret = super(MakamAudioImage, self).run(musicbrainzid, fname)
@@ -61,11 +61,11 @@ class MakamAudioImage(AudioImages):
         except util.NoFileException:
             pitchfile = util.docserver_get_filename(musicbrainzid, "audioanalysis", "pitch", part=1, version="0.1")
             loaded_pitch = json.load(open(pitchfile, 'r'))
-
+ 
         pitch = np.array(loaded_pitch['pitch'])
-
+ 
         audioSeyirAnalyzer = audioseyiranalyzer.AudioSeyirAnalyzer()
-
+ 
         # compute number of frames from some simple rules set by the user
         duration = pitch[-1][0]
         min_num_frames = 40
@@ -74,9 +74,9 @@ class MakamAudioImage(AudioImages):
         frame_dur = int(5 * round(float(frame_dur)/5))  # round to 5 seconds
         if not frame_dur:
             frame_dur = 5
-
+ 
         seyir_features = audioSeyirAnalyzer.analyze(pitch, frame_dur = frame_dur, hop_ratio = 0.5)
-
+ 
         fimage = tempfile.NamedTemporaryFile(mode='w+', suffix=".png")
         plot(seyir_features, fimage.name)
         fimage.flush()
