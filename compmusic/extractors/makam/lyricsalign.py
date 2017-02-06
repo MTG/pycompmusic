@@ -28,7 +28,8 @@ import json
 import logging
 import subprocess
 from compmusic.extractors.makam.fetch_tools import getWork, fetchNoteOnsetFile,\
-    get_section_annotaions_dict, downloadSymbTr, get_section_metadata_dict
+    get_section_annotaions_dict, downloadSymbTr, get_section_metadata_dict,\
+    fetch_audio_wav
 parentDir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__) ), os.path.pardir,  os.path.pardir,  os.path.pardir,  os.path.pardir)) 
 pathAlignmentDur = os.path.join(parentDir, 'AlignmentDuration')
 
@@ -37,7 +38,7 @@ if pathAlignmentDur not in sys.path:
 
 
 import compmusic.extractors
-from docserver import util
+# from docserver import util
 from compmusic import dunya
 from compmusic.dunya import makam
 import tempfile
@@ -142,11 +143,11 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
             sys.exit("no initialmakampitch series could be downloaded.  ")
         
 #  on dunya server       
-        wavFileURI, created = util.docserver_get_wav_filename(musicbrainzid)
+#         wavFileURI, created = util.docserver_get_wav_filename(musicbrainzid)
 
 # on other computer
         
-#         wavFileURI = fetch_audio_wav(self.dataOutputDir,  musicbrainzid, Parameters.POLYPHONIC)
+        wavFileURI = fetch_audio_wav(self.dataOutputDir,  musicbrainzid, ParametersAlgo.POLYPHONIC)
                 
 
         
@@ -164,7 +165,7 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
         
         ret['alignedLyricsSyllables'] = totalDetectedTokenList
         ret['sectionlinks'] = sectionLinksDict
-#         print ret
+        print ret
         return ret
 
 
