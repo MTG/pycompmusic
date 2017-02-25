@@ -27,9 +27,10 @@ import urllib2
 import json
 import logging
 import subprocess
-from compmusic.extractors.makam.fetch_tools import getWork, fetchNoteOnsetFile,\
+from fetch_tools import getWork, fetchNoteOnsetFile,\
     get_section_annotaions_dict, downloadSymbTr, get_section_metadata_dict,\
     fetch_audio_wav
+from fetch_tools import ON_SERVER
 parentDir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__) ), os.path.pardir,  os.path.pardir,  os.path.pardir,  os.path.pardir)) 
 pathAlignmentDur = os.path.join(parentDir, 'AlignmentDuration')
 
@@ -38,7 +39,6 @@ if pathAlignmentDur not in sys.path:
 
 
 import compmusic.extractors
-# from docserver import util
 from compmusic import dunya
 from compmusic.dunya import makam
 import tempfile
@@ -47,19 +47,22 @@ import tempfile
 from align.LyricsAligner  import  LyricsAligner, stereoToMono, loadMakamRecording
 from align.ParametersAlgo import ParametersAlgo
 
-# if on server: 
 ParametersAlgo.FOR_MAKAM = 1 
 ParametersAlgo.POLYPHONIC = 1
 ParametersAlgo.WITH_DURATIONS = 1
 ParametersAlgo.DETECTION_TOKEN_LEVEL= 'syllables'
+WITH_SECTION_ANNOTATIONS = 1
+
+
+if ON_SERVER: # run with dunya-web on /srv/dunya
+    PATH_TO_HCOPY= '/srv/htkBuilt/bin/HCopy'
+
+else:
+    # run locally for testing
+    PATH_TO_HCOPY= '/usr/local/bin/HCopy'
 
 
 dunya.set_token("69ed3d824c4c41f59f0bc853f696a7dd80707779")
-
-WITH_SECTION_ANNOTATIONS = 1
-PATH_TO_HCOPY= '/usr/local/bin/HCopy'
-# ANDRES. On kora.s.upf.edu
-PATH_TO_HCOPY= '/srv/htkBuilt/bin/HCopy'
 
 class LyricsAlign(compmusic.extractors.ExtractorModule):
     _version = "0.1"
@@ -103,7 +106,7 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
 # on dunya server. API might be outdated, as some symbtr names are changed. better use line below
 #         symbtrtxtURI = util.docserver_get_symbtrtxt(w['mbid'])
         
-# on other computer. fetch directly from github
+#  prefer to fetch symbTr directly from github, as Dunya might not be updated with lyrics changes, etc.
         symbtrtxtURI = downloadSymbTr(w['mbid'], recIDoutputDir, self.hasSecondVerse)
         
         if not symbtrtxtURI:
@@ -142,11 +145,11 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
         except Exception,e:
             sys.exit("no initialmakampitch series could be downloaded.  ")
         
-#  on dunya server       
-#         wavFileURI, created = util.docserver_get_wav_filename(musicbrainzid)
-
-# on other computer
-        
+#         if ON_SERVER:
+#             from docserver import util
+#             wavFileURI, created = util.docserver_get_wav_filename(musicbrainzid)
+#         
+#         else:
         wavFileURI = fetch_audio_wav(self.dataOutputDir,  musicbrainzid, ParametersAlgo.POLYPHONIC)
                 
 

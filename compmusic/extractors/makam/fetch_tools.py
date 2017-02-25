@@ -17,23 +17,17 @@ print pathAlignmentDur
 if pathAlignmentDur not in sys.path:
     sys.path.append(pathAlignmentDur)
 
-
 import compmusic.extractors
 # from docserver import util
 from compmusic import dunya
 from compmusic.dunya import makam
 import tempfile
 
-
+ON_SERVER = False
 
 
 
 dunya.set_token("69ed3d824c4c41f59f0bc853f696a7dd80707779")
-
-WITH_SECTION_ANNOTATIONS = 1
-PATH_TO_HCOPY= '/usr/local/bin/HCopy'
-# ANDRES. On kora.s.upf.edu
-# PATH_TO_HCOPY= '/srv/htkBuilt/bin/HCopy'
 
 
 
@@ -53,8 +47,15 @@ def getWork( musicbrainzid):
 
 def fetch_audio_wav(data_output_Dir, musicbrainzid, for_polyphonic):
         '''
-        fetch the audio for the wav file from server or repo
+        fetch the audio wav file from dunya (in case of accompanied singing)
+        or repository (in case working with a capella)
+        
+        Parameters
+        --------------------
+        for_polyphonic:
+            accompanied singing flag
         '''
+    
         recIDoutputDir = os.path.join(data_output_Dir, musicbrainzid)        
         if not os.path.isdir(recIDoutputDir):
             os.mkdir(recIDoutputDir)
@@ -65,6 +66,7 @@ def fetch_audio_wav(data_output_Dir, musicbrainzid, for_polyphonic):
             wavFileURI_as_fetched = download_wav(musicbrainzid, recIDoutputDir)
 #             wavFileURI = wavFileURI_as_fetched
             os.rename(wavFileURI_as_fetched, wavFileURI)
+            os.remove(wavFileURI_as_fetched)
         else: # acapella expect file to be already provided in dir
            
             if not os.path.isfile(wavFileURI): 
@@ -78,18 +80,19 @@ def download_wav(musicbrainzid, outputDir):
         '''
         mp3FileURI = dunya.makam.download_mp3(musicbrainzid, outputDir)
     ###### mp3 to Wav: way 1
-    #         newName = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'test.mp3')
-    #         os.rename(mp3FileURI, newName )
-    #         mp3ToWav = Mp3ToWav()
-    #         wavFileURI = mp3ToWav.run('dummyMBID', newName)
+        newName = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'test.mp3')
+        os.rename(mp3FileURI, newName )
+        from compmusic.extractors.wav import Mp3ToWav
+        mp3ToWav = Mp3ToWav()
+        wavFileURI = mp3ToWav.run('dummyMBID', newName)
        
         ###### mp3 to Wav: way 2
-        wavFileURI = os.path.splitext(mp3FileURI)[0] + '.wav'
-        if os.path.isfile(wavFileURI):
-            return wavFileURI
-           
-        pipe = subprocess.Popen(['/usr/local/bin/ffmpeg', '-i', mp3FileURI, wavFileURI])
-        pipe.wait()
+#         wavFileURI = os.path.splitext(mp3FileURI)[0] + '.wav'
+#         if os.path.isfile(wavFileURI):
+#             return wavFileURI
+#            
+#         pipe = subprocess.Popen(['/usr/local/bin/ffmpeg', '-i', mp3FileURI, wavFileURI])
+#         pipe.wait()
    
         return wavFileURI
 
@@ -97,13 +100,14 @@ def download_wav(musicbrainzid, outputDir):
 def get_section_annotaions_dict( musicbrainzid, dir_, outputDir, hasSectionNumberDiscrepancy=False):
         '''
         fetch manual section annotations in audio from a repo.
-        Annotations made by sertan. They follow the division of score into sections decided by sertan.   
+        They follow the division of score into sections decided manually as described in the paper: 
+        S. Senturk et al. - Linking Scores and Audio Recordings in Makam Music of Turkey   
         '''
         URL = 'https://raw.githubusercontent.com/georgid/turkish_makam_section_dataset/master/' + dir_ + musicbrainzid + '.json'
         sectionAnnosURI = os.path.join(outputDir, musicbrainzid + '.json')
         fetchFileFromURL(URL, sectionAnnosURI)
        
-        if not hasSectionNumberDiscrepancy: # because score section metadata taken from sertan's github but section anno from georgis
+        if hasSectionNumberDiscrepancy and not ON_SERVER: # because score section metadata taken from sertan's github but section anno from georgis
             raw_input("make sure you audio section Annotation... has same section letters as score section Metadata ")
 
        
@@ -118,7 +122,7 @@ def get_section_metadata_dict( workmbid, dir_, outputDir, hasSectionNumberDiscre
         symbTrCompositionName = symbtr['name']
 #         symbTrCompositionName  = 'ussak--sarki--aksak--bu_aksam--tatyos_efendi'
        
-        if hasSectionNumberDiscrepancy:
+        if hasSectionNumberDiscrepancy and not ON_SERVER:
             raw_input("make sure you first run exendSectionLinks... then press key")
             # my derived with extendsecitonLinksnewNames metadata
             URL = 'https://raw.githubusercontent.com/georgid/turkish_makam_section_dataset/master/' + dir_ + workmbid + '.json'
