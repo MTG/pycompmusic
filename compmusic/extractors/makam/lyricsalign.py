@@ -145,12 +145,12 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
         except Exception,e:
             sys.exit("no initialmakampitch series could be downloaded.  ")
         
-#         if ON_SERVER:
-#             from docserver import util
-#             wavFileURI, created = util.docserver_get_wav_filename(musicbrainzid)
+        if ON_SERVER:
+            from docserver import util
+            wavFileURI, created = util.docserver_get_wav_filename(musicbrainzid)
 #         
-#         else:
-        wavFileURI = fetch_audio_wav(self.dataOutputDir,  musicbrainzid, ParametersAlgo.POLYPHONIC)
+        else:
+            wavFileURI = fetch_audio_wav(self.dataOutputDir,  musicbrainzid, ParametersAlgo.POLYPHONIC)
                 
 
         

@@ -23,7 +23,7 @@ from compmusic import dunya
 from compmusic.dunya import makam
 import tempfile
 
-ON_SERVER = False
+ON_SERVER = True
 
 
 
