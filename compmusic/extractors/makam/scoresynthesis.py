@@ -47,56 +47,56 @@ class ScoreSynthesis(compmusic.extractors.ExtractorModule):
         except compmusic.dunya.conn.HTTPError:
             print(workid, 'is not exist')
 
+if __name__ == "__main__":
+    token = ''
+    compmusic.dunya.conn.set_token(token)
 
-token = ''
-compmusic.dunya.conn.set_token(token)
+    # fetch symbtrs
+    symbtrs = compmusic.dunya.get_collection('makam-symbtr')['documents']
 
-# fetch symbtrs
-symbtrs = compmusic.dunya.get_collection('makam-symbtr')['documents']
-
-response = urllib2.urlopen('https://raw.githubusercontent.com/MTG/otmm_tuning_intonation_dataset/master/dataset.json')
-dataset = json.loads(response.read())
-MAKAMS = dataset.keys()
+    response = urllib2.urlopen('https://raw.githubusercontent.com/MTG/otmm_tuning_intonation_dataset/master/dataset.json')
+    dataset = json.loads(response.read())
+    MAKAMS = dataset.keys()
 
 
-synthesizer = ScoreSynthesis()
+    synthesizer = ScoreSynthesis()
 
-for xx, symbtr in enumerate(symbtrs):
-    workid = symbtr['external_identifier']
+    for xx, symbtr in enumerate(symbtrs):
+        workid = symbtr['external_identifier']
 
-    try:
-        # get metadata
-        metadata = json.loads(compmusic.dunya.docserver.file_for_document(
-            workid, 'scoreanalysis', 'metadata'))
-        makam = metadata['makam']['attribute_key']
+        try:
+            # get metadata
+            metadata = json.loads(compmusic.dunya.docserver.file_for_document(
+                workid, 'scoreanalysis', 'metadata'))
+            makam = metadata['makam']['attribute_key']
 
-        # fetch score
-        musicxml = compmusic.dunya.docserver.file_for_document(
-            recordingid=workid, thetype='score', subtype='xmlscore')
+            # fetch score
+            musicxml = compmusic.dunya.docserver.file_for_document(
+                recordingid=workid, thetype='score', subtype='xmlscore')
 
-        # read musicxml
-        (measures, makam, usul, form, time_sigs, keysig, work_title,
-         composer, lyricist, bpm, tnc_sym) = MusicXMLReader.read(musicxml)
+            # read musicxml
+            (measures, makam, usul, form, time_sigs, keysig, work_title,
+             composer, lyricist, bpm, tnc_sym) = MusicXMLReader.read(musicxml)
 
-        # check if it is in selected makams
-        if makam in MAKAMS:
-            recids = dataset[makam]
-            for recid in recids:
-                stablenotes = json.loads(compmusic.dunya.file_for_document(
-                    recid, 'audioanalysis', 'note_models'))
+            # check if it is in selected makams
+            if makam in MAKAMS:
+                recids = dataset[makam]
+                for recid in recids:
+                    stablenotes = json.loads(compmusic.dunya.file_for_document(
+                        recid, 'audioanalysis', 'note_models'))
 
-                synthesizer.set_settings(recid)
-                synthesizer.set_parameters(measures=measures, bpm=bpm,
-                                           stablenotes=stablenotes,
-                                           tnc_sym=tnc_sym)
-                print(xx, makam, recid)
-                synthesizer.run(recid, None)
-        print('aeu', makam)
+                    synthesizer.set_settings(recid)
+                    synthesizer.set_parameters(measures=measures, bpm=bpm,
+                                               stablenotes=stablenotes,
+                                               tnc_sym=tnc_sym)
+                    print(xx, makam, recid)
+                    synthesizer.run(recid, None)
+            print('aeu', makam)
 
-        synthesizer.set_settings()
-        synthesizer.set_parameters(measures=measures, bpm=bpm,
-                                   stablenotes=None, tnc_sym=tnc_sym)
-        synthesizer.run('aeu', None)
+            synthesizer.set_settings()
+            synthesizer.set_parameters(measures=measures, bpm=bpm,
+                                       stablenotes=None, tnc_sym=tnc_sym)
+            synthesizer.run('aeu', None)
 
-    except compmusic.dunya.conn.HTTPError:
-        print(workid, 'is not exist')
+        except compmusic.dunya.conn.HTTPError:
+            print(workid, 'is not exist')
