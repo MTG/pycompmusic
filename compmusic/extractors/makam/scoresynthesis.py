@@ -1,14 +1,16 @@
 import json
 import urllib2
 
+from compmusic import dunya
+from settings import token
 import compmusic.dunya.conn
-import compmusic.dunya.docserver
 import compmusic.extractors
 import pydub
 
 from symbtrsynthesis.adaptivesynthesizer import AdaptiveSynthesizer
 from symbtrsynthesis.musicxmlreader import MusicXMLReader
 
+dunya.set_token(token)
 
 class ScoreSynthesis(compmusic.extractors.ExtractorModule):
     _version = "0.1"
@@ -30,12 +32,12 @@ class ScoreSynthesis(compmusic.extractors.ExtractorModule):
     def run(self, workid, fname):
         try:
             # get metadata
-            metadata = json.loads(compmusic.dunya.docserver.file_for_document(
+            metadata = json.loads(dunya.docserver.file_for_document(
                 workid, 'scoreanalysis', 'metadata'))
             makam = metadata['makam']['attribute_key']
 
             # fetch score
-            musicxml = compmusic.dunya.docserver.file_for_document(
+            musicxml = dunya.docserver.file_for_document(
                 recordingid=workid, thetype='score', subtype='xmlscore')
 
             # read musicxml
