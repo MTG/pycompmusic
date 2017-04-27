@@ -14,6 +14,7 @@ from symbtrsynthesis.musicxmlreader import MusicXMLReader
 
 dunya.set_token(token)
 
+
 class ScoreSynthesis(compmusic.extractors.ExtractorModule):
     _version = "0.1"
     _sourcetype = "symbtrxml"
@@ -24,7 +25,8 @@ class ScoreSynthesis(compmusic.extractors.ExtractorModule):
             'onsets': {"extension": "json", "mimetype": "application/json"}
     }
 
-    def get_dataset(self):
+    @staticmethod
+    def get_dataset():
         response = urllib2.urlopen(
             'https://raw.githubusercontent.com/MTG/otmm_tuning_intonation'
             '_dataset/atli2017synthesis_fma/dataset.json')
@@ -36,6 +38,9 @@ class ScoreSynthesis(compmusic.extractors.ExtractorModule):
             workid, 'scoreanalysis', 'metadata'))
         makam = metadata['makam']['attribute_key']
 
+        # get symbtr slug
+        symbtr_slug = compmusic.dunya.makam.get_symbtr(workid)['name']
+
         # fetch score
         musicxml = compmusic.dunya.docserver.file_for_document(
             recordingid=workid, thetype='score', subtype='xmlscore')
@@ -46,7 +51,7 @@ class ScoreSynthesis(compmusic.extractors.ExtractorModule):
 
         # synthesize according to AEU theory
         mp3s = []
-        audio_temp, onsets = self.synth(bpm, measures, tnc_sym, work_title,
+        audio_temp, onsets = self.synth(bpm, measures, tnc_sym, symbtr_slug,
                                         None)
         mp3s.append(audio_temp)
 
@@ -61,7 +66,7 @@ class ScoreSynthesis(compmusic.extractors.ExtractorModule):
                 mbid = os.path.split(recid)[-1]
 
                 audio_temp, onsets = self.synth(
-                    bpm, measures, tnc_sym, work_title, mbid)
+                    bpm, measures, tnc_sym, symbtr_slug, mbid)
                 mp3s.append(audio_temp)
 
         return {'mp3': mp3s, 'onsets': onsets}
