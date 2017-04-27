@@ -45,6 +45,7 @@ class ScoreSynthesis(compmusic.extractors.ExtractorModule):
          composer, lyricist, bpm, tnc_sym) = MusicXMLReader.read(musicxml)
 
         # synthesize according to AEU theory
+        mp3s = []
         audio_temp, onsets = self.synth(bpm, measures, tnc_sym, work_title,
                                         None)
         mp3s.append(audio_temp)
