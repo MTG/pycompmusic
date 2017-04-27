@@ -56,7 +56,7 @@ class ScoreSynthesis(compmusic.extractors.ExtractorModule):
 
                 # load the tuning analysis
                 stablenotes = json.loads(compmusic.dunya.file_for_document(
-                    recid, 'audioanalysis', 'note_models'))
+                    mbid, 'audioanalysis', 'note_models'))
 
                 self.set_settings(recid)
 
