@@ -1,27 +1,27 @@
 import json
 import urllib2
 
+from compmusic import dunya
+from settings import token
 import compmusic.dunya.conn
-import compmusic.dunya.docserver
 import compmusic.extractors
 import pydub
 
 from symbtrsynthesis.adaptivesynthesizer import AdaptiveSynthesizer
 from symbtrsynthesis.musicxmlreader import MusicXMLReader
 
+dunya.set_token(token)
 
 class ScoreSynthesis(compmusic.extractors.ExtractorModule):
     _version = "0.1"
     _sourcetype = "symbtrxml"
     _slug = "synthesis"
+    _output = {
+            'mp3': {"extension": "mp3", "mimetype": "audio/mp3"},
+            'onsets': {"extension": "json", "mimetype": "application/json"}
+    }
 
     def set_settings(self, recid='aeu'):
-        self._output = {recid: {'mp3': {"extension": "mp3",
-                                        "mimetype": "audio/mp3"},
-                                'onsets': {"extension": "json",
-                                           "mimetype": "application/json"}}
-                        }
-
         response = urllib2.urlopen(
             'https://raw.githubusercontent.com/MTG/otmm_tuning_intonation_'
             'dataset/master/dataset.json')
@@ -58,7 +58,7 @@ class ScoreSynthesis(compmusic.extractors.ExtractorModule):
                 audio_mp3, onsets = self.synth(
                     bpm, measures, tnc_sym, stablenotes)
 
-        return {workid: {'mp3': audio_mp3, 'onsets': onsets}}
+        return {'mp3': audio_mp3, 'onsets': onsets}
 
         # except compmusic.dunya.conn.HTTPError:
         #     print(workid, 'does not exist')
