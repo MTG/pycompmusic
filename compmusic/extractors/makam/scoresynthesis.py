@@ -49,8 +49,12 @@ class ScoreSynthesis(compmusic.extractors.ExtractorModule):
 
         # check if it is in selected makams
         if makam in self.dataset.keys():
-            recids = os.path.split(self.dataset[makam])[-1]
+            recids = self.dataset[makam]
             for recid in recids:
+                # get the mbid from the musicbrainz url
+                mbid = os.path.split(recid)[-1]
+
+                # load the tuning analysis
                 stablenotes = json.loads(compmusic.dunya.file_for_document(
                     recid, 'audioanalysis', 'note_models'))
 
