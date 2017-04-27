@@ -71,7 +71,7 @@ class ScoreSynthesis(compmusic.extractors.ExtractorModule):
             stablenotes = json.loads(compmusic.dunya.file_for_document(
                 mbid, 'audioanalysis', 'note_models'))
         except dunya.conn.HTTPError:
-            stablenotes = None:
+            stablenotes = None
 
         # synthesize according to the given tuning
         audio_wav, onsets = AdaptiveSynthesizer.synth_from_tuning(
