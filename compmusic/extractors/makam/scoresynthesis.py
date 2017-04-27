@@ -22,7 +22,7 @@ class ScoreSynthesis(compmusic.extractors.ExtractorModule):
             'onsets': {"extension": "json", "mimetype": "application/json"}
     }
 
-    def set_settings(self, recid='aeu'):
+    def set_settings(self):
         response = urllib2.urlopen(
             'https://raw.githubusercontent.com/MTG/otmm_tuning_intonation_'
             'dataset/master/dataset.json')
@@ -58,8 +58,6 @@ class ScoreSynthesis(compmusic.extractors.ExtractorModule):
                 stablenotes = json.loads(compmusic.dunya.file_for_document(
                     mbid, 'audioanalysis', 'note_models'))
 
-                self.set_settings(recid)
-
                 audio_mp3, onsets = self.synth(
                     bpm, measures, tnc_sym, stablenotes)
 
@@ -70,13 +68,12 @@ class ScoreSynthesis(compmusic.extractors.ExtractorModule):
 
     def synth(self, bpm, measures, tnc_sym, stablenotes=None):
         # synthesize according to the given tuning
-        audio_karplus, onsets_karplus = AdaptiveSynthesizer. \
-            synth_from_tuning(measures=measures, bpm=bpm,
-                              stable_notes=stablenotes,
-                              tonic_sym=tnc_sym, synth_type='karplus',
-                              verbose=True)
+        audio_wav, onsets = AdaptiveSynthesizer.synth_from_tuning(
+            measures=measures, bpm=bpm, stable_notes=stablenotes,
+            tonic_sym=tnc_sym, synth_type='karplus', verbose=True)
+
         # mp3 conversion
-        audio_obj = pydub.AudioSegment(data=audio_karplus)
+        audio_obj = pydub.AudioSegment(data=audio_wav)
         audio_mp3 = audio_obj.export()
 
-        return audio_mp3, onsets_karplus
+        return audio_mp3, onsets
