@@ -23,14 +23,13 @@ class ScoreSynthesis(compmusic.extractors.ExtractorModule):
             'onsets': {"extension": "json", "mimetype": "application/json"}
     }
 
-    def set_settings(self):
+    def get_dataset(self):
         response = urllib2.urlopen(
-            'https://raw.githubusercontent.com/MTG/otmm_tuning_intonation_'
-            'dataset/master/dataset.json')
-        self.dataset = json.loads(response.read())
+            'https://raw.githubusercontent.com/MTG/otmm_tuning_intonation'
+            '_dataset/atli2017synthesis_fma/dataset.json')
+        return json.loads(response.read())
 
     def run(self, workid, fname):
-        # try:
         # get metadata
         metadata = json.loads(compmusic.dunya.docserver.file_for_document(
             workid, 'scoreanalysis', 'metadata'))
@@ -45,8 +44,10 @@ class ScoreSynthesis(compmusic.extractors.ExtractorModule):
          composer, lyricist, bpm, tnc_sym) = MusicXMLReader.read(musicxml)
 
         # synthesize according to AEU theory
-        self.set_settings()
         audio_mp3, onsets = self.synth(bpm, measures, tnc_sym, None)
+
+        # get the recordings in the tuning intonation dataset
+        dataset = self.get_dataset()
 
         # check if it is in selected makams
         if makam in self.dataset.keys():
@@ -64,9 +65,6 @@ class ScoreSynthesis(compmusic.extractors.ExtractorModule):
 
         return {'mp3': audio_mp3, 'onsets': onsets}
 
-        # except compmusic.dunya.conn.HTTPError:
-        #     print(workid, 'does not exist')
-
     def synth(self, bpm, measures, tnc_sym, stablenotes=None):
         # synthesize according to the given tuning
         audio_wav, onsets = AdaptiveSynthesizer.synth_from_tuning(
@@ -82,5 +80,5 @@ class ScoreSynthesis(compmusic.extractors.ExtractorModule):
 
         audio = open(tmpname, "rb").read()
         os.unlink(tmpname)
-        
+
         return audio, onsets
