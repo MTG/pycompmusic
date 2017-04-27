@@ -54,8 +54,8 @@ class ScoreSynthesis(compmusic.extractors.ExtractorModule):
         dataset = self.get_dataset()
 
         # check if it is in selected makams
-        if makam in self.dataset.keys():
-            recids = self.dataset[makam]
+        if makam in dataset.keys():
+            recids = dataset[makam]
             for recid in recids:
                 # get the mbid from the musicbrainz url
                 mbid = os.path.split(recid)[-1]
