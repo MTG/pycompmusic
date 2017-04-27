@@ -61,7 +61,7 @@ class ScoreSynthesis(compmusic.extractors.ExtractorModule):
                 mbid = os.path.split(recid)[-1]
 
                 audio_temp, onsets = self.synth(
-                    bpm, measures, tnc_sym, stablenotes)
+                    bpm, measures, tnc_sym, work_title, mbid)
                 mp3s.append(audio_temp)
 
         return {'mp3': mp3s, 'onsets': onsets}
@@ -91,7 +91,7 @@ class ScoreSynthesis(compmusic.extractors.ExtractorModule):
         else:
             comment = 'Synth wrt %s' % mbid
 
-        tags = {'title': 'work_title', 'comments': comment}
+        tags = {'title': work_title, 'comments': comment}
         audio_obj.export(tmpname, format='mp3', tags=tags)
 
         audio = open(tmpname, "rb").read()
