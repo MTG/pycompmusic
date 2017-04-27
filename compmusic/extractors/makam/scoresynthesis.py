@@ -1,6 +1,7 @@
 import json
 import urllib2
 import os
+import tempfile
 
 from compmusic import dunya
 from settings import token
@@ -74,6 +75,12 @@ class ScoreSynthesis(compmusic.extractors.ExtractorModule):
 
         # mp3 conversion
         audio_obj = pydub.AudioSegment(data=audio_wav)
-        audio_mp3 = audio_obj.export()
 
-        return audio_mp3, onsets
+        fp, tmpname = tempfile.mkstemp(".mp3")
+        os.close(fp)
+        audio_obj.export(tmpname, format='mp3')
+
+        audio = open(tmpname, "rb").read()
+        os.unlink(tmpname)
+        
+        return audio, onsets
