@@ -19,7 +19,8 @@ class ScoreSynthesis(compmusic.extractors.ExtractorModule):
     _sourcetype = "symbtrxml"
     _slug = "synthesis"
     _output = {
-            'mp3': {"extension": "mp3", "mimetype": "audio/mp3"},
+            'mp3': {"extension": "mp3", "mimetype": "audio/mp3",
+                    "parts": True},
             'onsets': {"extension": "json", "mimetype": "application/json"}
     }
 
@@ -44,7 +45,9 @@ class ScoreSynthesis(compmusic.extractors.ExtractorModule):
          composer, lyricist, bpm, tnc_sym) = MusicXMLReader.read(musicxml)
 
         # synthesize according to AEU theory
-        audio_mp3, onsets = self.synth(bpm, measures, tnc_sym, None)
+        audio_temp, onsets = self.synth(bpm, measures, tnc_sym, work_title,
+                                        None)
+        mp3s.append(audio_temp)
 
         # get the recordings in the tuning intonation dataset
         dataset = self.get_dataset()
@@ -56,16 +59,20 @@ class ScoreSynthesis(compmusic.extractors.ExtractorModule):
                 # get the mbid from the musicbrainz url
                 mbid = os.path.split(recid)[-1]
 
-                # load the tuning analysis
-                stablenotes = json.loads(compmusic.dunya.file_for_document(
-                    mbid, 'audioanalysis', 'note_models'))
-
-                audio_mp3, onsets = self.synth(
+                audio_temp, onsets = self.synth(
                     bpm, measures, tnc_sym, stablenotes)
+                mp3s.append(audio_temp)
 
-        return {'mp3': audio_mp3, 'onsets': onsets}
+        return {'mp3': mp3s, 'onsets': onsets}
 
-    def synth(self, bpm, measures, tnc_sym, stablenotes=None):
+    @staticmethod
+    def synth(bpm, measures, tnc_sym, work_title, mbid=None):
+        try:  # load the tuning
+            stablenotes = json.loads(compmusic.dunya.file_for_document(
+                mbid, 'audioanalysis', 'note_models'))
+        except dunya.conn.HTTPError:
+            stablenotes = None:
+
         # synthesize according to the given tuning
         audio_wav, onsets = AdaptiveSynthesizer.synth_from_tuning(
             measures=measures, bpm=bpm, stable_notes=stablenotes,
@@ -76,7 +83,15 @@ class ScoreSynthesis(compmusic.extractors.ExtractorModule):
 
         fp, tmpname = tempfile.mkstemp(".mp3")
         os.close(fp)
-        audio_obj.export(tmpname, format='mp3')
+
+        # export mp3
+        if mbid is None:
+            comment = 'Synth wrt AEU'
+        else:
+            comment = 'Synth wrt %s' % mbid
+
+        tags = {'title': 'work_title', 'comments': comment}
+        audio_obj.export(tmpname, format='mp3', tags=tags)
 
         audio = open(tmpname, "rb").read()
         os.unlink(tmpname)
