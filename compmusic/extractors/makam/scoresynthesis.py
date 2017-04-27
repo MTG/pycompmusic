@@ -1,5 +1,6 @@
 import json
 import urllib2
+import os
 
 from compmusic import dunya
 from settings import token
@@ -48,7 +49,7 @@ class ScoreSynthesis(compmusic.extractors.ExtractorModule):
 
         # check if it is in selected makams
         if makam in self.dataset.keys():
-            recids = self.dataset[makam]
+            recids = os.path.split(self.dataset[makam])[-1]
             for recid in recids:
                 stablenotes = json.loads(compmusic.dunya.file_for_document(
                     recid, 'audioanalysis', 'note_models'))
