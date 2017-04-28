@@ -41,13 +41,9 @@ class ScoreSynthesis(compmusic.extractors.ExtractorModule):
         # get symbtr slug
         symbtr_slug = compmusic.dunya.makam.get_symbtr(workid)['name']
 
-        # fetch score
-        musicxml = compmusic.dunya.docserver.file_for_document(
-            recordingid=workid, thetype='score', subtype='xmlscore')
-
         # read musicxml
         (measures, makam_dummy, usul, form, time_sigs, keysig, work_title,
-         composer, lyricist, bpm, tnc_sym) = MusicXMLReader.read(musicxml)
+         composer, lyricist, bpm, tnc_sym) = MusicXMLReader.read(fname)
 
         # synthesize according to AEU theory
         mp3s = []
