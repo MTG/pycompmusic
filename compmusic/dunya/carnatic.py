@@ -273,7 +273,9 @@ def download_concert(concert_id, location):
     for r in concert["recordings"]:
         rid = r["mbid"]
         title = r["title"]
+        disc = r["disc"]
+        disctrack = r["disctrack"]
         contents = docserver.get_mp3(rid)
-        name = "%s - %s.mp3" % (artists, title)
+        name = "%s - %s - %s - %s.mp3" % (disc, disctrack, artists, title)
         path = os.path.join(concertdir, name)
         open(path, "wb").write(contents)
