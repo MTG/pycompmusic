@@ -1,6 +1,7 @@
-import os
-import requests
+import errno
 import logging
+import os
+
 logger = logging.getLogger("dunya")
 
 import conn
@@ -246,7 +247,7 @@ def download_mp3(recordingid, location):
     open(path, "wb").write(contents)
     return name
 
-def download_concert(concertid, location):
+def download_concert(concert_id, location):
     """Download the mp3s of all recordings in a concert and save
     them to the specificed directory.
 
@@ -261,7 +262,15 @@ def download_concert(concertid, location):
     artists = " and ".join([a["name"] for a in concert["concert_artists"]])
     concertname = concert["title"]
     concertdir = os.path.join(location, "%s - %s" % (artists, concertname))
-    for r in concert["tracks"]:
+    try:
+        os.makedirs(concertdir)
+    except OSError as exc:
+        if exc.errno == errno.EEXIST and os.path.isdir(concertdir):
+            pass
+        else:
+            raise
+
+    for r in concert["recordings"]:
         rid = r["mbid"]
         title = r["title"]
         contents = docserver.get_mp3(rid)
