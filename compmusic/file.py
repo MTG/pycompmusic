@@ -14,13 +14,14 @@
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
 
-import os
 import logging
+import os
 
 eyed3api = None
 try:
     import eyed3
     import eyed3.mp3
+
     eyed3.utils.log.log.setLevel(logging.ERROR)
     eyed3api = "new"
 except ImportError:
@@ -31,6 +32,7 @@ except AttributeError:
 
 try:
     import eyeD3
+
     eyed3api = "old"
 except ImportError:
     pass
@@ -38,9 +40,11 @@ except ImportError:
 if not eyed3api:
     raise ImportError("Cannot find eyed3 or eyeD3")
 
+
 def has_musicbrainz_tags(fname):
     """Return true if a file has musicbrainz tags set."""
     pass
+
 
 def get_coverart(fname):
     """Get the embedded coverart, or None.
@@ -55,8 +59,10 @@ def get_coverart(fname):
     else:
         return None
 
+
 def is_mp3_file(fname):
     return os.path.isfile(fname) and fname.lower().endswith(".mp3")
+
 
 def _mb_id(tag, key):
     if eyed3api == "old":
@@ -69,12 +75,15 @@ def _mb_id(tag, key):
     else:
         return None
 
+
 def mb_release_id(tag):
     """Return the Musicbrainz release ID in an eyed3 tag"""
     return _mb_id(tag, "MusicBrainz Album Id")
 
+
 def mb_artist_id(tag):
     return _mb_id(tag, "MusicBrainz Artist Id")
+
 
 def mb_recording_id(tag):
     if eyed3api == "old":
@@ -87,6 +96,7 @@ def mb_recording_id(tag):
             d = i.data.split("\0")
             return d[-1]
     return None
+
 
 def file_metadata(fname):
     """ Get the file metadata for an mp3 file.
@@ -125,5 +135,5 @@ def file_metadata(fname):
                      "releaseid": releaseid,
                      "artistid": artistid,
                      "recordingid": recordingid
-                    }
-           }
+                     }
+            }

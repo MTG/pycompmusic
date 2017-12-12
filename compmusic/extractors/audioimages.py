@@ -14,20 +14,17 @@
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
 
-import compmusic.extractors
-import numpy as np
-import imagelib.wav2png as w2png
-import logging
 import collections as coll
-import wave
 import os
 import tempfile
-from PIL import Image
-import math
-
+import wave
 from StringIO import StringIO
 
 from docserver import util
+
+import compmusic.extractors
+import imagelib.wav2png as w2png
+
 
 class AudioImages(compmusic.extractors.ExtractorModule):
     _version = "0.2"
@@ -37,18 +34,18 @@ class AudioImages(compmusic.extractors.ExtractorModule):
     __depends = "wav"
 
     _output = {"waveform4": {"extension": "png", "mimetype": "image/png", "parts": True},
-            "spectrum4": {"extension": "png", "mimetype": "image/png", "parts": True},
-            "waveform8": {"extension": "png", "mimetype": "image/png", "parts": True},
-            "spectrum8": {"extension": "png", "mimetype": "image/png", "parts": True},
-            "waveform16": {"extension": "png", "mimetype": "image/png", "parts": True},
-            "spectrum16": {"extension": "png", "mimetype": "image/png", "parts": True},
-            "waveform32": {"extension": "png", "mimetype": "image/png", "parts": True},
-            "spectrum32": {"extension": "png", "mimetype": "image/png", "parts": True},
-            "smallfull": {"extension": "png", "mimetype": "image/png"}
-        }
+               "spectrum4": {"extension": "png", "mimetype": "image/png", "parts": True},
+               "waveform8": {"extension": "png", "mimetype": "image/png", "parts": True},
+               "spectrum8": {"extension": "png", "mimetype": "image/png", "parts": True},
+               "waveform16": {"extension": "png", "mimetype": "image/png", "parts": True},
+               "spectrum16": {"extension": "png", "mimetype": "image/png", "parts": True},
+               "waveform32": {"extension": "png", "mimetype": "image/png", "parts": True},
+               "spectrum32": {"extension": "png", "mimetype": "image/png", "parts": True},
+               "smallfull": {"extension": "png", "mimetype": "image/png"}
+               }
 
-    _zoom_levels =  [4, 8, 16, 32]
-    _f_min =  None
+    _zoom_levels = [4, 8, 16, 32]
+    _f_min = None
     _f_max = None
     _fft_size = 31
     _scale_exp = None
@@ -79,10 +76,10 @@ class AudioImages(compmusic.extractors.ExtractorModule):
         baseFname, ext = os.path.splitext(os.path.basename(fname))
 
         wavfname, created = util.docserver_get_wav_filename(musicbrainzid)
-        
-        panelWidth = 900		              # pixels
-        panelHeight = 255		              # pixels
-        zoomlevels = self._zoom_levels      	      # seconds
+
+        panelWidth = 900  # pixels
+        panelHeight = 255  # pixels
+        zoomlevels = self._zoom_levels  # seconds
         options = coll.namedtuple('options', 'image_height fft_size image_width f_min f_max scale_exp pallete')
         options.image_height = panelHeight
         options.fft_size = self._fft_size
@@ -90,8 +87,6 @@ class AudioImages(compmusic.extractors.ExtractorModule):
         options.f_max = self._f_max
         options.pallete = self._pallete
         options.scale_exp = self._scale_exp
-
-
 
         ret = {}
         for zoom in zoomlevels:
@@ -115,7 +110,7 @@ class AudioImages(compmusic.extractors.ExtractorModule):
 
             sumframes = 0
             while sumframes < totalframes:
-                if sumframes + framesperimage > totalframes :
+                if sumframes + framesperimage > totalframes:
                     remaining_frames = (totalframes - sumframes)
                     options.image_width = options.image_width * remaining_frames / framesperimage
                 else:
@@ -155,4 +150,3 @@ class AudioImages(compmusic.extractors.ExtractorModule):
             os.unlink(wavfname)
 
         return ret
-

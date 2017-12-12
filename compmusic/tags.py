@@ -16,10 +16,9 @@
 # this program.  If not, see http://www.gnu.org/licenses/
 
 
-import sys
-import os
-import re
 import logging
+import re
+
 logging.basicConfig(level=logging.INFO)
 
 reraaga = r"\braa?gam?[0-9]*\b"
@@ -31,58 +30,71 @@ rehindustaniform = r"\bform([0-9])?:? ?(.*)$"
 recarnaticform = r"\bform([0-9])?:? ?(.+)$"
 relaya = r"\blaya([0-9])?:? ?(.*)\b"
 
+
 def has_carnatic_form(tag):
     """ Carnatic form tag """
     return re.search(recarnaticform, tag) is not None
+
 
 def has_raaga(tag):
     """ Carnatic raaga tag """
     return re.search(reraaga, tag) is not None
 
+
 def has_taala(tag):
     """ Carnatic taala tag """
     return re.search(retaala, tag) is not None
+
 
 def has_raag(tag):
     """ Hindustani raag tag """
     return re.search(reraag, tag) is not None
 
+
 def has_taal(tag):
     """ Hindustani taal tag """
     return re.search(retaal, tag) is not None
+
 
 def has_laya(tag):
     """ Hindustani laya tag """
     return re.search(relaya, tag) is not None
 
+
 def has_section(tag):
     """ Hindustani section tag """
     return re.search(resection, tag) is not None
+
 
 def has_makam(tag):
     """ Makam tag """
     remakam = r"\bmakam([0-9]|\b)"
     return re.search(remakam, tag) is not None
 
+
 def has_usul(tag):
     """ Makam usul tag """
     reusul = r"\busul([0-9]|\b)"
     return re.search(reusul, tag) is not None
+
 
 def has_makam_form(tag):
     """ Makam form """
     reform = r"\bform([0-9]|\b)"
     return re.search(reform, tag) is not None
 
+
 def has_hindustani_form(tag):
     """ Hindustani form """
     return re.search(rehindustaniform, tag) is not None
+
 
 def parse_raaga(raaga):
     raaga = raaga.strip()
     raaga = re.sub(r" ?: ?", " ", raaga)
     raaga = re.sub(reraaga, "", raaga)
     return raaga.strip()
+
 
 def parse_taala(taala):
     taala = taala.strip()
@@ -96,8 +108,8 @@ def parse_makam(makam):
     remakam = r"\bmakam ?([0-9])? ?:? ?(.*)\b"
     return _parse_num_and_value(remakam, makam)
 
-def _parse_num_and_value(expression, target):
 
+def _parse_num_and_value(expression, target):
     # use re.U flag to make \b match unicode char classess too
     match = re.search(expression, target, re.U)
     if match:
@@ -111,10 +123,12 @@ def _parse_num_and_value(expression, target):
     else:
         return (None, None)
 
+
 def parse_usul(usul):
     usul = usul.strip()
     reusul = r"\busul ?([0-9])? ?:? ?(.*)\b"
     return _parse_num_and_value(reusul, usul)
+
 
 def parse_makam_form(form):
     form = form.strip()
@@ -127,33 +141,38 @@ def parse_raag(raag):
     reraag = r"\braa?ga?([0-9])?:? ?(.*)\b"
     return _parse_num_and_value(reraag, raag)
 
+
 def parse_taal(taal):
     retaal = r"\btaa?la?([0-9])?:? ?(.*)\b"
     taal = taal.strip()
     return _parse_num_and_value(retaal, taal)
 
+
 def parse_hindustani_form(form):
     form = form.strip()
     return _parse_num_and_value(rehindustaniform, form)
+
 
 def parse_carnatic_form(form):
     form = form.strip()
     return _parse_num_and_value(recarnaticform, form)
 
+
 def parse_laya(laya):
     laya = laya.strip()
     return _parse_num_and_value(relaya, laya)
+
 
 def group_makam_tags(makams, forms, usuls):
     makams.sort(key=lambda i: i[0])
     forms.sort(key=lambda i: i[0])
     usuls.sort(key=lambda i: i[0])
     max_size = max(makams[-1][0] if makams else 0,
-            forms[-1][0] if forms else 0,
-            usuls[-1][0] if usuls else 0)
+                   forms[-1][0] if forms else 0,
+                   usuls[-1][0] if usuls else 0)
 
     ret = []
-    for i in range(max_size+1):
+    for i in range(max_size + 1):
         m = makams[0] if makams else (None, None)
         f = forms[0] if forms else (None, None)
         u = usuls[0] if usuls else (None, None)

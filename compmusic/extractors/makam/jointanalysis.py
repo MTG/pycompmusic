@@ -23,23 +23,21 @@
 # Turkey.
 
 from __future__ import print_function
-import os
-import struct
-import json
-import scipy.io
+
 import cStringIO
-import warnings
-import numpy as np
+import json
+import struct
 
 import compmusic.extractors.makam.pitch
+import numpy as np
+from docserver import util
+from seyiranalyzer.audioseyiranalyzer import AudioSeyirAnalyzer
 from tomato.audio.audioanalyzer import AudioAnalyzer
 from tomato.joint.jointanalyzer import JointAnalyzer
-from seyiranalyzer.audioseyiranalyzer import AudioSeyirAnalyzer
-from docserver import util
 
 from compmusic import dunya
-from compmusic.dunya import makam
 from settings import token
+
 dunya.set_token(token)
 
 
@@ -48,35 +46,35 @@ class JointAnalysis(compmusic.extractors.ExtractorModule):
     _sourcetype = "mp3"
     _slug = "jointanalysis"
     _output = {
-          "works_intervals": {"extension": "json", "mimetype": "application/json"},
-          "tonic": {"extension": "json", "mimetype": "application/json"},
-          "pitch": {"extension": "json", "mimetype": "application/json"},
-          "melodic_progression": {"extension": "json", "mimetype": "application/json"},
-          "tempo": {"extension": "json", "mimetype": "application/json"},
-          "pitch_distribution": {"extension": "json", "mimetype": "application/json"},
-          "pitch_class_distribution": {"extension": "json", "mimetype": "application/json"},
-          "transposition": {"extension": "json", "mimetype": "application/json"},
-          "makam": {"extension": "json", "mimetype": "application/json"},
-          "note_models": {"extension": "json", "mimetype": "application/json"},
-          "notes": {"extension": "json", "mimetype": "application/json"},
-          "sections": {"extension": "json", "mimetype": "application/json"},
+        "works_intervals": {"extension": "json", "mimetype": "application/json"},
+        "tonic": {"extension": "json", "mimetype": "application/json"},
+        "pitch": {"extension": "json", "mimetype": "application/json"},
+        "melodic_progression": {"extension": "json", "mimetype": "application/json"},
+        "tempo": {"extension": "json", "mimetype": "application/json"},
+        "pitch_distribution": {"extension": "json", "mimetype": "application/json"},
+        "pitch_class_distribution": {"extension": "json", "mimetype": "application/json"},
+        "transposition": {"extension": "json", "mimetype": "application/json"},
+        "makam": {"extension": "json", "mimetype": "application/json"},
+        "note_models": {"extension": "json", "mimetype": "application/json"},
+        "notes": {"extension": "json", "mimetype": "application/json"},
+        "sections": {"extension": "json", "mimetype": "application/json"},
     }
 
     def run(self, musicbrainzid, fname):
         output = {
-                "works_intervals": {},
-                "tonic": {},
-                "pitch":{},
-                "melodic_progression": {},
-                "tempo": {},
-                "pitch_distribution": {},
-                "pitch_class_distribution": {},
-                "transposition": {},
-                "makam": {},
-                "note_models": {},
-                "notes": {},
-                "sections": {}
-                }
+            "works_intervals": {},
+            "tonic": {},
+            "pitch": {},
+            "melodic_progression": {},
+            "tempo": {},
+            "pitch_distribution": {},
+            "pitch_class_distribution": {},
+            "transposition": {},
+            "makam": {},
+            "note_models": {},
+            "notes": {},
+            "sections": {}
+        }
 
         audioAnalyzer = AudioAnalyzer(verbose=True)
         jointAnalyzer = JointAnalyzer(verbose=True)
@@ -94,16 +92,16 @@ class JointAnalysis(compmusic.extractors.ExtractorModule):
                 score_features_file = util.docserver_get_filename(w['mbid'], "scoreanalysis", "metadata", version="0.1")
                 score_features = json.load(open(score_features_file))
                 joint_features, features = jointAnalyzer.analyze(
-                            symbtr_file, score_features, fname, audio_pitch)
+                    symbtr_file, score_features, fname, audio_pitch)
 
                 # redo some steps in audio analysis
                 features = audioAnalyzer.analyze(
-                            metadata=False, pitch=False, **features)
+                    metadata=False, pitch=False, **features)
 
                 # get a summary of the analysis
                 summarized_features = jointAnalyzer.summarize(
-                            score_features=score_features, joint_features=joint_features,
-                                score_informed_audio_features=features)
+                    score_features=score_features, joint_features=joint_features,
+                    score_informed_audio_features=features)
                 audio_pitch = summarized_features['audio'].get('pitch', None)
 
                 pitch = summarized_features['audio'].get('pitch', None)
@@ -125,7 +123,7 @@ class JointAnalysis(compmusic.extractors.ExtractorModule):
                 if pitch_class_distribution:
                     pitch_class_distribution = pitch_class_distribution.to_dict()
                 if note_models:
-                   note_models = to_dict(note_models)
+                    note_models = to_dict(note_models)
                 if melodic_progression:
                     AudioSeyirAnalyzer.serialize(melodic_progression)
 
@@ -153,6 +151,7 @@ class JointAnalysis(compmusic.extractors.ExtractorModule):
 
         return output
 
+
 def to_dict(note_models):
     ret = {}
     for key in note_models.keys():
@@ -171,14 +170,16 @@ def to_dict(note_models):
         ret[key]['notes'] = notes
     return ret
 
+
 class TomatoDunyaMakam(compmusic.extractors.ExtractorModule):
     _version = "0.1"
     _sourcetype = "mp3"
     _slug = "tomatodunya"
     _output = {
-          "pitch": {"extension": "dat", "mimetype": "application/octet-stream"},
-          "pitchmax": { "extension": "json", "mimetype": "application/json"},
+        "pitch": {"extension": "dat", "mimetype": "application/octet-stream"},
+        "pitchmax": {"extension": "json", "mimetype": "application/json"},
     }
+
     def run(self, musicbrainzid, fname):
         audioAnalyzer = AudioAnalyzer(verbose=True)
         jointAnalyzer = JointAnalyzer(verbose=True)
@@ -198,16 +199,16 @@ class TomatoDunyaMakam(compmusic.extractors.ExtractorModule):
                 score_features_file = util.docserver_get_filename(w['mbid'], "scoreanalysis", "metadata", version="0.1")
                 score_features = json.load(open(score_features_file))
                 joint_features, features = jointAnalyzer.analyze(
-                            symbtr_file, score_features, fname, audio_pitch)
+                    symbtr_file, score_features, fname, audio_pitch)
 
                 # redo some steps in audio analysis
                 features = audioAnalyzer.analyze(
-                            metadata=False, pitch=False, **features)
+                    metadata=False, pitch=False, **features)
 
                 # get a summary of the analysis
                 summarized_features = jointAnalyzer.summarize(
-                            score_features=score_features, joint_features=joint_features,
-                                score_informed_audio_features=features)
+                    score_features=score_features, joint_features=joint_features,
+                    score_informed_audio_features=features)
 
                 joint_pitch = summarized_features['audio'].get('pitch', None)
 
@@ -221,7 +222,7 @@ class TomatoDunyaMakam(compmusic.extractors.ExtractorModule):
         # pitches as bytearray
         packed_pitch = cStringIO.StringIO()
         max_pitch = max(pitch)
-        temp = [p for p in pitch if p>0]
+        temp = [p for p in pitch if p > 0]
         min_pitch = min(temp)
 
         height = 255

@@ -14,16 +14,20 @@
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
 
-import log
 import traceback
 from warnings import warn
+
+import log
+
 try:
     import redis
 except ImportError:
     pass
 
+
 class Settings(dict):
     __getattr__ = dict.__getitem__
+
 
 class ExtractorModule(object):
     """ A module that runs on a file and returns an output.
@@ -124,7 +128,6 @@ class ExtractorModule(object):
             self.logger.error(traceback.format_exc())
             raise
 
-
     def process_document(self, docid, sourcefileid, musicbrainzid, fname):
         """ Set up some class state and call run. This should
         never be called publicly """
@@ -155,4 +158,3 @@ class ExtractorModule(object):
         """Add some global settings"""
         for k, v in kwargs.items():
             self.settings[k] = v
-

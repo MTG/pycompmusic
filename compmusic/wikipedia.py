@@ -15,9 +15,11 @@
 # this program.  If not, see http://www.gnu.org/licenses/
 
 """Tools to download Articles and Images from Wikipedia"""
-import requests
 import json
+
 import mwparserfromhell
+import requests
+
 
 def _make_wp_query(params):
     url = "http://en.wikipedia.org/w/api.php"
@@ -25,9 +27,10 @@ def _make_wp_query(params):
     response = requests.get(url, headers=headers, params=params)
     return json.loads(response.text)
 
+
 def _get_extract(page):
     params = {"action": "query", "prop": "extracts", "exintro": "1",
-            "format": "json", "redirects": "1", "titles": page}
+              "format": "json", "redirects": "1", "titles": page}
     extract = _make_wp_query(params)
     pages = extract.get("query", {}).get("pages", {})
     if pages:
@@ -38,12 +41,14 @@ def _get_extract(page):
         return page.get("extract")
     return None
 
+
 def download_image(imgname):
     """ Take the name of an image on Wikipedia and return the contents of the image """
     if imgname.startswith("http://"):
         imgurl = imgname
     else:
-        args = {"format": "json", "action": "query", "prop": "imageinfo", "iiprop":"url", "titles": "File:%s" % imgname}
+        args = {"format": "json", "action": "query", "prop": "imageinfo", "iiprop": "url",
+                "titles": "File:%s" % imgname}
         data = _make_wp_query(args)
         imgurl = data["query"]["pages"].values()[0]
         if "imageinfo" in imgurl:
@@ -54,6 +59,7 @@ def download_image(imgname):
     headers = {'User-Agent': 'CompMusic-bot (http://compmusic.upf.edu)'}
     resp = requests.get(imgurl, headers=headers)
     return resp.content
+
 
 def load_article(title):
     """ Get the structure of a wikipedia article with this title """
@@ -66,6 +72,7 @@ def load_article(title):
         return parsed
     else:
         return None
+
 
 def _get_image_from_tree(tree):
     """ See if a document tree (from `load_article`) has an infobox with an
@@ -81,6 +88,7 @@ def _get_image_from_tree(tree):
                     return img.value.strip()
     return None
 
+
 def get_artist_details(name):
     article = load_article(name)
     if not article:
@@ -93,6 +101,7 @@ def get_artist_details(name):
     intro = _get_extract(name)
     return img_contents, intro
 
+
 def search(title):
     """ Perform a title search and return the first matching page """
     args = {"format": "json", "action": "query", "list": "search", "srsearch": title}
@@ -102,4 +111,3 @@ def search(title):
         title = results[0]["title"]
         return title
     return None
-

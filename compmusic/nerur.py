@@ -1,8 +1,7 @@
 from __future__ import division
 
-import json
 import requests
-from numpy import loadtxt, unique
+from numpy import unique
 
 
 def parse_nerur(home_url='http://www.nerur.com/music/ragalist.php'):
@@ -13,12 +12,12 @@ def parse_nerur(home_url='http://www.nerur.com/music/ragalist.php'):
     end_ind = 0
     for i in xrange(len(lines)):
         if 'mElakartha rAgAs' in lines[i]:
-            start_ind = i+1
+            start_ind = i + 1
         if start_ind != 0:
             if len(unique(list(lines[i]))) == 1:
                 end_ind = i
                 break
-    raagas['melakarta'] = lines[start_ind+1: end_ind-1]
+    raagas['melakarta'] = lines[start_ind + 1: end_ind - 1]
 
     janya_flag = False
     janya_lines = []

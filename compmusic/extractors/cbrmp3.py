@@ -14,15 +14,11 @@
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
 
-import compmusic.extractors
-import numpy as np
-
-import essentia.standard
 import subprocess
-
 import tempfile
-import os
-import yaml
+
+import compmusic.extractors
+
 
 class CbrMp3(compmusic.extractors.ExtractorModule):
     """ Convert an mp3 file to a constant bitrate if needed """
@@ -35,7 +31,7 @@ class CbrMp3(compmusic.extractors.ExtractorModule):
     def run(self, musicbrainzid, fname):
         f = eyed3.load(fname)
         vbr, brate = f.info.bit_rate
-        #if vbr or brate > 128:
+        # if vbr or brate > 128:
         # TODO: Could also downgrade all high bitrate audio to 128k
         if vbr:
             fp, tmpname = tempfile.mkstemp(".mp3")

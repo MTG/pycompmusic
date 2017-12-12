@@ -19,27 +19,28 @@
 
 from __future__ import division
 from __future__ import print_function
-import yaml
-import numpy as np
+
 import DAO as dao
-import stringDuplicates as sd
 import intonationLib as iL
+import numpy as np
+import stringDuplicates as sd
+import yaml
 
 homeDir = "/media/CompMusic/audio/users/gkoduri/"
-annotationDir = homeDir+"data/Features/annotations/"
-pitchDir = homeDir+"data/Features/pitch/"
+annotationDir = homeDir + "data/Features/annotations/"
+pitchDir = homeDir + "data/Features/pitch/"
 
 db = dao.DAO()
 
 
-#Functions to update raagaClusters
+# Functions to update raagaClusters
 
 def getTag(mbid, tag="raaga"):
     res = db.getRecordingInfo("mbid", mbid)
     newterm = ""
     if res != "empty" and "tags" in res.keys():
         if tag == "raaga":
-            #raaga can be labelled as raaga or unknown!
+            # raaga can be labelled as raaga or unknown!
             for tagInfo in res["tags"]:
                 if tagInfo["category"] == "unknown":
                     newterm = tagInfo["tag"]
@@ -66,7 +67,7 @@ def getTag(mbid, tag="raaga"):
                 elif tagInfo["category"] == "raga":
                     newterm = tagInfo["tag"]
         elif tag == "taala":
-            #raaga can be labelled as raaga or unknown!
+            # raaga can be labelled as raaga or unknown!
             for tagInfo in res["tags"]:
                 if tagInfo["category"] == "unknown":
                     newterm = tagInfo["tag"]
@@ -94,6 +95,7 @@ def getTag(mbid, tag="raaga"):
                     newterm = tagInfo["tag"]
         return newterm
 
+
 def dictToUnicode(cluster):
     """
     Sometimes yaml complains about datatypes. Converting to unicode may help.
@@ -109,12 +111,14 @@ def dictToUnicode(cluster):
             uCluster[ukey].append(uValue)
     return uCluster
 
+
 def mergeClusters(allClusters, updatedClusters):
     for key, values in updatedClusters.items():
         allClusters[key] = values
     return allClusters
 
-def updateRaagaClusters(raagaClusters, newterms = [], mbids = [], simThresh=0.6):
+
+def updateRaagaClusters(raagaClusters, newterms=[], mbids=[], simThresh=0.6):
     """
     newterms: the new raaga terms which need to be synced with raagaClusters, if
     these point to empty list, the function expects a valid mbids list.
@@ -141,7 +145,7 @@ def updateRaagaClusters(raagaClusters, newterms = [], mbids = [], simThresh=0.6)
 
         newterms = [i.strip("0123456789()[]-") for i in newterms]
         newterms = np.unique(newterms)
-    #return newterms
+    # return newterms
 
     oldterms = np.concatenate(raagaClusters.values())
     updatedClusters = []
@@ -150,12 +154,12 @@ def updateRaagaClusters(raagaClusters, newterms = [], mbids = [], simThresh=0.6)
             print(newterm, "exists in our cluster\n")
             continue
 
-        similarities = [] #of a new raaga term to each of existing cluster
+        similarities = []  # of a new raaga term to each of existing cluster
         for key, values in raagaClusters.items():
             s = 0
             for term in values:
                 s += sd.similarity(term, newterm)
-            s = s/len(values)
+            s = s / len(values)
             similarities.append([key, s])
         similarities = np.array(similarities)
 
@@ -182,8 +186,10 @@ def updateRaagaClusters(raagaClusters, newterms = [], mbids = [], simThresh=0.6)
 
 # Functions to set/get raagaMBIDs based on raagaClusters
 
-#so that it loads once when imported!
-raagaMBIDs = yaml.load(file(homeDir+"data/raagaMBIDs.yaml"))
+# so that it loads once when imported!
+raagaMBIDs = yaml.load(file(homeDir + "data/raagaMBIDs.yaml"))
+
+
 def updateRaagaMBIDs(raagaClusters, mbids):
     global raagaMBIDs
     if not raagaMBIDs:
@@ -199,14 +205,16 @@ def updateRaagaMBIDs(raagaClusters, mbids):
                     raagaMBIDs[key].append(mbid)
                 else:
                     raagaMBIDs[key] = [mbid]
-    yaml.dump(raagaMBIDs, file(homeDir+"data/raagaMBIDs.yaml", "w"))
+    yaml.dump(raagaMBIDs, file(homeDir + "data/raagaMBIDs.yaml", "w"))
+
 
 def raaga(mbid):
     for r in raagaMBIDs.keys():
         if mbid in raagaMBIDs[r]:
             return r
 
-#Other functions which are regularly used in workspace
+
+# Other functions which are regularly used in workspace
 
 def pitch(mbid, returnScale="cents", tonic=None, vocal=False):
     """
@@ -214,17 +222,17 @@ def pitch(mbid, returnScale="cents", tonic=None, vocal=False):
     returns pitch corresponding to vocal regions only.
 
     """
-    filepath = pitchDir+mbid+".txt"
+    filepath = pitchDir + mbid + ".txt"
 
     try:
-            data = np.loadtxt(filepath, delimiter="\t", dtype="float")
+        data = np.loadtxt(filepath, delimiter="\t", dtype="float")
     except:
         raise Exception("Pitch filepath is incorrect")
 
-    if returnScale=="cents":
+    if returnScale == "cents":
         if not tonic:
             try:
-                annotationFile = annotationDir+mbid+".yaml"
+                annotationFile = annotationDir + mbid + ".yaml"
                 manualAnnotations = yaml.load(file(annotationFile))
             except:
                 raise Exception("The annotations file is missing, or the path is wrong.")
@@ -235,10 +243,10 @@ def pitch(mbid, returnScale="cents", tonic=None, vocal=False):
                 raise Exception("Missing tonic information")
 
         dataLen = len(data)
-        cents = [-10000]*dataLen
+        cents = [-10000] * dataLen
         for i in xrange(dataLen):
             if data[i, 1] > 0:
-                cents[i] = 1200*np.log2(1.0*data[i,1]/tonic)
+                cents[i] = 1200 * np.log2(1.0 * data[i, 1] / tonic)
             else:
                 cents[i] = -10000
         data = zip(data[:, 0], cents)
@@ -246,33 +254,36 @@ def pitch(mbid, returnScale="cents", tonic=None, vocal=False):
     else:
         return data[:, :2]
 
+
 def vocalFilter(data, mbid):
-    annotationFile = annotationDir+mbid+".yaml"
+    annotationFile = annotationDir + mbid + ".yaml"
     try:
         manualAnnotations = yaml.load(file(annotationFile))
     except:
-        print("The annotations file is missing, or the path is wrong. Please override the default argument value if needed. Quitting.")
+        print(
+            "The annotations file is missing, or the path is wrong. Please override the default argument value if needed. Quitting.")
         return
     dataLen = len(data)
-    vocalPitch = [min(data[:, 1])]*dataLen
+    vocalPitch = [min(data[:, 1])] * dataLen
     try:
         vocalSegments = manualAnnotations['vocal']
         for segment in vocalSegments['segments']:
-            start = iL.findNearestIndex(data[:,0], segment['start'])
-            end = iL.findNearestIndex(data[:,0], segment['end'])
+            start = iL.findNearestIndex(data[:, 0], segment['start'])
+            end = iL.findNearestIndex(data[:, 0], segment['end'])
             if end > dataLen:
                 end = dataLen
             for i in xrange(start, end):
-                    vocalPitch[i] = data[i, 1]
+                vocalPitch[i] = data[i, 1]
     except:
-        vocalPitch = data[:,1]
+        vocalPitch = data[:, 1]
         print("No annotated information of vocal segments found, returning the pitch unfiltered for", mbid)
-    data = zip(data[:, 0], vocalPitch) #assigning won't change the original array (passed to function)
+    data = zip(data[:, 0], vocalPitch)  # assigning won't change the original array (passed to function)
     return np.array(data)
+
 
 # Functions to update taalaClusters
 
-def updateTaalaClusters(taalaClusters, newterms = [], mbids = [], simThresh=0.6):
+def updateTaalaClusters(taalaClusters, newterms=[], mbids=[], simThresh=0.6):
     """
     newterms: the new taala terms which need to be synced with taalaClusters, if
     these point to empty list, the function expects a valid mbids list.
@@ -289,8 +300,8 @@ def updateTaalaClusters(taalaClusters, newterms = [], mbids = [], simThresh=0.6)
     allClusters)
     """
 
-    unwantedChars = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "(",\
-                    ")", "[", "]", ".", "-", " "]
+    unwantedChars = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "(", \
+                     ")", "[", "]", ".", "-", " "]
     if newterms == []:
         if mbids == []:
             print("Either newterms or mbids must be a valid non-empty list!")
@@ -300,7 +311,7 @@ def updateTaalaClusters(taalaClusters, newterms = [], mbids = [], simThresh=0.6)
             if newterm:
                 newterms.append(newterm)
     newterms = np.unique(newterms)
-    #return newterms
+    # return newterms
 
     oldterms = np.concatenate(taalaClusters.values())
     updatedClusters = []
@@ -309,13 +320,13 @@ def updateTaalaClusters(taalaClusters, newterms = [], mbids = [], simThresh=0.6)
             print(newterm, "exists in our cluster\n")
             continue
 
-        similarities = [] #of a new taala term to each of the existing cluster
+        similarities = []  # of a new taala term to each of the existing cluster
         for key, values in taalaClusters.items():
             s = []
             for term in values:
-                s.append(sd.similarity(sd.stripChars(term, unwantedChars),\
-                                   sd.stripChars(newterm, unwantedChars)))
-            #s = s/len(values)
+                s.append(sd.similarity(sd.stripChars(term, unwantedChars), \
+                                       sd.stripChars(newterm, unwantedChars)))
+            # s = s/len(values)
             s = max(s)
             similarities.append([key, s])
         similarities = np.array(similarities)
@@ -324,7 +335,8 @@ def updateTaalaClusters(taalaClusters, newterms = [], mbids = [], simThresh=0.6)
         maxIndex = np.argmax(tmp)
         if tmp[maxIndex] < simThresh:
             taala = similarities[maxIndex][0]
-            print("Added new cluster for", newterm, "(Nearest cluster was", taala, " with", tmp[maxIndex], "confidence)\n")
+            print("Added new cluster for", newterm, "(Nearest cluster was", taala, " with", tmp[maxIndex],
+                  "confidence)\n")
             taalaClusters[newterm] = [newterm]
             updatedClusters.append(newterm)
         else:
@@ -340,8 +352,10 @@ def updateTaalaClusters(taalaClusters, newterms = [], mbids = [], simThresh=0.6)
 
     return taalaClusters
 
+
 import sys
-if __name__=="__main__":
+
+if __name__ == "__main__":
     taalas = yaml.load(open(sys.argv[1]))
     taalaClusters = yaml.load(open(sys.argv[2]))
     res = updateTaalaClusters(taalaClusters, taalas)

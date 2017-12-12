@@ -15,6 +15,7 @@
 # this program.  If not, see http://www.gnu.org/licenses/
 
 from __future__ import print_function
+
 import numpy as np
 
 ji_intervals = np.array([-2400, -2289, -2197, -2085, -2014, -1902, -1791,
@@ -28,8 +29,9 @@ ji_intervals = np.array([-2400, -2289, -2197, -2085, -2014, -1902, -1791,
                          3986, 4098, 4209, 4301, 4413, 4484, 4596, 4688,
                          4800])
 
+
 def pad(profile, _min=-2400, _max=4800):
-    #Fill zeros for features from intervals absent in the profile
+    # Fill zeros for features from intervals absent in the profile
     for interval in ji_intervals:
         if interval not in profile.keys():
             profile[interval] = {"position": 0,
@@ -40,12 +42,13 @@ def pad(profile, _min=-2400, _max=4800):
                                  "skew2": 0,
                                  "kurtosis": 0}
 
-    #Remove intervals beyond the desirable range
+    # Remove intervals beyond the desirable range
     for interval in profile.keys():
         if _max < int(interval) < _min:
             profile.pop(interval)
 
     return profile
+
 
 def distance(profile1, profile2):
     profile1 = pad(profile1)
@@ -58,7 +61,8 @@ def distance(profile1, profile2):
         pass
     v1 = [profile1[k] for k in keys]
     v2 = [profile2[k] for k in keys]
-    return np.linalg.norm(v1-v2)
+    return np.linalg.norm(v1 - v2)
+
 
 def kldiv(x, y):
     """
@@ -67,15 +71,15 @@ def kldiv(x, y):
 
     Usage: d = kldiv(A,B)
     """
-    eps = np.finfo(float).eps*2*len(x)
-    x = np.array(x)+eps
-    y = np.array(y)+eps
-    #eps = 0.01
-    #if max(sum(A), sum(B)) > 1+eps:
+    eps = np.finfo(float).eps * 2 * len(x)
+    x = np.array(x) + eps
+    y = np.array(y) + eps
+    # eps = 0.01
+    # if max(sum(A), sum(B)) > 1+eps:
     #   print max(sum(A), sum(B))
     #   print "Probabilities do not sum to 1."
     #   return np.NaN
     if x.size != y.size:
         print("Arguments are of different length.")
         return np.NaN
-    return (np.dot(x, np.log2(x)-np.log2(y))+np.dot(y, np.log2(y)-np.log2(x)))/2.0
+    return (np.dot(x, np.log2(x) - np.log2(y)) + np.dot(y, np.log2(y) - np.log2(x))) / 2.0

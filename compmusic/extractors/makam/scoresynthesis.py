@@ -1,16 +1,16 @@
 import json
-import urllib2
 import os
 import tempfile
+import urllib2
 
-from compmusic import dunya
-from settings import token
-import compmusic.dunya.conn
-import compmusic.extractors
 import pydub
-
 from symbtrsynthesis.adaptivesynthesizer import AdaptiveSynthesizer
 from symbtrsynthesis.musicxmlreader import MusicXMLReader
+
+import compmusic.dunya.conn
+import compmusic.extractors
+from compmusic import dunya
+from settings import token
 
 dunya.set_token(token)
 
@@ -20,9 +20,9 @@ class ScoreSynthesis(compmusic.extractors.ExtractorModule):
     _sourcetype = "symbtrxml"
     _slug = "synthesis"
     _output = {
-            'mp3': {"extension": "mp3", "mimetype": "audio/mp3",
-                    "parts": True},
-            'onsets': {"extension": "json", "mimetype": "application/json"}
+        'mp3': {"extension": "mp3", "mimetype": "audio/mp3",
+                "parts": True},
+        'onsets': {"extension": "json", "mimetype": "application/json"}
     }
 
     @staticmethod

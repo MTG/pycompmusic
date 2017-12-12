@@ -14,14 +14,15 @@
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
 
-from __future__ import print_function
 from __future__ import division
-from os.path import basename
-import numpy as np
-import pickle
-import pypeaks
+from __future__ import print_function
+
 from glob import glob
+from os.path import basename
+
 import matplotlib.pyplot as plt
+import numpy as np
+import pypeaks
 from scipy.ndimage.filters import gaussian_filter
 
 
@@ -40,18 +41,18 @@ class Raaga:
 
         Usage: d = kldiv(A,B)
         """
-        eps = np.finfo(float).eps*2*len(x)
-        x = np.array(x)+eps
-        y = np.array(y)+eps
-        #eps = 0.01
-        #if max(sum(A), sum(B)) > 1+eps:
+        eps = np.finfo(float).eps * 2 * len(x)
+        x = np.array(x) + eps
+        y = np.array(y) + eps
+        # eps = 0.01
+        # if max(sum(A), sum(B)) > 1+eps:
         #   print(max(sum(A), sum(B)))
         #   print("Probabilities do not sum to 1.")
         #   return np.NaN
         if x.size != y.size:
             print("Arguments are of different length.")
             return np.NaN
-        return (np.dot(x, np.log2(x)-np.log2(y))+np.dot(y, np.log2(y)-np.log2(x)))/2.0
+        return (np.dot(x, np.log2(x) - np.log2(y)) + np.dot(y, np.log2(y) - np.log2(x))) / 2.0
 
     def load_average_hist(self):
         self.average_hist = pickle.load(open(self.path_to_raaga_profiles.rstrip("/") + "/" + self.name + ".pickle"))
@@ -68,7 +69,6 @@ class Raaga:
 
         compute_average_hist_data(pitches, tonics, octave_folded, bins)
 
-
     def compute_average_hist_data(self, pitches, tonics, octave_folded=True, bins=1200):
         """
         Computes average histogram for a list of given pitches.
@@ -78,18 +78,18 @@ class Raaga:
         """
         all_cents = []
         for data, tonic in zip(pitches, tonics):
-            #Histogram
+            # Histogram
             valid_pitch = data[:, 1]
-            valid_pitch = [1200*np.log2(i/tonic) for i in valid_pitch if i > 0]
+            valid_pitch = [1200 * np.log2(i / tonic) for i in valid_pitch if i > 0]
             if octave_folded:
                 valid_pitch = map(lambda x: int(x % 1200), valid_pitch)
 
             all_cents.extend(valid_pitch)
         if not bins:
-            bins = max(all_cents)-min(all_cents)
+            bins = max(all_cents) - min(all_cents)
 
         n, bin_edges = np.histogram(all_cents, bins, normed=True)
-        bin_centers = 0.5*(bin_edges[1:]+bin_edges[:-1])
+        bin_centers = 0.5 * (bin_edges[1:] + bin_edges[:-1])
         n = n.reshape(len(n), 1)
         bin_centers = bin_centers.reshape(len(bin_centers), 1)
         self.average_hist = np.append(n, bin_centers, axis=1)
@@ -103,7 +103,7 @@ class Raaga:
         :param value: value to be looked up
         """
         arr = np.array(arr)
-        index = (np.abs(arr-value)).argmin()
+        index = (np.abs(arr - value)).argmin()
         return index
 
     def serialize_average_hist(self):
@@ -115,7 +115,7 @@ class Raaga:
         x -= 50
         y = np.concatenate((y[-50:], y[:-50]))
 
-        #The following is for plotting xticks at proper peak locations
+        # The following is for plotting xticks at proper peak locations
         locs = np.arange(0, 1200, 100)
         labels = ["Sa", "Ri1", "Ri2\nGa1", "Ri3\nGa2", "Ga3", "Ma1", "Ma2", "Pa", "Da1", "Da2\nNi1", "Da3\nNi2", "Ni3"]
         label_map = {}
@@ -161,27 +161,27 @@ class Raaga:
         distances = sorted(distances, key=lambda x: x[1])
         distances = np.array(distances)
 
-        #print(self.name, distances[:n])
+        # print(self.name, distances[:n])
         return distances[:n]
 
-if __name__ == "__main__":
-    import yaml
-    import sys
-    sys.path.append("/media/CompMusic/audio/users/gkoduri/workspace/PhD/scripts")
-    import utils as u
 
-    #BLOCK TO CREATE MAP BETWEEN RAAGA NAMES AND MBIDS
-    #raaga_map = yaml.load(file("/home/gopal/data/raagaClusters.yaml"))
-    #pitch_files = glob("/home/gopal/data/features/pitch/*.txt")
-    #mbids = [basename(mbid)[:-4] for mbid in pitch_files]
+if __name__ == "__main__":
+    import sys
+
+    sys.path.append("/media/CompMusic/audio/users/gkoduri/workspace/PhD/scripts")
+
+    # BLOCK TO CREATE MAP BETWEEN RAAGA NAMES AND MBIDS
+    # raaga_map = yaml.load(file("/home/gopal/data/raagaClusters.yaml"))
+    # pitch_files = glob("/home/gopal/data/features/pitch/*.txt")
+    # mbids = [basename(mbid)[:-4] for mbid in pitch_files]
     #
-    #w = u.Workspace("/home/gopal/data/features/",
+    # w = u.Workspace("/home/gopal/data/features/",
     #                "/home/gopal/data/features/annotations/",
     #                "/home/gopal/data/audio/Carnatic/metadata/Carnatic.yaml")
-    #tonics = [w.tonic(mbid) for mbid in mbids]
+    # tonics = [w.tonic(mbid) for mbid in mbids]
     #
-    #raaga_mbids = {}
-    #for i in xrange(len(mbids)):
+    # raaga_mbids = {}
+    # for i in xrange(len(mbids)):
     #    if tonics[i] is None:
     #        continue
     #
@@ -197,16 +197,17 @@ if __name__ == "__main__":
     #    else:
     #        raaga_mbids[raaga] = [[mbid, tonics[i]]]
     #
-    #import pickle
-    #pickle.dump(raaga_mbids, file("/home/gopal/data/raagaMBIDs.pickle", "w"))
+    # import pickle
+    # pickle.dump(raaga_mbids, file("/home/gopal/data/raagaMBIDs.pickle", "w"))
 
-    #BLOCK TO COMPUTE AVERAGE HISTOGRAMS
+    # BLOCK TO COMPUTE AVERAGE HISTOGRAMS
     import pickle
     from os.path import exists
+
     raaga_mbids = pickle.load(file("/home/gopal/data/raagaMBIDs.pickle"))
     raaga_mbids.pop("Unknown")
 
-    #for r in raaga_mbids.keys():
+    # for r in raaga_mbids.keys():
     #    if exists("/home/gopal/data/features/raagaProfiles/" + r + ".pickle"):
     #        continue
     #    print(r, len(raaga_mbids[r]))
@@ -217,7 +218,7 @@ if __name__ == "__main__":
     #    raaga.compute_average_hist(pitch_files, tonics)
     #    raaga.serialize_average_hist()
 
-    #BLOCK TO COMPUTE SIMILARITY MAP
+    # BLOCK TO COMPUTE SIMILARITY MAP
     data = np.loadtxt("/home/gopal/data/raagaIndices.txt", delimiter=",", dtype="str")
     raaga_indices = {}
     for row in data:
@@ -225,7 +226,8 @@ if __name__ == "__main__":
     similarity_map = {}
     raagas = raaga_mbids.keys()
     for i in xrange(len(raagas)):
-        if not exists("/home/gopal/data/features/raagaProfiles/" + raagas[i] + ".pickle") or raagas[i] not in raaga_indices.keys():
+        if not exists("/home/gopal/data/features/raagaProfiles/" + raagas[i] + ".pickle") or raagas[
+            i] not in raaga_indices.keys():
             continue
         similarity_map[raagas[i]] = []
         x = pickle.load(file("/home/gopal/data/features/raagaProfiles/" + raagas[i] + ".pickle"))
@@ -236,13 +238,13 @@ if __name__ == "__main__":
         print(raaga.name, res)
 
     pickle.dump(similarity_map,
-              file("/home/gopal/data/features/raagaProfiles/similarity_map.yaml", "w"))
+                file("/home/gopal/data/features/raagaProfiles/similarity_map.yaml", "w"))
 
-    #BLOCK TO GET IMAGES
+    # BLOCK TO GET IMAGES
     smap = pickle.load(file("/home/gopal/data/features/raagaProfiles/similarity_map.pickle"))
     raagas = list(smap["huseni"][:, 0])
     raagas.append("huseni")
     for i in raagas:
         raaga = Raaga(i, "/home/gopal/data/features/raagaProfiles")
         raaga.load_average_hist()
-        raaga.generate_image("/home/gopal/data/features/raagaImages/"+i+".png")
+        raaga.generate_image("/home/gopal/data/features/raagaImages/" + i + ".png")

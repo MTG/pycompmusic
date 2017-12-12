@@ -16,13 +16,16 @@
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
 
-from __future__ import print_function
 from __future__ import division
-import yaml
+from __future__ import print_function
+
+import csv
+
 import numpy as np
+import yaml
+
 import DAO as dao
 import stringDuplicates as sd
-import csv
 
 db = dao.DAO()
 
@@ -54,7 +57,7 @@ class FuzzyMatch:
         newterm = ""
         if result != "empty" and "tags" in result.keys():
             if self.tag == "raaga":
-                #raaga can be labelled as raaga or unknown!
+                # raaga can be labelled as raaga or unknown!
                 for tagInfo in result["tags"]:
                     if tagInfo["category"] == "unknown":
                         newterm = tagInfo["tag"]
@@ -91,7 +94,7 @@ class FuzzyMatch:
                         newterm = tagInfo["tag"]
                         break
             elif self.tag == "taala":
-                #taala can be labelled as taala or unknown!
+                # taala can be labelled as taala or unknown!
                 for tagInfo in result["tags"]:
                     if tagInfo["category"] == "unknown":
                         newterm = tagInfo["tag"]
@@ -143,7 +146,6 @@ class FuzzyMatch:
         except ValueError:
             pass
 
-
     @staticmethod
     def dict_to_unicode(cluster):
         """
@@ -186,10 +188,10 @@ class FuzzyMatch:
         for term in self.all_terms:
             if term in existing_terms:
                 print(term, " exists in our catalogue\n")
-                self.log_file.write(term+" exists in our catalogue\n")
+                self.log_file.write(term + " exists in our catalogue\n")
                 continue
 
-            #find similarities of a new term to each of the existing clusters
+            # find similarities of a new term to each of the existing clusters
             similarities = []
             for key, values in self.clusters.items():
                 s = 0
@@ -223,6 +225,7 @@ class FuzzyMatch:
 
 
 import sys
+
 if __name__ == "__main__":
     yaml_map_file = sys.argv[1]
     clusters_csv_file = sys.argv[2]

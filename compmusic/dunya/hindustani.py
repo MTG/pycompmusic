@@ -1,13 +1,13 @@
-
-import os
-import requests
 import logging
+import os
+
 logger = logging.getLogger("dunya")
 
 import conn
 import docserver
 
 COLLECTIONS = None
+
 
 def set_collections(collections):
     """ Set a list of collections mbid to restrict the queries.
@@ -21,12 +21,14 @@ def set_collections(collections):
     global COLLECTIONS
     COLLECTIONS = collections
 
+
 def _get_collections():
     extra_headers = None
     if COLLECTIONS:
         extra_headers = {}
         extra_headers['Dunya-Collection'] = ','.join(COLLECTIONS)
     return extra_headers
+
 
 def get_recordings():
     """ Get a list of hindustani recordings in the database.
@@ -44,6 +46,7 @@ def get_recordings():
     extra_headers = _get_collections()
     return conn._get_paged_json("api/hindustani/recording", extra_headers=extra_headers)
 
+
 def get_recording(rmbid):
     """ Get specific information about a recording.
 
@@ -58,6 +61,7 @@ def get_recording(rmbid):
     """
     extra_headers = _get_collections()
     return conn._dunya_query_json("api/hindustani/recording/%s" % rmbid, extra_headers=extra_headers)
+
 
 def get_artists():
     """ Get a list of Hindustani artists in the database.
@@ -75,6 +79,7 @@ def get_artists():
     extra_headers = _get_collections()
     return conn._get_paged_json("api/hindustani/artist", extra_headers=extra_headers)
 
+
 def get_artist(ambid):
     """ Get specific information about an artist.
 
@@ -90,6 +95,7 @@ def get_artist(ambid):
     """
     extra_headers = _get_collections()
     return conn._dunya_query_json("api/hindustani/artist/%s" % ambid, extra_headers=extra_headers)
+
 
 def get_releases():
     """ Get a list of Hindustani releases in the database.
@@ -107,6 +113,7 @@ def get_releases():
     extra_headers = _get_collections()
     return conn._get_paged_json("api/hindustani/release", extra_headers=extra_headers)
 
+
 def get_release(cmbid):
     """ Get specific information about a release.
 
@@ -119,6 +126,7 @@ def get_release(cmbid):
     """
     extra_headers = _get_collections()
     return conn._dunya_query_json("api/hindustani/release/%s" % cmbid, extra_headers=extra_headers)
+
 
 def get_works():
     """ Get a list of Hindustani works in the database.
@@ -136,6 +144,7 @@ def get_works():
     extra_headers = _get_collections()
     return conn._get_paged_json("api/hindustani/work", extra_headers=extra_headers)
 
+
 def get_work(wmbid):
     """ Get specific information about a work.
 
@@ -145,6 +154,7 @@ def get_work(wmbid):
     """
     extra_headers = _get_collections()
     return conn._dunya_query_json("api/hindustani/work/%s" % wmbid, extra_headers=extra_headers)
+
 
 def get_raags():
     """ Get a list of Hindustani raags in the database.
@@ -161,6 +171,7 @@ def get_raags():
     """
     return conn._get_paged_json("api/hindustani/raag")
 
+
 def get_raag(rid):
     """ Get specific information about a raag.
     Arguments:
@@ -172,6 +183,7 @@ def get_raag(rid):
 
     """
     return conn._dunya_query_json("api/hindustani/raag/%s" % str(rid))
+
 
 def get_taals():
     """ Get a list of Hindustani taals in the database.
@@ -188,6 +200,7 @@ def get_taals():
     """
     return conn._get_paged_json("api/hindustani/taal")
 
+
 def get_taal(tid):
     """ Get specific information about a taal.
 
@@ -196,6 +209,7 @@ def get_taal(tid):
 
     """
     return conn._dunya_query_json("api/hindustani/taal/%s" % str(tid))
+
 
 def get_layas():
     """ Get a list of Hindustani layas in the database.
@@ -212,6 +226,7 @@ def get_layas():
     """
     return conn._get_paged_json("api/hindustani/laya")
 
+
 def get_laya(lid):
     """ Get specific information about a laya.
 
@@ -220,6 +235,7 @@ def get_laya(lid):
 
     """
     return conn._dunya_query_json("api/hindustani/laya/%s" % str(lid))
+
 
 def get_forms():
     """ Get a list of Hindustani forms in the database.
@@ -236,6 +252,7 @@ def get_forms():
     """
     return conn._get_paged_json("api/hindustani/form")
 
+
 def get_form(fid):
     """ Get specific information about a form.
 
@@ -247,6 +264,7 @@ def get_form(fid):
 
     """
     return conn._dunya_query_json("api/hindustani/form/%s" % str(fid))
+
 
 def get_instruments():
     """ Get a list of Hindustani instruments in the database.
@@ -263,6 +281,7 @@ def get_instruments():
     """
     return conn._get_paged_json("api/hindustani/instrument")
 
+
 def get_instrument(iid):
     """ Get specific information about an instrument.
 
@@ -274,6 +293,7 @@ def get_instrument(iid):
 
     """
     return conn._dunya_query_json("api/hindustani/instrument/%s" % str(iid))
+
 
 def download_mp3(recordingid, location):
     """Download the mp3 of a document and save it to the specificed directory.
@@ -294,6 +314,7 @@ def download_mp3(recordingid, location):
     path = os.path.join(location, name)
     open(path, "wb").write(contents)
     return name
+
 
 def download_release(release_id, location):
     """Download the mp3s of all recordings in a release and save

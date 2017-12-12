@@ -4,6 +4,7 @@ env.roledefs["web"] = ["sitar.s.upf.edu"]
 env.use_ssh_config = True
 env.forward_agent = True
 
+
 @roles("web")
 def updatedocs():
     """Update the docs"""
@@ -11,4 +12,3 @@ def updatedocs():
     with cd("/srv/dunya/env/src/pycompmusic"):
         run("git pull", pty=False)
         run("make html", pty=False)
-

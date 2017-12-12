@@ -1,14 +1,13 @@
-import os
-import requests
 import logging
-
-import unicodedata
+import os
 import re
+import unicodedata
 
 logger = logging.getLogger("dunya")
 
 import conn
 import docserver
+
 
 def get_recordings():
     """ Get a list of makam recordings in the database.
@@ -25,6 +24,7 @@ def get_recordings():
     """
     return conn._get_paged_json("api/makam/recording")
 
+
 def get_recording(rmbid):
     """ Get specific information about a recording.
 
@@ -37,6 +37,7 @@ def get_recording(rmbid):
 
     """
     return conn._dunya_query_json("api/makam/recording/%s" % rmbid)
+
 
 def get_artists():
     """ Get a list of makam artists in the database.
@@ -52,6 +53,7 @@ def get_artists():
     """
     return conn._get_paged_json("api/makam/artist")
 
+
 def get_artist(ambid):
     """ Get specific information about an artist.
 
@@ -64,6 +66,7 @@ def get_artist(ambid):
 
     """
     return conn._dunya_query_json("api/makam/artist/%s" % ambid)
+
 
 def get_composers():
     """ Get a list of makam composers in the database.
@@ -79,6 +82,7 @@ def get_composers():
     """
     return conn._get_paged_json("api/makam/composer")
 
+
 def get_composer(cmbid):
     """ Get specific information about an composer.
 
@@ -90,6 +94,7 @@ def get_composer(cmbid):
 
     """
     return conn._dunya_query_json("api/makam/composer/%s" % cmbid)
+
 
 def get_releases():
     """ Get a list of makam releases in the database.
@@ -106,6 +111,7 @@ def get_releases():
     """
     return conn._get_paged_json("api/makam/release")
 
+
 def get_release(cmbid):
     """ Get specific information about a release.
 
@@ -117,6 +123,7 @@ def get_release(cmbid):
 
     """
     return conn._dunya_query_json("api/makam/release/%s" % cmbid)
+
 
 def get_works():
     """ Get a list of makam works in the database.
@@ -133,6 +140,7 @@ def get_works():
     """
     return conn._get_paged_json("api/makam/work")
 
+
 def get_work(wmbid):
     """ Get specific information about a work.
 
@@ -141,6 +149,7 @@ def get_work(wmbid):
 
     """
     return conn._dunya_query_json("api/makam/work/%s" % wmbid)
+
 
 def get_instruments():
     """ Get a list of makam instruments in the database.
@@ -157,6 +166,7 @@ def get_instruments():
     """
     return conn._get_paged_json("api/makam/instrument")
 
+
 def get_instrument(iid):
     """ Get specific information about an instrument.
 
@@ -168,6 +178,7 @@ def get_instrument(iid):
 
     """
     return conn._dunya_query_json("api/makam/instrument/%s" % str(iid))
+
 
 def get_forms():
     """ Get a list of makam forms in the database.
@@ -184,6 +195,7 @@ def get_forms():
     """
     return conn._get_paged_json("api/makam/form")
 
+
 def get_form(fid):
     """ Get specific information about a form.
 
@@ -191,6 +203,7 @@ def get_form(fid):
     :returns: uuid, name, works.
     """
     return conn._dunya_query_json("api/makam/form/%s" % str(fid))
+
 
 def get_makams():
     """ Get a list of makam makams in the database.
@@ -207,6 +220,7 @@ def get_makams():
     """
     return conn._get_paged_json("api/makam/makam")
 
+
 def get_makam(mid):
     """ Get specific information about a makam.
 
@@ -216,6 +230,7 @@ def get_makam(mid):
     the ``taksims`` and ``gazels`` lists are of recordings.
     """
     return conn._dunya_query_json("api/makam/makam/%s" % str(mid))
+
 
 def get_usuls():
     """ Get a list of makam usuls in the database.
@@ -232,6 +247,7 @@ def get_usuls():
     """
     return conn._get_paged_json("api/makam/usul")
 
+
 def get_symbtrs():
     """ Get a list of musicbrainz id - symbtr mappings in the database.
     This function will automatically page through API results.
@@ -245,6 +261,7 @@ def get_symbtrs():
     """
     return conn._get_paged_json("api/makam/symbtr")
 
+
 def get_symbtr(uuid):
     """ Get a symbtr file info from id
     This function will automatically page through API results.
@@ -257,7 +274,6 @@ def get_symbtr(uuid):
     return conn._dunya_query_json("api/makam/symbtr/%s" % uuid)
 
 
-
 def get_usul(uid):
     """ Get specific information about a usul.
 
@@ -268,6 +284,7 @@ def get_usul(uid):
     only valid for the usul ``serbest``
     """
     return conn._dunya_query_json("api/makam/usul/%s" % str(uid))
+
 
 def get_works_by_query(mid='', uid='', fid='', cmbid='', ambid=''):
     """ Get the works filtered according to the input makam uuid, usul uuid
@@ -283,6 +300,7 @@ def get_works_by_query(mid='', uid='', fid='', cmbid='', ambid=''):
     path = 'work?usul={0}&performer={1}&form={2}&artist={3}&makam={4}'
     path = path.format(uid, ambid, fid, cmbid, mid)
     return conn._get_paged_json("api/makam/" + path)
+
 
 def download_mp3(recordingid, location, slugify=False):
     """Download the mp3 of a document and save it to the specificed directory.
@@ -313,6 +331,7 @@ def download_mp3(recordingid, location, slugify=False):
     path = os.path.join(location, name)
     open(path, "wb").write(contents)
     return path
+
 
 def download_release(releaseid, location, slugify=False):
     """Download the mp3s of all recordings in a release and save
@@ -348,8 +367,8 @@ def download_release(releaseid, location, slugify=False):
         path = os.path.join(releasedir, name)
         open(path, "wb").write(contents)
 
-def slugify_tr(value):
 
+def slugify_tr(value):
     value_slug = value.replace(u'\u0131', 'i')
     value_slug = unicodedata.normalize('NFKD', value_slug).encode('ascii', 'ignore').decode('ascii')
     value_slug = re.sub('[^\w\s-]', '', value_slug).strip()

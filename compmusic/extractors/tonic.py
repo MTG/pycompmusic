@@ -14,23 +14,22 @@
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
 
-import compmusic.extractors
-import numpy as np
-
-import essentia.standard
+import json
+import os
 import subprocess
 
-import tempfile
-import os
+import essentia.standard
+import numpy as np
 import yaml
-import json
-
-from compmusic import dunya
-from compmusic.dunya import hindustani
-from compmusic.dunya import carnatic
-
 from docserver import util
+
+import compmusic.extractors
+from compmusic import dunya
+from compmusic.dunya import carnatic
+from compmusic.dunya import hindustani
+
 dunya.set_token("69ed3d824c4c41f59f0bc853f696a7dd80707779")
+
 
 class TonicExtract(compmusic.extractors.ExtractorModule):
     _version = "0.2"
@@ -44,6 +43,7 @@ class TonicExtract(compmusic.extractors.ExtractorModule):
         tonic = essentia.standard.TonicIndianArtMusic()(audio)
 
         return {"tonic": str(tonic)}
+
 
 class CTonicExtract(compmusic.extractors.ExtractorModule):
     _version = "0.3"
@@ -70,6 +70,7 @@ class CTonicExtract(compmusic.extractors.ExtractorModule):
 
         return {"tonic": str(tonic)}
 
+
 class TonicVote(compmusic.extractors.ExtractorModule):
     """ Vote on tonics to filter out small errors by the tonic identification script
     """
@@ -85,7 +86,7 @@ class TonicVote(compmusic.extractors.ExtractorModule):
         :param value: value to be looked up
         """
         arr = np.array(arr)
-        index = (np.abs(arr-value)).argmin()
+        index = (np.abs(arr - value)).argmin()
         return index
 
     def vote(self, artist_tonics, tonic):
@@ -98,7 +99,7 @@ class TonicVote(compmusic.extractors.ExtractorModule):
         max_index = np.argmax(n)
         _median = data[self.find_nearest_index(data, bins[max_index])]
 
-        cents_diff = abs(1200*np.log2(tonic/_median))
+        cents_diff = abs(1200 * np.log2(tonic / _median))
         if cents_diff > 350:
             tonic = float(_median)
 
@@ -131,7 +132,7 @@ class TonicVote(compmusic.extractors.ExtractorModule):
             for r in recordings:
                 tonic = self._get_tonic(r)
                 if tonic:
-                    tonics.append( (r, float(tonic)) )
+                    tonics.append((r, float(tonic)))
             self.set_key(key, json.dumps(tonics), 3600)
         return tonics
 
@@ -149,6 +150,7 @@ class TonicVote(compmusic.extractors.ExtractorModule):
                 return {"tonic": str(voted)}
 
         return {"tonic": str(thistonic)}
+
 
 class HindustaniTonicVote(TonicVote):
     _slug = "hindustanivotedtonic"
@@ -201,4 +203,3 @@ class CarnaticTonicVote(TonicVote):
             for t in relrecs:
                 recordings.append(t["mbid"])
         return recordings
-

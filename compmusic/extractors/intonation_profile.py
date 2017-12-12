@@ -15,10 +15,9 @@
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
 
+import intonation
 import numpy as np
 from scipy.stats import variation, skew, kurtosis
-
-import intonation
 
 
 class IntonationProfile:
@@ -48,10 +47,10 @@ class IntonationProfile:
         parameters = {}
         for interval, distribution in distributions.items():
             distribution = np.array(distribution)
-            #TODO: replace -10000 with whatever the bound is for invalid pitch values in cent scale
+            # TODO: replace -10000 with whatever the bound is for invalid pitch values in cent scale
             distribution = distribution[distribution >= -10000]
             [n, be] = np.histogram(distribution, bins=1200)
-            bc = (be[1:] + be[:-1])/2.0
+            bc = (be[1:] + be[:-1]) / 2.0
             peak_pos = bc[np.argmax(n)]
             peak_mean = float(np.mean(distribution))
             peak_variance = float(variation(distribution))
@@ -68,6 +67,6 @@ class IntonationProfile:
         all_amps = [parameters[interval]["amplitude"] for interval in parameters.keys()]
         peak_amp_sum = sum(all_amps)
         for interval in parameters.keys():
-            parameters[interval]["amplitude"] = parameters[interval]["amplitude"]/peak_amp_sum
+            parameters[interval]["amplitude"] = parameters[interval]["amplitude"] / peak_amp_sum
 
         self.intonation_profile = parameters

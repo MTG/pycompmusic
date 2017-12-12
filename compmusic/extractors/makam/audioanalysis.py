@@ -22,66 +22,69 @@
 # International Conference on Audio Technologies for Music and Media, Ankara,
 # Turkey.
 
-import os
 import warnings
-import json
-import compmusic.extractors
+
 import numpy as np
-from tomato.audio.audioanalyzer import AudioAnalyzer
 from seyiranalyzer.audioseyiranalyzer import AudioSeyirAnalyzer
+from tomato.audio.audioanalyzer import AudioAnalyzer
+
+import compmusic.extractors
+
 
 class AudioAnalysis(compmusic.extractors.ExtractorModule):
-  _version = "0.1"
-  _sourcetype = "mp3"
-  _slug = "audioanalysis"
-  _output = {
-                "metadata": {"extension": "json", "mimetype": "application/json"},
-                "pitch": {"extension": "json", "mimetype": "application/json"},
-                "pitch_filtered": {"extension": "json", "mimetype": "application/json"},
-                "melodic_progression": {"extension": "json", "mimetype": "application/json"},
-                "tonic": {"extension": "json", "mimetype": "application/json"},
-                "pitch_distribution": {"extension": "json", "mimetype": "application/json"},
-                "pitch_class_distribution": {"extension": "json", "mimetype": "application/json"},
-                "transposition": {"extension": "json", "mimetype": "application/json"},
-                "note_models": {"extension": "json", "mimetype": "application/json"},
-                "makam": {"extension": "json", "mimetype": "application/json"},
-                }
+    _version = "0.1"
+    _sourcetype = "mp3"
+    _slug = "audioanalysis"
+    _output = {
+        "metadata": {"extension": "json", "mimetype": "application/json"},
+        "pitch": {"extension": "json", "mimetype": "application/json"},
+        "pitch_filtered": {"extension": "json", "mimetype": "application/json"},
+        "melodic_progression": {"extension": "json", "mimetype": "application/json"},
+        "tonic": {"extension": "json", "mimetype": "application/json"},
+        "pitch_distribution": {"extension": "json", "mimetype": "application/json"},
+        "pitch_class_distribution": {"extension": "json", "mimetype": "application/json"},
+        "transposition": {"extension": "json", "mimetype": "application/json"},
+        "note_models": {"extension": "json", "mimetype": "application/json"},
+        "makam": {"extension": "json", "mimetype": "application/json"},
+    }
 
-  def run(self, musicbrainzid, fname):
-    audioAnalyzer = AudioAnalyzer(verbose=True)
+    def run(self, musicbrainzid, fname):
+        audioAnalyzer = AudioAnalyzer(verbose=True)
 
-    # NOTE: This will take several minutes depending on the performance of your machine
-    features = audioAnalyzer.analyze(fname)
+        # NOTE: This will take several minutes depending on the performance of your machine
+        features = audioAnalyzer.analyze(fname)
 
-    metadata = features.get('metadata', None)
-    pitch = features.get('pitch', None)
-    pitch_filtered = features.get('pitch_filtered', None)
-    melodic_progression = features.get('melodic_progression', None)
-    tonic = features.get('tonic', None)
-    pitch_distribution = features.get('pitch_distribution', None)
-    pitch_class_distribution = features.get('pitch_class_distribution', None)
-    transposition = features.get('transposition', None)
-    note_models = features.get('note_models', None)
-    makam = features.get('makam', None)
+        metadata = features.get('metadata', None)
+        pitch = features.get('pitch', None)
+        pitch_filtered = features.get('pitch_filtered', None)
+        melodic_progression = features.get('melodic_progression', None)
+        tonic = features.get('tonic', None)
+        pitch_distribution = features.get('pitch_distribution', None)
+        pitch_class_distribution = features.get('pitch_class_distribution', None)
+        transposition = features.get('transposition', None)
+        note_models = features.get('note_models', None)
+        makam = features.get('makam', None)
 
-    for i in self._output.keys():
-        if i not in features:
-            warnings.warn("The output %s is missing from the audio analysis" % i)
-    if set(features.keys()) != set(self._output.keys()):
-        warnings.warn("Output mismatch on audio analysis %s" % features.keys())
-    if pitch_distribution:
-        pitch_distribution = pitch_distribution.to_dict()
-    if pitch_class_distribution:
-        pitch_class_distribution = pitch_class_distribution.to_dict()
-    if note_models:
-        note_models = to_dict(note_models)
-    if melodic_progression:
-        AudioSeyirAnalyzer.serialize(melodic_progression)
-    return {"metadata": metadata, "pitch": pitch, "pitch_filtered": pitch_filtered,
-            "melodic_progression": melodic_progression, "tonic": tonic,
-            "pitch_distribution": pitch_distribution,
-            "pitch_class_distribution": pitch_class_distribution,
-            "transposition": transposition, "note_models": note_models, "makam": makam }
+        for i in self._output.keys():
+            if i not in features:
+                warnings.warn("The output %s is missing from the audio analysis" % i)
+        if set(features.keys()) != set(self._output.keys()):
+            warnings.warn("Output mismatch on audio analysis %s" % features.keys())
+        if pitch_distribution:
+            pitch_distribution = pitch_distribution.to_dict()
+        if pitch_class_distribution:
+            pitch_class_distribution = pitch_class_distribution.to_dict()
+        if note_models:
+            note_models = to_dict(note_models)
+        if melodic_progression:
+            AudioSeyirAnalyzer.serialize(melodic_progression)
+        return {"metadata": metadata, "pitch": pitch, "pitch_filtered": pitch_filtered,
+                "melodic_progression": melodic_progression, "tonic": tonic,
+                "pitch_distribution": pitch_distribution,
+                "pitch_class_distribution": pitch_class_distribution,
+                "transposition": transposition, "note_models": note_models, "makam": makam}
+
+
 def to_dict(note_models):
     ret = {}
     for key in note_models.keys():

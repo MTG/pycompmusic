@@ -16,20 +16,22 @@
 # this program.  If not, see http://www.gnu.org/licenses/
 
 
-import sys
-import os
-import re
 import logging
+import re
+
 logging.basicConfig(level=logging.INFO)
 
 reraaga = re.compile(r"\braa?gam?\b")
 retaala = re.compile(r"\btaa?lam?\b")
 
+
 def has_raaga(tag):
     return re.search(reraaga, tag)
 
+
 def has_taala(tag):
     return re.search(retaala, tag)
+
 
 def parse_raaga(raaga):
     raaga = raaga.strip()
@@ -42,6 +44,7 @@ def parse_raaga(raaga):
     raaga = re.sub(r" ?raa?gam?[0-9]* ?", "", raaga)
     return (position, raaga)
 
+
 def parse_taala(taala):
     taala = taala.strip()
     number = re.search(r"([0-9]+)", taala)
@@ -52,4 +55,3 @@ def parse_taala(taala):
     taala = re.sub(r" ?: ?", " ", taala)
     taala = re.sub(r" ?taa?lam?[0-9]* ?", "", taala)
     return (position, taala)
-

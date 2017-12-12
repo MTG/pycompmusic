@@ -1,27 +1,29 @@
 # -*- coding: utf-8 -*-
 import unittest
+
 import sertanscores
+
 
 class MatchTest(unittest.TestCase):
     m = sertanscores.MakamScore(None, None, None, None)
 
     def test_honorific(self):
         self.assertTrue(self.m.match("Tatyos", "Tatyos Efendi"))
-        #self.assertTrue(self.m.match("Tatyos", "Tatyos Ekserciyan"))
+        # self.assertTrue(self.m.match("Tatyos", "Tatyos Ekserciyan"))
         self.assertTrue(self.m.match("Tateos", "Tatyos"))
 
-        #self.assertTrue(self.m.match("Nevres", "Nevres Orhon"))
+        # self.assertTrue(self.m.match("Nevres", "Nevres Orhon"))
         self.assertTrue(self.m.match("Udi Nevres", "Udi Nevres Bey"))
         self.assertTrue(self.m.match("Nevres", "Udi Nevres Bey"))
 
-        #self.assertTrue(self.m.match(u"Hafız Kemalettin Gürses", u"Hafız Kemalettin"))
+        # self.assertTrue(self.m.match(u"Hafız Kemalettin Gürses", u"Hafız Kemalettin"))
         self.assertTrue(self.m.match(u"Hafız Kemal Bey", u"Hafız Kemal"))
-        #self.assertTrue(self.m.match(u"Kemal Gürses", u"Kemal"))
-        #self.assertTrue(self.m.match(u"Kemal Gürses", u"Kemalettin"))
+        # self.assertTrue(self.m.match(u"Kemal Gürses", u"Kemal"))
+        # self.assertTrue(self.m.match(u"Kemal Gürses", u"Kemalettin"))
 
         self.assertTrue(self.m.match("Udi Yorgo Bacanos", "Yorgo Bacanos"))
         self.assertTrue(self.m.match("Yorgo Bacanos", "Yorgo Bacanos Efendi"))
-        #self.assertTrue(self.m.match("Yorgo Bacanos", "Yorgo Efendi"))
+        # self.assertTrue(self.m.match("Yorgo Bacanos", "Yorgo Efendi"))
         self.assertTrue(self.m.match("Udi Yorgo", "Yorgo"))
 
         self.assertTrue(self.m.match("Buhurizade Mustafa Efendi", "Buhurizade Mustafa"))
@@ -44,4 +46,3 @@ class MatchTest(unittest.TestCase):
         self.assertTrue(self.m.match("Mesut Cemil Bey", "Mesud Cemil"))
         self.assertTrue(self.m.match("", ""))
         self.assertTrue(self.m.match("", ""))
-

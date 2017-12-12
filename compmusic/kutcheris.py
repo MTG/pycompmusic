@@ -14,9 +14,11 @@
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
 
-import requests
-import bs4
 import re
+
+import bs4
+import requests
+
 
 def search_artist(name):
     """ Search for an artist name.
@@ -50,6 +52,7 @@ def search_artist(name):
         ret[name] = id
     return ret
 
+
 def get_artist_details(artistid):
     url = "http://kutcheris.com/artist.php?id=%s" % artistid
     r = requests.get(url)
@@ -77,4 +80,3 @@ def get_artist_details(artistid):
         bio = None
 
     return imagecontents, bio, wikipedia
-

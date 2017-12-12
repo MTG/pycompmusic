@@ -22,29 +22,26 @@
 # International Conference on Audio Technologies for Music and Media, Ankara,
 # Turkey.
 import os
-import re
-import json
 import tempfile
 
-import compmusic.extractors
+from docserver import util
 from tomato.symbolic.scoreconverter import ScoreConverter
 
-from docserver import util
-from os.path import isfile, join
+import compmusic.extractors
 from compmusic import dunya
 from settings import token
-from compmusic.dunya import makam
+
 dunya.set_token(token)
+
 
 class Symbtr2Png(compmusic.extractors.ExtractorModule):
     _version = "0.2"
     _sourcetype = "symbtrtxt"
     _slug = "score"
     _output = {
-            "xmlscore": {"extension": "xml", "mimetype": "application/xml"},
-            "score": {"extension": "svg", "mimetype": "image/svg+xml", "parts": True},
+        "xmlscore": {"extension": "xml", "mimetype": "application/xml"},
+        "score": {"extension": "svg", "mimetype": "image/svg+xml", "parts": True},
     }
-
 
     def run(self, musicbrainzid, fpath):
         symbtrmu2 = util.docserver_get_symbtrmu2(musicbrainzid)
@@ -56,7 +53,7 @@ class Symbtr2Png(compmusic.extractors.ExtractorModule):
         fp, tmpxml = tempfile.mkstemp(".xml")
         os.close(fp)
 
-        tmply = tmpxml.replace(".xml",".ly")
+        tmply = tmpxml.replace(".xml", ".ly")
         tmp_dir = tempfile.mkdtemp()
 
         # parameters
@@ -66,22 +63,20 @@ class Symbtr2Png(compmusic.extractors.ExtractorModule):
 
         # instantiate analyzer object
         scoreConverter = ScoreConverter()
-        
-
 
         xml_output, ly_output, svg_output, txt_ly_mapping = scoreConverter.convert(
-                    fpath, symbtrmu2, symbtr_name=finfo, mbid=musicbrainzid, 
-                    render_metadata=render_metadata, xml_out=tmpxml, ly_out=tmply, 
-                    svg_out=tmp_dir, svg_paper_size=svg_paper_size)
-        
+            fpath, symbtrmu2, symbtr_name=finfo, mbid=musicbrainzid,
+            render_metadata=render_metadata, xml_out=tmpxml, ly_out=tmply,
+            svg_out=tmp_dir, svg_paper_size=svg_paper_size)
+
         ret = {'score': [], 'xmlscore': ''}
-        
+
         musicxml = open(xml_output)
         ret['xmlscore'] = musicxml.read()
         musicxml.close()
 
         os.unlink(tmpxml)
-        os.unlink(tmpxml.replace('.xml','.ly'))
+        os.unlink(tmpxml.replace('.xml', '.ly'))
 
         files = [os.path.join(tmp_dir, f) for f in os.listdir(tmp_dir)]
         files = filter(os.path.isfile, files)
@@ -96,6 +91,3 @@ class Symbtr2Png(compmusic.extractors.ExtractorModule):
                 os.remove(f)
         os.rmdir(tmp_dir)
         return ret
-
-
-

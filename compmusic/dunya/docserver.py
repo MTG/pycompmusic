@@ -14,14 +14,17 @@
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
 
-import conn
 import json
 import os
+
+import conn
+
 
 def get_collections():
     """Get a list of all collections in the server."""
     path = "document/collections"
     return conn._get_paged_json(path)
+
 
 def get_collection(slug):
     """Get the documents (recordings) in a collection.
@@ -31,6 +34,7 @@ def get_collection(slug):
     """
     path = "document/%s" % slug
     return conn._dunya_query_json(path)
+
 
 def document(recordingid):
     """Get the available source filetypes for a Musicbrainz recording.
@@ -42,6 +46,7 @@ def document(recordingid):
     path = "document/by-id/%s" % recordingid
     recording = conn._dunya_query_json(path)
     return recording
+
 
 def create_document(collection, document, title=None):
     path = "/document/by-id/%s" % document
@@ -89,8 +94,10 @@ def file_for_document(recordingid, thetype, subtype=None, part=None, version=Non
         args["v"] = version
     return conn._dunya_query_file(path, **args)
 
+
 def get_mp3(recordingid):
     return file_for_document(recordingid, "mp3")
+
 
 def get_document_as_json(recordingid, thetype, subtype=None, part=None, version=None):
     """ Get a derived filetype and load it as json.
@@ -108,4 +115,3 @@ def get_document_as_json(recordingid, thetype, subtype=None, part=None, version=
         return json.loads(doc)
     except ValueError:
         return doc
-

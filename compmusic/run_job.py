@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 from __future__ import print_function
 
-import sys
 import os
+import sys
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import imp
 import importlib
 import inspect
-import argparse
 import logging
 import json
 import compmusic
@@ -16,9 +16,11 @@ from compmusic import extractors
 import numpy as np
 
 logger = logging.getLogger("extractor")
-#ch = logging.StreamHandler()
-#ch.setLevel(logging.DEBUG)
-#logger.addHandler(ch)
+
+
+# ch = logging.StreamHandler()
+# ch.setLevel(logging.DEBUG)
+# logger.addHandler(ch)
 
 def _get_module_by_path(modulepath):
     mod, clsname = modulepath.rsplit(".", 1)
@@ -30,11 +32,12 @@ def _get_module_by_path(modulepath):
         logger.warn("Cannot import the module: %s" % mod)
         logger.warn("Try it in a terminal and see what the error is")
 
+
 def _get_module_by_slug(slug):
     # Get all files in the module
     fname, dirname, desc = imp.find_module("extractors", compmusic.__path__)
     modules = set(["compmusic.extractors.%s" % os.path.splitext(module)[0]
-                for module in os.listdir(dirname) if module.endswith(".py")])
+                   for module in os.listdir(dirname) if module.endswith(".py")])
 
     unloaded = []
     matching = []
@@ -49,7 +52,8 @@ def _get_module_by_slug(slug):
             unloaded.append(m)
 
     if unloaded:
-        logger.warn("Failed to load these modules due to an import error, check that you have all their dependencies installed")
+        logger.warn(
+            "Failed to load these modules due to an import error, check that you have all their dependencies installed")
         for u in unloaded:
             logger.warn(u)
 
@@ -67,6 +71,7 @@ def _get_module_by_slug(slug):
             logger.warn("or that the module it is in can be loaded (is it in one of the above failed modules?)")
         return None
 
+
 def load_module(modulepath):
     if "." in modulepath:
         # it's an exact path
@@ -79,11 +84,13 @@ def load_module(modulepath):
     else:
         return None
 
+
 class NumPyArangeEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, np.ndarray):
             return obj.tolist()  # or map(int, obj)
         return json.JSONEncoder.default(self, obj)
+
 
 def save_data(module, data):
     modulemeta = module._output
@@ -101,6 +108,7 @@ def save_data(module, data):
                 output = d[i]
             open(fname, "wb").write(output)
 
+
 def run_file(module, filename, mbid=None):
     if not mbid:
         if filename.lower().endswith(".mp3"):
@@ -112,6 +120,7 @@ def run_file(module, filename, mbid=None):
         save_data(module, ret)
     else:
         logging.error("Cannot find a mbid in this file. Use the mbid argument")
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
@@ -127,4 +136,3 @@ if __name__ == "__main__":
     themod = load_module(module)
     if themod:
         run_file(themod, filename, mbid)
-

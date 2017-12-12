@@ -20,14 +20,15 @@ Rename audio directories and files that have been named
 by picard
 """
 from __future__ import print_function
+
+import argparse
 import os
 import shutil
-import sys
-import unicodedata
 import string
-import argparse
+import unicodedata
 
 validFilenameChars = "-_.() %s%s" % (string.ascii_letters, string.digits)
+
 
 def fixfile(filename):
     cleanedFilename = unicodedata.normalize('NFKD', filename).encode('ASCII', 'ignore')
@@ -36,9 +37,11 @@ def fixfile(filename):
     newfname = fparts[0].replace(" ", "_").replace(".", "_")
     return "%s%s" % (newfname, fparts[1])
 
+
 def fixpath(filepath):
     filepath = unicodedata.normalize('NFKD', filepath).encode('ASCII', 'ignore')
     return filepath.replace(" ", "_").replace(".", "_")
+
 
 def removeSpecialChars(srcDir, destDir):
     if not srcDir.endswith("/"):
@@ -63,6 +66,7 @@ def removeSpecialChars(srcDir, destDir):
                     srcFilePath = os.path.join(dirpath, f)
                     print("%s -> %s" % (srcFilePath, destFilePath))
                     shutil.move(srcFilePath, destFilePath)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

@@ -16,26 +16,28 @@
 # this program.  If not, see http://www.gnu.org/licenses/
 
 from __future__ import print_function
-import sys
-import os
+
 import argparse
 import collections
-import unidecode
-import shutil
-import random
-import functools32
 import json
+import os
+import random
+import re
+import shutil
 import string
 
 import Levenshtein
-import re
+import functools32
+import musicbrainzngs as mb
+import unidecode
 
 import compmusic.file
 import compmusic.musicbrainz
-import musicbrainzngs as mb
+
 mb.set_useragent("Dunya", "0.1")
 mb.set_rate_limit(False)
 mb.set_hostname("sitar.s.upf.edu:8090")
+
 
 class MakamScore(object):
     mapping = collections.defaultdict(list)
@@ -72,15 +74,15 @@ class MakamScore(object):
         except:
             pass
         try:
-            shutil.copy(os.path.join(self.scores, fname+".txt"), target)
+            shutil.copy(os.path.join(self.scores, fname + ".txt"), target)
         except IOError:
             pass
         try:
-            shutil.copy(os.path.join(self.pdfs, fname+".pdf"), target)
+            shutil.copy(os.path.join(self.pdfs, fname + ".pdf"), target)
         except IOError:
             pass
         try:
-            shutil.copy(os.path.join(self.midis, fname+".mid"), target)
+            shutil.copy(os.path.join(self.midis, fname + ".mid"), target)
         except IOError:
             pass
 
@@ -199,9 +201,9 @@ class MakamScore(object):
                 a = a["artist"]
                 aname = a["name"]
                 wname = w["title"]
-                #if isinstance(aname, unicode):
+                # if isinstance(aname, unicode):
                 #    aname = unidecode.unidecode(aname)
-                #if isinstance(wname, unicode):
+                # if isinstance(wname, unicode):
                 #    wname = unidecode.unidecode(wname)
                 anywork = self.match(name, wname)
                 anyname = self.match(composer, aname)
@@ -234,12 +236,14 @@ class MakamScore(object):
             fname = os.path.join(dirname, f)
             self.test_file(fname)
 
+
 def main(args):
     m = MakamScore(args.s, args.p, args.m, args.a)
     if args.f:
         m.test_file(args.f)
     else:
         m.test_dir(args.s)
+
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser()

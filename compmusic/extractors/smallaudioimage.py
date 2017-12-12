@@ -14,8 +14,9 @@
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
 import os
-import json
+
 from docserver import util
+
 from compmusic.extractors.audioimages import AudioImages
 
 
@@ -23,19 +24,17 @@ class SmallAudioImage(AudioImages):
     _version = "0.1"
     _sourcetype = "mp3"
     _slug = "smallaudioimages"
-    _f_min =  None
+    _f_min = None
     _f_max = None
     _fft_size = 31
     _scale_exp = None
     _pallete = None
 
-
     _output = {
-            "smallfull": {"extension": "png", "mimetype": "image/png"},
-        }
+        "smallfull": {"extension": "png", "mimetype": "image/png"},
+    }
 
     def run(self, musicbrainzid, fname):
-
         wavfname, created = util.docserver_get_wav_filename(musicbrainzid)
         ret = {}
         ret["smallfull"] = self.make_mini(wavfname)
@@ -43,4 +42,3 @@ class SmallAudioImage(AudioImages):
             os.unlink(wavfname)
 
         return ret
-

@@ -1,6 +1,8 @@
 from __future__ import print_function
-import compmusic
+
 import carnatic
+
+import compmusic
 
 
 def rt_for_recording(recording):
@@ -15,8 +17,6 @@ def rt_for_recording(recording):
         if t:
             taala = t
     return raaga, taala
-
-
 
 
 def get_taala(name):
@@ -41,21 +41,19 @@ def get_raaga(name):
     return raaga
 
 
-
 recordingtags = {}
-In [39]: for r in recordings:
-        rid = r["id"]
-            if rid not in recordingtags:
-                        rg, ta = rt_for_recording(r)
-                                recordingtags[rid] = {"raaga": rg.name.encode("utf-8") if rg else None, "taala": ta.name.encode("utf-8") if ta else None}
-
+In[39]: for r in recordings:
+    rid = r["id"]
+    if rid not in recordingtags:
+        rg, ta = rt_for_recording(r)
+        recordingtags[rid] = {"raaga": rg.name.encode("utf-8") if rg else None,
+                              "taala": ta.name.encode("utf-8") if ta else None}
 
 json.dump(recordingtags, open("carnatic-recording-to-tag.json", "w"))
 
-
 releases = compmusic.get_releases_in_collection(compmusic.CARNATIC_COLLECTION)
 
-In [19]: for w in wattr:
+In[19]: for w in wattr:
     raaga = None
     taala = None
     for a in w["attribute-list"]:
@@ -67,7 +65,7 @@ In [19]: for w in wattr:
     if wid not in workmap:
         workmap[wid] = {"raaga": raaga, "taala": taala}
 
-In [19]: for rel in releases:
+In[19]: for rel in releases:
     recs = compmusic.get_recordings_from_release(rel)
     for rec in recs:
         recordings.append(compmusic.mb.get_recording_by_id(rec, includes=["tags"])["recording"])
@@ -89,7 +87,7 @@ wattr = [w["work"] for w in works if "attribute-list" in w["work"]]
 json.dump(wattr, open("carnatic-works-with-attributes.json", "w"))
 workmap = {}
 
-In [19]: for w in wattr:
+In[19]: for w in wattr:
     raaga = None
     taala = None
     for a in w["attribute-list"]:
@@ -99,9 +97,9 @@ In [19]: for w in wattr:
             raaga = a["attribute"]
     wid = w["id"]
     if wid not in workmap:
-        workmap[wid] = {"raaga": raaga.encode("utf-8") if raaga else None, "taala": taala.encode("utf-8") if taala else None}
+        workmap[wid] = {"raaga": raaga.encode("utf-8") if raaga else None,
+                        "taala": taala.encode("utf-8") if taala else None}
 json.dump(workmap, open("carnatic-works-to-attribute.json", "w"))
-
 
 worktorec = collections.defaultdict(list)
 rectowork = collections.defaultdict(list)
@@ -121,8 +119,6 @@ for k, v in rectowork.items():
 json.dump(newworktorec, open("carnatic-work-to-recordings.json", "w"))
 json.dump(newrectowork, open("carnatic-recording-to-works.json", "w"))
 
-
-
 rectags = {}
 for r in rlist:
     data = {}
@@ -138,10 +134,8 @@ for r in rlist:
 
 json.dump(rectags, open("carnatic-recording-to-mb-tags.json", "w"))
 
-
-
 worknoattr = []
-In [19]: for w in allworks:
+In[19]: for w in allworks:
     if "attribute-list" not in w["work"]:
         worknoattr.append(w["work"])
 json.dump(worknoattr, open("carnatic-works-no-attributes.json", "w"))
