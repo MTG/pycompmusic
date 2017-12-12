@@ -4,6 +4,8 @@ Created on Feb 3, 2016
 @author: joro
 '''
 
+from __future__ import print_function
+
 import sys
 import os
 import urllib2
@@ -12,7 +14,6 @@ import logging
 import subprocess
 parentDir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__) ), os.path.pardir,  os.path.pardir,  os.path.pardir,  os.path.pardir))
 pathAlignmentDur = os.path.join(parentDir, 'AlignmentDuration')
-print pathAlignmentDur
 
 if pathAlignmentDur not in sys.path:
     sys.path.append(pathAlignmentDur)
@@ -186,7 +187,7 @@ def fetchNoteOnsetFile(musicbrainzid,  outputDir, alignment_file_name):
 
 
 def fetchFileFromURL(URL, outputFileURI):
-        print "fetching file from URL {} ...  ".format(URL)
+        print("fetching file from URL {} ...  ".format(URL))
         try:
             response = urllib2.urlopen(URL)
             a = response.read()

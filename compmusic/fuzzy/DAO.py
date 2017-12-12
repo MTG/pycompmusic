@@ -15,9 +15,11 @@
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
 
+from __future__ import print_function
 import MySQLdb
 import datetime
 import types
+
 
 class DAO:
 	def __init__(self):
@@ -27,11 +29,10 @@ class DAO:
 		self.passwd = "compmusic123"
 	def connection(self):
 		# Connect to the DB
-		#print "Connecting to DB"
 		try:
 			conn = MySQLdb.connect(db=self.database, user=self.user, host=self.host, passwd = self.passwd)
-		except MySQLdb.OperationalError, msg:
-			print "Cannot connect to the database: %s" % unicode(msg)
+		except MySQLdb.OperationalError as msg:
+			print("Cannot connect to the database: %s" % unicode(msg))
 			return False
 		return conn
 		
@@ -71,7 +72,7 @@ class DAO:
 					data = (True, drow, "")
 				else:
 					data = (False, "empty", "")
-			except MySQLdb.OperationalError, msg:
+			except MySQLdb.OperationalError as msg:
 				data = (False, "query", msg)
 			conn.close()
 		return data
@@ -101,7 +102,7 @@ class DAO:
 					AND c.mbid = t.collection_mbid
 					%s
 					AND rel.%s='%s'""" % (table, str_collection, attr_name, attr_value)
-				print query
+				print(query)
 				curs.execute(query.encode("utf-8"))
 				rows = curs.fetchall()
 				if len(rows) > 0:
@@ -116,7 +117,7 @@ class DAO:
 					data = (True, drows, "")
 				else:
 					data = (False, "empty", "")
-			except MySQLdb.OperationalError, msg:
+			except MySQLdb.OperationalError as msg:
 				data = (False, "query", msg)
 			conn.close()
 		return data
@@ -145,7 +146,7 @@ class DAO:
 					AND c.mbid = t.collection_mbid
 					%s
 					AND rel.%s='%s'""" % (table, str_collection, attr_name, attr_value)
-				print query
+				print(query)
 				curs.execute(query.encode("utf-8"))
 				rows = curs.fetchall()
 				if len(rows) > 0:
@@ -159,7 +160,7 @@ class DAO:
 					data = (True, drows, "")
 				else:
 					data = (False, "empty", "")
-			except MySQLdb.OperationalError, msg:
+			except MySQLdb.OperationalError as msg:
 				data = (False, "query", msg)
 			conn.close()
 		return data
@@ -193,7 +194,7 @@ class DAO:
 					data = (True, drows, "")
 				else:
 					data = (False, "empty", "")
-			except MySQLdb.OperationalError, msg:
+			except MySQLdb.OperationalError as msg:
 				data = (False, "query", msg)
 			conn.close()
 		return data
@@ -227,7 +228,7 @@ class DAO:
 					data = (True, drows, "")
 				else:
 					data = (False, "empty", "")
-			except MySQLdb.OperationalError, msg:
+			except MySQLdb.OperationalError as msg:
 				data = (False, "query", msg)
 			conn.close()
 		return data
@@ -264,7 +265,7 @@ class DAO:
 					data = (True, drow, "")
 				else:
 					data = (False, "empty", "")
-			except MySQLdb.OperationalError, msg:
+			except MySQLdb.OperationalError as msg:
 				data = (False, "query", msg)
 			conn.close()
 		return data
@@ -302,7 +303,7 @@ class DAO:
 					data = (True, drows, "")
 				else:
 					data = (False, "empty", "")
-			except MySQLdb.OperationalError, msg:
+			except MySQLdb.OperationalError as msg:
 				data = (False, "query", msg)
 			conn.close()
 		return data
@@ -340,7 +341,7 @@ class DAO:
 					data = (True, drows, "")
 				else:
 					data = (False, "empty", "")
-			except MySQLdb.OperationalError, msg:
+			except MySQLdb.OperationalError as msg:
 				data = (False, "query", msg)
 			conn.close()
 		return data
@@ -372,7 +373,7 @@ class DAO:
 				AND a.collection_mbid = c.mbid
 				%s
 				""" % (rel_table, str_relation, str_collection)
-				print query
+				print(query)
 				curs.execute(query.encode("utf-8"))
 				rows = curs.fetchall()
 				if len(rows) > 0:
@@ -387,7 +388,7 @@ class DAO:
 					data = (True, drows, "")
 				else:
 					data = (False, "empty", "")
-			except MySQLdb.OperationalError, msg:
+			except MySQLdb.OperationalError as msg:
 				data = (False, "query", msg)
 			conn.close()
 		return data
@@ -423,7 +424,7 @@ class DAO:
 					data = (True, drows, "")
 				else:
 					data = (False, "empty", "")
-			except MySQLdb.OperationalError, msg:
+			except MySQLdb.OperationalError as msg:
 				data = (False, "query", msg)
 			conn.close()
 		return data
@@ -455,7 +456,7 @@ class DAO:
 					data = (True, drow, "")
 				else:
 					data = (False, "empty", "")
-			except MySQLdb.OperationalError, msg:
+			except MySQLdb.OperationalError as msg:
 				data = (False, "query", msg)
 			conn.close()
 		return data
@@ -485,7 +486,7 @@ class DAO:
 							"artists": [{"uuid": row[2], "name": row[3].encode("utf-8"), "relation": row[4]}],
 							"collection": {"name": row[5]}
 						}
-						print drow["artists"]
+						print(drow["artists"])
 						if not drows.has_key(drow["uuid"]):
 							drows[drow["uuid"]] = drow
 						else:
@@ -493,7 +494,7 @@ class DAO:
 					data = (True, drows.values(), "")
 				else:
 					data = (False, "empty", "")
-			except MySQLdb.OperationalError, msg:
+			except MySQLdb.OperationalError as msg:
 				data = (False, "query", msg)
 			conn.close()
 		return data
@@ -522,7 +523,7 @@ class DAO:
 					data = (True, drow, "")
 				else:
 					data = (False, "empty", "")
-			except MySQLdb.OperationalError, msg:
+			except MySQLdb.OperationalError as msg:
 				data = (False, "query", msg)
 			conn.close()
 		return data
@@ -586,7 +587,7 @@ class DAO:
 					data = (True, drow, "")
 				else:
 					data = (False, "empty", "")
-			except MySQLdb.OperationalError, msg:
+			except MySQLdb.OperationalError as msg:
 				data = (False, "query", msg)
 			conn.close()
 		return data
@@ -622,7 +623,7 @@ class DAO:
 					data = (True, drows, "")
 				else:
 					data = (False, "empty", "")
-			except MySQLdb.OperationalError, msg:
+			except MySQLdb.OperationalError as msg:
 				data = (False, "query", msg)
 			conn.close()
 		return data
@@ -659,7 +660,7 @@ class DAO:
 					data = (True, drows, "")
 				else:
 					data = (False, "empty", "")
-			except MySQLdb.OperationalError, msg:
+			except MySQLdb.OperationalError as msg:
 				data = (False, "query", msg)
 			conn.close()
 		return data
@@ -686,7 +687,7 @@ class DAO:
 					AND rl.uuid = r.release_uuid
 					%s
 					%s """ % (str_uuid, str_collection, str_limit)
-				print query
+				print(query)
 				curs.execute(query.encode("utf-8"))
 				rows = curs.fetchall()
 				if len(rows) > 0:
@@ -704,7 +705,7 @@ class DAO:
 					data = (True, drows[:], "")
 				else:
 					data = (False, "empty", "")
-			except MySQLdb.OperationalError, msg:
+			except MySQLdb.OperationalError as msg:
 				data = (False, "query", msg)
 			conn.close()
 		return data
@@ -738,7 +739,7 @@ class DAO:
 					data = (True, drow, "")
 				else:
 					data = (False, "empty", "")
-			except MySQLdb.OperationalError, msg:
+			except MySQLdb.OperationalError as msg:
 				data = (False, "query", msg)
 			conn.close()
 		return data
@@ -836,7 +837,7 @@ class DAO:
 					AND rl.uuid = r.release_uuid
 					AND c.mbid = r.collection_mbid
 					%s""" % (attr_name, attr_value, str_collection)
-				print query
+				print(query)
 				curs.execute(query.encode("utf-8"))
 				rows = curs.fetchall()
 				if len(rows) > 0:
@@ -853,7 +854,7 @@ class DAO:
 					data = (True, drows, "")
 				else:
 					data = (False, "empty", "")
-			except MySQLdb.OperationalError, msg:
+			except MySQLdb.OperationalErroras  msg:
 				data = (False, "query", msg)
 			conn.close()
 		return data
@@ -1221,37 +1222,37 @@ class DAO:
 
 	
 def print_recording(recording):
-	print 'recording.title: %s' % recording['title']
-	print 'artist.name: %s' % recording['artist']['name']
-	print 'release.title: %s' % recording['release']['title']
-	print 'recording.title: %s' % recording['title']
+	print('recording.title: %s' % recording['title'])
+	print('artist.name: %s' % recording['artist']['name'])
+	print('release.title: %s' % recording['release']['title'])
+	print('recording.title: %s' % recording['title'])
 	if recording.has_key('artists'):
-		print 'artists'
+		print('artists')
 		for artist in recording['artists']:
-			print "\tartist.name: %s" % artist['name']
-			print "\trel.type: %s" % artist['relation']['type']
+			print("\tartist.name: %s" % artist['name'])
+			print("\trel.type: %s" % artist['relation']['type'])
 			if artist['relation']['attribute'] != "unknown":
-				print "\trel.attribute: %s" % artist['relation']['attribute']
-			print "\t------------------"
+				print("\trel.attribute: %s" % artist['relation']['attribute'])
+			print("\t------------------")
 	if recording.has_key('work'):
-		print 'work'
-		print "\twork.title: %s" % recording['work']['title']
-		print "\trel.type: %s" % recording['work']['relation']['type']
+		print('work')
+		print("\twork.title: %s" % recording['work']['title'])
+		print("\trel.type: %s" % recording['work']['relation']['type'])
 		if recording['work']['relation']['attribute'] != "unknown":
-			print "\trel.attribute: %s" % recording['work']['relation']['attribute']
+			print("\trel.attribute: %s" % recording['work']['relation']['attribute'])
 		if recording['work'].has_key('artists'):
-			print '\tartists'
+			print('\tartists')
 			for artist in recording['work']['artists']:
-				print "\t\tartist.name: %s" % artist['name']
-				print "\t\trel.type: %s" % artist['relation']['type']
+				print("\t\tartist.name: %s" % artist['name'])
+				print("\t\trel.type: %s" % artist['relation']['type'])
 				if artist['relation']['attribute'] != "unknown":
-					print "\t\trel.attribute: %s" % artist['relation']['attribute']
-				print "\t\t------------------"
+					print("\t\trel.attribute: %s" % artist['relation']['attribute'])
+				print("\t\t------------------")
 
 	
 if __name__ == "__main__":
 	dao = DAO()
-	print dao.getCollections()
+	print(dao.getCollections())
 	#print dao.getCollectionBy("name", "Andalusian")
 	#print dao.getCollectionInfo("mbid", "5d9b5dc6-507b-4f1a-abc4-fefd14f5e84c")
 	#print dao.getArtistInfo("name", "Abderrahim Souiri")
@@ -1270,22 +1271,22 @@ if __name__ == "__main__":
 	#for recording in recordings: print recording
 	
 	status, relations, msg = dao.getRelations('type', 'composer', table="work", collection="Carnatic")
-	print relations
+	print(relations)
 	for relation in relations:
-		print dao.getArtistInfo("uuid", relation['uuid1'])
+		print(dao.getArtistInfo("uuid", relation['uuid1']))
 	
 	import sys
 	sys.exit()
-	#print dao.getRecordingsByRelease("uuid", "82c681e1-49cf-4599-a8d4-ca0b1bbd5daf") # L'art du mawwal
-	#print dao.getRecordingsByWork("uuid", "0a4aed14-baea-4a7e-8d40-8be69219dbd2") # Jaawali Praana naathan
+	#print(dao.getRecordingsByRelease("uuid", "82c681e1-49cf-4599-a8d4-ca0b1bbd5daf")) # L'art du mawwal
+	#print(dao.getRecordingsByWork("uuid", "0a4aed14-baea-4a7e-8d40-8be69219dbd2")) # Jaawali Praana naathan
 	
 	#for relation in dao.getArtistsRelationByRecording("uuid", "9b01c16f-0e27-446b-b927-15a912b2f862", relation=None)[1]:
-		#print relation
-	#print dao.getWorkRelationByRecording("uuid", "9b01c16f-0e27-446b-b927-15a912b2f862", relation=None)
-	#print dao.getArtistsRelation("uuid", '02d671b6-c116-4632-bb12-60b53973d803', rel_table='work', relation=None)
-	print "---------------------------------------------------------------------------"
-	print "-------------------------------- TAMBURA --------------------------------"
-	print "---------------------------------------------------------------------------"
+		#print(relation)
+	#print(dao.getWorkRelationByRecording("uuid", "9b01c16f-0e27-446b-b927-15a912b2f862", relation=None))
+	#print(dao.getArtistsRelation("uuid", '02d671b6-c116-4632-bb12-60b53973d803', rel_table='work', relation=None))
+	print("---------------------------------------------------------------------------")
+	print("-------------------------------- TAMBURA --------------------------------")
+	print("---------------------------------------------------------------------------")
 	finalrecordings = []
 	status, recordings, msg = dao.getRecordingsByInstrument("tambura")
 	if status:
@@ -1310,33 +1311,32 @@ if __name__ == "__main__":
 					recording['work']['artists'] = workartist
 			finalrecordings.append(recording)
 	for recording in finalrecordings:
-		print "-------------% s -- %s -------------------" % (recording['uuid'], recording['title'])
+		print("-------------% s -- %s -------------------" % (recording['uuid'], recording['title']))
 		print_recording(recording)
 		break
 		
-	print dao.getInstruments()
-	print "-----------------------------------"
+	print(dao.getInstruments())
+	print("-----------------------------------")
 	#status, relations, msg = dao.getRelations('type', 'lyricist', rel_table="work")
-	#print relations[0]['uuid1']
+	#print(relations[0]['uuid1'])
 	#for relation in relations:
-		#print dao.getArtistInfo("uuid", relation['uuid2'])
-	#print len(relations)
+		#print(dao.getArtistInfo("uuid", relation['uuid2']))
+	#print(len(relations))
 	#status, relations, msg = dao.getLyricistsInfo(collection="Ottoman")
 	#for relation in relations:
 		#if len(relation["works"]) <= 1:
-			#print relation
+			#print(relation)
 	status, artists, msg = dao.getArtistsRecordings(collection="Carnatic")
 	#for artist in artists:
-		#print artist
-	print len(artists)
+		#print(artist)
+	print(len(artists))
 	#status, artists, msg = dao.getArtistsRelations(rel_table='recording', relation=['vocal', 'collaboration', 'instrument'])
 	#status, artists, msg = dao.getArtistsRelations(rel_table='recording', relation=['vocal', 'instrument'], collection='Ottoman')
 	#for artist in artists:
-		#print artist
-	#print len(artists)
+		#print(artist)
+	#print(len(artists))
 	
 	status, tags, msg = dao.getTags("0071586b-a9f4-4f89-a766-87f77ee12f81")
-	print tags
-	print "AKIIIIIIIIIIIIII"
+	print(tags)
 	status, recordings, msg = dao.getRecordings(uuid="7344b268-741a-444f-81ed-f7c89fefe020")
-	print recordings
+	print(recordings)

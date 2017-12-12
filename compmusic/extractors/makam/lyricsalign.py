@@ -20,6 +20,7 @@
 # Dzhambazov, G., & Serra X. (2015).  Modeling of Phoneme Durations for Alignment between Polyphonic Audio and Lyrics.
 #            Sound and Music Computing Conference 2015.
 
+from __future__ import print_function
 
 import sys
 import os
@@ -72,10 +73,6 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
             "alignedLyricsSyllables": {"extension": "json", "mimetype": "application/json"},
             "sectionlinks": {"extension": "json", "mimetype": "application/json"}, # rifined section links
             }
-    
-
-
-
 
     def __init__(self, dataDir=None, hasSecondVerseProblem=None, hasSectionNumberDiscrepancy=None, **kwargs):
         super(LyricsAlign, self).__init__()
@@ -87,7 +84,6 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
         self.hasSecondVerse = False
         self.hasSectionNumberDiscrepancy = False
 
-  
 
     def run(self, musicbrainzid, fname):
         
@@ -126,7 +122,7 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
             try:
                 dir_ = 'audio_metadata/'
                 sectionLinksDict = get_section_annotaions_dict(musicbrainzid, dir_, self.dataOutputDir, self.hasSectionNumberDiscrepancy)
-            except Exception,e:
+            except Exception as e:
                 sys.exit("no section annotations found for audio {} ".format(musicbrainzid))
                  
         else:
@@ -142,7 +138,7 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
         try:    
             extractedPitch = dunya.docserver.get_document_as_json(musicbrainzid, "jointanalysis", "pitch", 1, version="0.1")
             extractedPitch = extractedPitch['pitch']
-        except Exception,e:
+        except Exception as e:
             sys.exit("no initialmakampitch series could be downloaded.  ")
         
         if ON_SERVER:
@@ -168,7 +164,7 @@ class LyricsAlign(compmusic.extractors.ExtractorModule):
         
         ret['alignedLyricsSyllables'] = totalDetectedTokenList
         ret['sectionlinks'] = sectionLinksDict
-        print ret
+        print(ret)
         return ret
 
 

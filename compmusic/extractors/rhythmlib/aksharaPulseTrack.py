@@ -21,6 +21,7 @@ Created on Sep 12, 2013
 This python module is to implement tala Tracking using essentia audio analysis library
 More doc soon...
 '''
+from __future__ import print_function
 import parameters as params 
 import numpy as np
 import math 
@@ -43,7 +44,7 @@ def smoothNovelty(onsetenv,pd):
     # Smooth beat events
     if np.mod(pd,2):
         pd = pd+1;
-        print 'pd is odd, adding one to pd to make it even'
+        print('pd is odd, adding one to pd to make it even')
     ppd = (np.arange(-pd,pd+1)).astype(float)
     templt = np.exp(-0.5*(np.power(ppd/(pd/32.0),2.0)));
     localscore = np.convolve(templt,onsetenv);
@@ -121,7 +122,7 @@ def findpeaks(x, imode = 'q', pmode = 'p', wdTol = 5, ampTol = 0.1, prominence =
     nx = x.shape[0]
     nxp = nx+1
 #     if x.shape[1] != 1:
-#         print "Error in input dimension input X. It must be a column vector"
+#         print("Error in input dimension input X. It must be a column vector")
     if pmode == 'v':
         x = -x
     dx = x[1:]-x[0:-1]
@@ -425,7 +426,7 @@ def DPSearch(cands,param):
     Locs = (cands.Locs).copy()
     D,N = TM.shape
     if D != N: 
-        print "Transition Matrix not square!!!!"
+        print("Transition Matrix not square!!!!")
         return -1
     backlink = -np.ones(Locs.size)
     cumscore = (cands.Wts).copy()
@@ -492,7 +493,7 @@ def getOnsetFunctions(fname):
             magFluxBand = (magFluxBand + abs(magFluxBand))/2
             oFn = magFluxBand.sum()
             if (math.isnan(oFn)):
-                print "NaN found here"
+                print("NaN found here")
             pass
             pool.add(poolName + str(bands), oFn)
         pass
@@ -568,5 +569,5 @@ if __name__ == '__main__':
 #     np.savetxt('akTimes_new.txt',aksharaTimes,fmt='%14.9f',delimiter='\t')
 #     np.savetxt('TCts_new.txt',TCts,fmt='%14.9f',delimiter='\t')
 #     np.savetxt('TCper.txt',TCper,fmt='%14.9f',delimiter='\t')
-#     print mmpFromTC
+#     print(mmpFromTC)
     

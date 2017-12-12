@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 
 import sys
 import os
@@ -93,7 +94,7 @@ def save_data(module, data):
             d = [d]
         for i in range(len(d)):
             fname = "%s-%s-%s.%s" % (mbid, key, i, ext)
-            print "Writing output for type %s to %s" % (key, fname)
+            print("Writing output for type %s to %s" % (key, fname))
             if modulemeta[key]["mimetype"] == "application/json":
                 output = json.dumps(d[i], cls=NumPyArangeEncoder)
             else:
@@ -114,8 +115,8 @@ def run_file(module, filename, mbid=None):
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
-        print >>sys.stderr, "usage: %s module file [mbid]" % sys.argv[0]
-        print >>sys.stderr, "module can be a python path or slug"
+        print("usage: %s module file [mbid]" % sys.argv[0], file=sys.stderr)
+        print("module can be a python path or slug", file=sys.stderr)
         sys.exit(1)
     mbid = None
     if len(sys.argv) == 4:

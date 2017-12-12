@@ -19,7 +19,7 @@
 Rename audio directories and files that have been named
 by picard
 """
-
+from __future__ import print_function
 import os
 import shutil
 import sys
@@ -61,7 +61,7 @@ def removeSpecialChars(srcDir, destDir):
                     destfile = fixfile(f)
                     destFilePath = os.path.join(target_dir, destfile)
                     srcFilePath = os.path.join(dirpath, f)
-                    print "%s -> %s" % (srcFilePath, destFilePath)
+                    print("%s -> %s" % (srcFilePath, destFilePath))
                     shutil.move(srcFilePath, destFilePath)
 
 if __name__ == "__main__":

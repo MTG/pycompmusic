@@ -19,6 +19,7 @@
 # Authors:
 #     See AUTHORS file.
 #
+from __future__ import print_function
 
 from PIL import Image, ImageDraw, ImageColor #@UnresolvedImport
 from functools import partial
@@ -42,7 +43,7 @@ def get_sound_type(input_filename):
 try:
     import scikits.audiolab as audiolab
 except ImportError:
-    print "WARNING: audiolab is not installed so wav2png will not work"
+    print("WARNING: audiolab is not installed so wav2png will not work")
 import subprocess
 
 class AudioProcessingException(Exception):

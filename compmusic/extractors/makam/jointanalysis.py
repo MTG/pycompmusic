@@ -22,6 +22,7 @@
 # International Conference on Audio Technologies for Music and Media, Ankara,
 # Turkey.
 
+from __future__ import print_function
 import os
 import struct
 import json
@@ -88,7 +89,7 @@ class JointAnalysis(compmusic.extractors.ExtractorModule):
         rec_data = dunya.makam.get_recording(musicbrainzid)
         for w in rec_data['works']:
             symbtr_file = util.docserver_get_symbtrtxt(w['mbid'])
-            print symbtr_file
+            print(symbtr_file)
             if symbtr_file:
                 score_features_file = util.docserver_get_filename(w['mbid'], "scoreanalysis", "metadata", version="0.1")
                 score_features = json.load(open(score_features_file))
@@ -191,7 +192,7 @@ class TomatoDunyaMakam(compmusic.extractors.ExtractorModule):
         rec_data = dunya.makam.get_recording(musicbrainzid)
         for w in rec_data['works']:
             symbtr_file = util.docserver_get_symbtrtxt(w['mbid'])
-            print symbtr_file
+            print(symbtr_file)
 
             if symbtr_file:
                 score_features_file = util.docserver_get_filename(w['mbid'], "scoreanalysis", "metadata", version="0.1")

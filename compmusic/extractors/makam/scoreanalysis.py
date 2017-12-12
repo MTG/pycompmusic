@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'sertansenturk'
 
+from __future__ import print_function
 from tomato.symbolic.symbtranalyzer import SymbTrAnalyzer
 import compmusic
 import json
@@ -23,7 +24,7 @@ class ScoreAnalysis(compmusic.extractors.ExtractorModule):
         scoreAnalyzer = SymbTrAnalyzer(verbose=True)
 
         mu2_file =  fname.replace('symbtrtxt', 'symbtrmu2').replace('.txt', '.mu2')
-        print mu2_file
+        print(mu2_file)
         # score analysis
         score_features, boundaries, work_mbid = scoreAnalyzer.analyze(
                 fname, mu2_file, symbtr_name=symbtr_fname)

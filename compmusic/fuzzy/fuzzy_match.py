@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
 
-
+from __future__ import print_function
 from __future__ import division
 import yaml
 import numpy as np
@@ -178,14 +178,14 @@ class FuzzyMatch:
         """
         """
         if len(self.all_terms) == 0:
-            print "Calling get_terms function to find all the terms."
+            print("Calling get_terms function to find all the terms.")
             self.get_terms()
 
         existing_terms = np.concatenate(self.clusters.values())
         updated_clusters = []
         for term in self.all_terms:
             if term in existing_terms:
-                print term, " exists in our catalogue\n"
+                print(term, " exists in our catalogue\n")
                 self.log_file.write(term+" exists in our catalogue\n")
                 continue
 
@@ -203,7 +203,7 @@ class FuzzyMatch:
             max_index = np.argmax(tmp)
             if tmp[max_index] < self.similarity_threshold:
                 cluster_name = similarities[max_index][0]
-                print "Added new cluster for", term, "(Nearest cluster was ", cluster_name, ") \n"
+                print("Added new cluster for", term, "(Nearest cluster was ", cluster_name, ") \n")
                 self.log_file.write("Added new cluster for " + term +
                                     " (Nearest cluster was " + cluster_name + ") \n")
                 self.clusters[term] = [term]
@@ -211,7 +211,7 @@ class FuzzyMatch:
             else:
                 cluster_name = similarities[max_index][0]
                 self.clusters[cluster_name].append(term)
-                print term, "is now part of ", cluster_name, "cluster with", str(tmp[max_index]), "confidence\n"
+                print(term, "is now part of ", cluster_name, "cluster with", str(tmp[max_index]), "confidence\n")
                 self.log_file.write(term + " is now part of " + cluster_name +
                                     " cluster with " + str(tmp[max_index]) + " confidence\n")
                 updated_clusters.append(cluster_name)

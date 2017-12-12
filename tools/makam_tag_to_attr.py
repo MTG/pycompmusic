@@ -20,6 +20,8 @@ This script generates links for adding attributes to MB works, extracted from
 the recordings tags.
 '''
 
+from __future__ import print_function
+
 import urllib2
 import urllib
 import json
@@ -66,13 +68,13 @@ def get_symbtrmu2(work_mbid):
             if info[0] in data.keys():
                 data[info[0]] = info[7]
     except:
-        print "There is no mu2 file for work: %s" % work_mbid
+        print("There is no mu2 file for work: %s" % work_mbid)
     return {"makam": data["50"], "usul": data["51"], "form": data["57"]}
 
 def get_mb_recording(collection_mbid, output_file):
     global symbtrmu2_url, count_matched_mu2, count_missing_mu2, count_missing_dunya
     # Get the collection from musicbrainz and extract the recordings
-    print "Retrieving information from mb collection: %s" % collection_mbid
+    print("Retrieving information from mb collection: %s" % collection_mbid)
     res = {"mu2": [], "mb": []}
 
     rec_list = []
@@ -96,7 +98,7 @@ def get_mb_recording(collection_mbid, output_file):
         if "work-relation-list" in work_rels["recording"]:
             works = work_rels["recording"]["work-relation-list"]
         for w in works:
-            print "Extracting work information from MB: %s" %  w["work"]["id"]
+            print("Extracting work information from MB: %s" %  w["work"]["id"])
             
             work_tags = []
             work = mb.get_work_by_id(w["work"]["id"], includes=["tags", "artist-rels"])
@@ -131,17 +133,17 @@ def get_mb_recording(collection_mbid, output_file):
                             usul = rec_usul
                             form = rec_form
                     else:
-                        print "There's a difference between mu2 file and mb recording information."
-                        print "Recording form: %s usul: %s makam: %s" % (rec_form, rec_usul, rec_makam)
-                        print "Mu2 form: %s usul: %s makam: %s" % (mu2_form, mu2_usul, mu2_makam)
+                        print("There's a difference between mu2 file and mb recording information.")
+                        print("Recording form: %s usul: %s makam: %s" % (rec_form, rec_usul, rec_makam))
+                        print("Mu2 form: %s usul: %s makam: %s" % (mu2_form, mu2_usul, mu2_makam))
 
                     if makam and usul and form:
                         try:
                             new_link = update_mb_work(work["work"]["id"], title, makam, form, usul, symbtrmu2_url % work["work"]["id"])
                             if new_link:
                                 res['mu2'].append(new_link)
-                        except ElementNotFoundException, e:
-                            print "Couldn't generate link because element not present in MB"
+                        except ElementNotFoundException as e:
+                            print("Couldn't generate link because element not present in MB")
 
                 elif (not work_makam and not work_usul and not work_form) or \
                         (work_makam == rec_makam and work_usul == rec_usul and work_form == rec_form):
@@ -151,12 +153,12 @@ def get_mb_recording(collection_mbid, output_file):
                         try:
                             new_link = update_mb_work(work["work"]["id"], title, rec_makam, rec_form, rec_usul, None)
                             res['mb'].append(new_link)
-                        except ElementNotFoundException, e:
-                            print "Couldn't generate link because element not present in MB"
+                        except ElementNotFoundException as e:
+                            print("Couldn't generate link because element not present in MB")
 
-            except AliasNotFoundException, e:
+            except AliasNotFoundException as e:
                 count_missing_dunya += 1
-                print "Skipping work because alias not found on Dunya"
+                print("Skipping work because alias not found on Dunya")
 
     with open(output_file, "a+") as append_file:
         append_file.write("<h1> List of links generated from MU2 files information </h1>")
@@ -166,8 +168,8 @@ def get_mb_recording(collection_mbid, output_file):
         for i in res['mb']:
             append_file.write(i)
 
-    print "Completed with missing mu2 files: %d, matched mu2 files: %d, missing on dunya: %d" % \
-            (count_missing_mu2, count_matched_mu2, count_missing_dunya) 
+    print("Completed with missing mu2 files: %d, matched mu2 files: %d, missing on dunya: %d" % \
+            (count_missing_mu2, count_matched_mu2, count_missing_dunya))
 
 def get_tags(tags):
     makam, usul, form = (None, None, None)
@@ -200,9 +202,9 @@ def query_dunya_api(url, params, auth_token, retrieve_attr):
         response = opener.open(url + "?"+urllib.urlencode(params))
         res = json.loads(response.read())
         return res[retrieve_attr].encode('utf-8')
-    except Exception, e:
-        print 'ERROR retrieving dunya information:'  
-        print url + "?"+urllib.urlencode(params)
+    except Exception as e:
+        print('ERROR retrieving dunya information:')
+        print(url + "?"+urllib.urlencode(params))
         raise AliasNotFoundException()
 
 def get_session_id():
@@ -227,10 +229,10 @@ def update_mb_work(work_mbid, work_name, makam, form, usul, mu2_file):
     global domain, work_url, mb_cache, auth_token
     
     if len(mb_cache) == 0:
-        print "Updating MB work %s, generating session id" % work_mbid
+        print("Updating MB work %s, generating session id" % work_mbid)
         session = get_session_id()
 
-        print "Retrieving id of makam, form and usul by parsing html "
+        print("Retrieving id of makam, form and usul by parsing html ")
         request = urllib2.Request(domain + (work_url % work_mbid))
         request.add_header("Cookie",'musicbrainz_server_session=' + session)
         opener = urllib2.build_opener()
@@ -282,7 +284,7 @@ def update_mb_work(work_mbid, work_name, makam, form, usul, mu2_file):
     end_html = '</div>\n'
     gen_url = domain + (work_url % work_mbid) + "?" + urllib.urlencode(data) 
     
-    print "New mb work edition link generated"
+    print("New mb work edition link generated")
     ret = link_html % (gen_url, work_name)
     if mu2_file:
         ret = ret + mu2_html % ( mu2_file)

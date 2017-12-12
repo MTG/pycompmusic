@@ -8,7 +8,7 @@ It creates folder structure
 '''
 
 
-
+from __future__ import print_function
 import musicbrainzngs as mb
 import os
 import sys
@@ -66,8 +66,7 @@ def saveAudio(targetDir, listRecIDs):
         try:
             metadata = compmusic.file_metadata(localUrlAudio)
         except Exception: 
-            pass
-            print "symbTr file ", targetDir, " and recID ", recID,  " has Problem with metadata...", "\n" 
+            print("symbTr file ", targetDir, " and recID ", recID,  " has Problem with metadata...", "\n")
             os.remove(localUrlAudio)
             continue
             

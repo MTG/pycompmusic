@@ -21,6 +21,8 @@
 #
 # 03/10/2013: Modified from original code 
 
+from __future__ import print_function
+
 from processing import  AudioProcessingException
 import optparse
 import sys
@@ -53,13 +55,8 @@ def progress_callback(percentage):
     
 def genimages(input_file,output_file_w, output_file_s, output_file_m, options):
     args = (input_file, output_file_w, output_file_s, output_file_m, options.image_width, options.image_height, options.fft_size, progress_callback, options.f_min, options.f_max, options.scale_exp, options.pallete)
-    print "processing file %s:\n\t" % input_file,
+    print("processing file %s:\n\t" % input_file, end="")
     try:
         create_wave_images(*args)
-    except AudioProcessingException, e:
-        print "Error running wav2png: ", e
-        
-if __name__ == '__main__':
-    print "Please import the module"  
-          
-  
+    except AudioProcessingException as e:
+        print("Error running wav2png: ", e)

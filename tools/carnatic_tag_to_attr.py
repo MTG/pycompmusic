@@ -1,3 +1,4 @@
+from __future__ import print_function
 import compmusic
 import carnatic
 
@@ -72,7 +73,7 @@ In [19]: for rel in releases:
         recordings.append(compmusic.mb.get_recording_by_id(rec, includes=["tags"])["recording"])
         for w in compmusic.get_works_from_recording(rec):
             works.append(compmusic.mb.get_work_by_id(w["target"]))
-    print rel
+    print(rel)
 
 json.dump(works, open("carnatic-work-list-unedited.json", "w"))
 json.dump(recordings, open("carnatic-recording-list-unedited.json", "w"))
@@ -80,7 +81,7 @@ for rel in releases:
     recs = compmusic.get_recordings_from_release(rel)
     for rec in recs:
         recordings.append(compmusic.mb.get_recording_by_id(rec, includes=["tags", "work-rels"])["recording"])
-    print rel
+    print(rel)
 json.dump(recordings, open("carnatic-recording-and-work-list-unedited.json", "w"))
 
 wattr = [w["work"] for w in works if "attribute-list" in w["work"]]

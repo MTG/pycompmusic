@@ -18,6 +18,7 @@
 
 
 from __future__ import division
+from __future__ import print_function
 import yaml
 import numpy as np
 import DAO as dao
@@ -131,7 +132,7 @@ def updateRaagaClusters(raagaClusters, newterms = [], mbids = [], simThresh=0.6)
     """
     if newterms == []:
         if mbids == []:
-            print "Either newterms or mbids must be a valid non-empty list!"
+            print("Either newterms or mbids must be a valid non-empty list!")
             return
         for mbid in mbids:
             newterm = getTag(mbid, tag="raaga")
@@ -146,7 +147,7 @@ def updateRaagaClusters(raagaClusters, newterms = [], mbids = [], simThresh=0.6)
     updatedClusters = []
     for newterm in newterms:
         if newterm in oldterms:
-            print newterm, "exists in our cluster\n"
+            print(newterm, "exists in our cluster\n")
             continue
 
         similarities = [] #of a new raaga term to each of existing cluster
@@ -162,15 +163,13 @@ def updateRaagaClusters(raagaClusters, newterms = [], mbids = [], simThresh=0.6)
         maxIndex = np.argmax(tmp)
         if tmp[maxIndex] < simThresh:
             raaga = similarities[maxIndex][0]
-            print "Added new cluster for", newterm, "(Nearest cluster was",\
-            raaga, ") \n"
+            print("Added new cluster for", newterm, "(Nearest cluster was", raaga, ") \n")
             raagaClusters[newterm] = [newterm]
             updatedClusters.append(newterm)
         else:
             raaga = similarities[maxIndex][0]
             raagaClusters[raaga].append(newterm)
-            print newterm, "is now part of", raaga, "cluster with",\
-            tmp[maxIndex], "confidence\n"
+            print(newterm, "is now part of", raaga, "cluster with", tmp[maxIndex], "confidence\n")
             updatedClusters.append(raaga)
 
     updatedClusters = np.unique(updatedClusters)
@@ -232,7 +231,7 @@ def pitch(mbid, returnScale="cents", tonic=None, vocal=False):
             try:
                 tonic = manualAnnotations['tonic']['votedValue']
             except:
-                print mbid
+                print(mbid)
                 raise Exception("Missing tonic information")
 
         dataLen = len(data)
@@ -252,7 +251,7 @@ def vocalFilter(data, mbid):
     try:
         manualAnnotations = yaml.load(file(annotationFile))
     except:
-        print "The annotations file is missing, or the path is wrong. Please override the default argument value if needed. Quitting."
+        print("The annotations file is missing, or the path is wrong. Please override the default argument value if needed. Quitting.")
         return
     dataLen = len(data)
     vocalPitch = [min(data[:, 1])]*dataLen
@@ -267,7 +266,7 @@ def vocalFilter(data, mbid):
                     vocalPitch[i] = data[i, 1]
     except:
         vocalPitch = data[:,1]
-        print "No annotated information of vocal segments found, returning the pitch unfiltered for", mbid
+        print("No annotated information of vocal segments found, returning the pitch unfiltered for", mbid)
     data = zip(data[:, 0], vocalPitch) #assigning won't change the original array (passed to function)
     return np.array(data)
 
@@ -294,7 +293,7 @@ def updateTaalaClusters(taalaClusters, newterms = [], mbids = [], simThresh=0.6)
                     ")", "[", "]", ".", "-", " "]
     if newterms == []:
         if mbids == []:
-            print "Either newterms or mbids must be a valid non-empty list!"
+            print("Either newterms or mbids must be a valid non-empty list!")
             return
         for mbid in mbids:
             newterm = getTag(mbid, tag="taala")
@@ -307,7 +306,7 @@ def updateTaalaClusters(taalaClusters, newterms = [], mbids = [], simThresh=0.6)
     updatedClusters = []
     for newterm in newterms:
         if newterm in oldterms:
-            print newterm, "exists in our cluster\n"
+            print(newterm, "exists in our cluster\n")
             continue
 
         similarities = [] #of a new taala term to each of the existing cluster
@@ -325,15 +324,13 @@ def updateTaalaClusters(taalaClusters, newterms = [], mbids = [], simThresh=0.6)
         maxIndex = np.argmax(tmp)
         if tmp[maxIndex] < simThresh:
             taala = similarities[maxIndex][0]
-            print "Added new cluster for", newterm, "(Nearest cluster was",\
-            taala, " with", tmp[maxIndex], "confidence)\n"
+            print("Added new cluster for", newterm, "(Nearest cluster was", taala, " with", tmp[maxIndex], "confidence)\n")
             taalaClusters[newterm] = [newterm]
             updatedClusters.append(newterm)
         else:
             taala = similarities[maxIndex][0]
             taalaClusters[taala].append(newterm)
-            print newterm, "is now part of", taala, "cluster with",\
-            tmp[maxIndex], "confidence\n"
+            print(newterm, "is now part of", taala, "cluster with", tmp[maxIndex], "confidence\n")
             updatedClusters.append(taala)
 
     updatedClusters = np.unique(updatedClusters)
@@ -345,7 +342,7 @@ def updateTaalaClusters(taalaClusters, newterms = [], mbids = [], simThresh=0.6)
 
 import sys
 if __name__=="__main__":
-    taalas = yaml.load(file(sys.argv[1]))
-    taalaClusters = yaml.load(file(sys.argv[2]))
+    taalas = yaml.load(open(sys.argv[1]))
+    taalaClusters = yaml.load(open(sys.argv[2]))
     res = updateTaalaClusters(taalaClusters, taalas)
-    print res
+    print(res)

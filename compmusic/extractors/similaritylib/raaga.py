@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
 
+from __future__ import print_function
 from __future__ import division
 from os.path import basename
 import numpy as np
@@ -44,16 +45,16 @@ class Raaga:
         y = np.array(y)+eps
         #eps = 0.01
         #if max(sum(A), sum(B)) > 1+eps:
-        #   print max(sum(A), sum(B))
-        #   print "Probabilities do not sum to 1."
+        #   print(max(sum(A), sum(B)))
+        #   print("Probabilities do not sum to 1.")
         #   return np.NaN
         if x.size != y.size:
-            print "Arguments are of different length."
+            print("Arguments are of different length.")
             return np.NaN
         return (np.dot(x, np.log2(x)-np.log2(y))+np.dot(y, np.log2(y)-np.log2(x)))/2.0
 
     def load_average_hist(self):
-        self.average_hist = pickle.load(file(self.path_to_raaga_profiles.rstrip("/") + "/" + self.name + ".pickle"))
+        self.average_hist = pickle.load(open(self.path_to_raaga_profiles.rstrip("/") + "/" + self.name + ".pickle"))
 
     def compute_average_hist(self, paths_to_pitch_files, tonics, octave_folded=True, bins=1200):
         pitches = []
@@ -160,7 +161,7 @@ class Raaga:
         distances = sorted(distances, key=lambda x: x[1])
         distances = np.array(distances)
 
-        #print self.name, distances[:n]
+        #print(self.name, distances[:n])
         return distances[:n]
 
 if __name__ == "__main__":
@@ -190,7 +191,7 @@ if __name__ == "__main__":
     #    if raaga == "":
     #        continue
     #
-    #    print mbid, raaga
+    #    print(mbid, raaga)
     #    if raaga in raaga_mbids.keys():
     #        raaga_mbids[raaga].append([mbid, tonics[i]])
     #    else:
@@ -208,7 +209,7 @@ if __name__ == "__main__":
     #for r in raaga_mbids.keys():
     #    if exists("/home/gopal/data/features/raagaProfiles/" + r + ".pickle"):
     #        continue
-    #    print r, len(raaga_mbids[r])
+    #    print(r, len(raaga_mbids[r]))
     #    raaga = Raaga(r, "/home/gopal/data/features/raagaProfiles/")
     #    pitch_files = ["/home/gopal/data/features/pitch/" + str(i[0]) + ".txt"
     #                   for i in raaga_mbids[r]]
@@ -232,7 +233,7 @@ if __name__ == "__main__":
         raaga.average_hist = x
         res = raaga.similar_raagas(5)
         similarity_map[raaga.name] = res
-        print raaga.name, res
+        print(raaga.name, res)
 
     pickle.dump(similarity_map,
               file("/home/gopal/data/features/raagaProfiles/similarity_map.yaml", "w"))

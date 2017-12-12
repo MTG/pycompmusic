@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
 
-
+from __future__ import print_function
 import sys
 import os
 import argparse
@@ -98,7 +98,7 @@ class MakamScore(object):
                         os.makedirs(os.path.dirname(newdest))
                     except:
                         pass
-                    print name, "exists, copying", target, "to", newname, "instead"
+                    print(name, "exists, copying", target, "to", newname, "instead")
                     shutil.copy(fname, newdest)
                 else:
                     innertarget = os.path.join(target, n)
@@ -184,7 +184,7 @@ class MakamScore(object):
         fname = os.path.splitext(fname)[0]
         parts = fname.split("--")
         if len(parts) != 5:
-            print "wrong number of parts", parts
+            print("wrong number of parts", parts)
             return
         makam, form, usul, name, composer = parts
         composer = composer.replace("_", " ")
@@ -212,10 +212,10 @@ class MakamScore(object):
                     for n in self.get_performance_credit_for_recording(r):
                         anyname = anyname or self.match(composer, n)
                 for w in self.aliases_for_work(w["id"]):
-                    print "matching a work alias", w
+                    print("matching a work alias", w)
                     anywork = anywork or self.match(name, w)
                 if anywork and anyname:
-                    print "  match: %s by %s - http://musicbrainz.org/work/%s" % (w["title"], aname, w["id"])
+                    print("  match: %s by %s - http://musicbrainz.org/work/%s" % (w["title"], aname, w["id"]))
                     self.save_scores(fname, reclist)
 
     @functools32.lru_cache(2000)
@@ -230,7 +230,7 @@ class MakamScore(object):
 
     def test_dir(self, dirname):
         for i, f in enumerate(os.listdir(dirname)):
-            print i, f
+            print(i, f)
             fname = os.path.join(dirname, f)
             self.test_file(fname)
 

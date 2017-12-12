@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
 
-
+from __future__ import print_function
 import sys
 import os
 import argparse
@@ -92,17 +92,17 @@ class Stats(object):
                 self.artists.add(artist)
 
     def print_stats(self):
-        print "releases", len(self.releases)
-        print "recordings", len(self.recordings)
-        print "works", len(self.works)
-        print "artists", len(self.artists)
-        print "composers", len(self.composers)
-        print "lyricists", len(self.lyricists)
+        print("releases", len(self.releases))
+        print("recordings", len(self.recordings))
+        print("works", len(self.works))
+        print("artists", len(self.artists))
+        print("composers", len(self.composers))
+        print("lyricists", len(self.lyricists))
         rev = collections.Counter()
         for k, v in self.work_recording_counts.items():
             rev[v] += 1
-        print "recordings-per-work counts"
-        print rev
+        print("recordings-per-work counts")
+        print(rev)
 
 def duration_of_release(releasedir):
     duration = 0
@@ -131,16 +131,16 @@ def main(collectionid, colldir):
         if len(files):
             num_releases += 1
             duration += duration_of_release(root)
-    print num_releases, "total releases"
-    print "duration", format_seconds(duration)
+    print(num_releases, "total releases")
+    print("duration", format_seconds(duration))
 
     stats = Stats()
     for i, release in enumerate(compmusic.musicbrainz.get_releases_in_collection(collectionid)):
-        print i, release
+        print(i, release)
         try:
             stats.stats_for_release(release)
         except mb.ResponseError as e:
-            print "  error when loading this release"
+            print("  error when loading this release")
     stats.print_stats()
 
 if __name__ == "__main__":

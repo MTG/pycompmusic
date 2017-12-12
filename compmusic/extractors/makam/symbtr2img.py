@@ -48,7 +48,7 @@ class Symbtr2Png(compmusic.extractors.ExtractorModule):
 
     def run(self, musicbrainzid, fpath):
         symbtrmu2 = util.docserver_get_symbtrmu2(musicbrainzid)
-        print symbtrmu2
+        print(symbtrmu2)
         symbtr = compmusic.dunya.makam.get_symbtr(musicbrainzid)
         fname = symbtr['name']
         finfo = fname.split('/')[-1]
