@@ -5,8 +5,8 @@ import unicodedata
 
 logger = logging.getLogger("dunya")
 
-import conn
-import docserver
+import compmusic.dunya.conn
+import compmusic.dunya.docserver
 
 
 def get_recordings():
@@ -22,7 +22,7 @@ def get_recordings():
     For additional information about each recording use :func:`get_recording`.
 
     """
-    return conn._get_paged_json("api/makam/recording")
+    return compmusic.dunya.conn._get_paged_json("api/makam/recording")
 
 
 def get_recording(rmbid):
@@ -36,7 +36,7 @@ def get_recording(rmbid):
          attached to the recording, the release, and the release artists.
 
     """
-    return conn._dunya_query_json("api/makam/recording/%s" % rmbid)
+    return compmusic.dunya.conn._dunya_query_json("api/makam/recording/%s" % rmbid)
 
 
 def get_artists():
@@ -51,7 +51,7 @@ def get_artists():
     For additional information about each artist use :func:`get_artist`
 
     """
-    return conn._get_paged_json("api/makam/artist")
+    return compmusic.dunya.conn._get_paged_json("api/makam/artist")
 
 
 def get_artist(ambid):
@@ -65,7 +65,7 @@ def get_artist(ambid):
          relationships, as well as release artists
 
     """
-    return conn._dunya_query_json("api/makam/artist/%s" % ambid)
+    return compmusic.dunya.conn._dunya_query_json("api/makam/artist/%s" % ambid)
 
 
 def get_composers():
@@ -80,7 +80,7 @@ def get_composers():
     For additional information about each composer use :func:`get_composer`
 
     """
-    return conn._get_paged_json("api/makam/composer")
+    return compmusic.dunya.conn._get_paged_json("api/makam/composer")
 
 
 def get_composer(cmbid):
@@ -93,7 +93,7 @@ def get_composer(cmbid):
          ``lyric_works`` are works where they were lyricist.
 
     """
-    return conn._dunya_query_json("api/makam/composer/%s" % cmbid)
+    return compmusic.dunya.conn._dunya_query_json("api/makam/composer/%s" % cmbid)
 
 
 def get_releases():
@@ -109,7 +109,7 @@ def get_releases():
     For additional information about each release use :func:`get_release`
 
     """
-    return conn._get_paged_json("api/makam/release")
+    return compmusic.dunya.conn._get_paged_json("api/makam/release")
 
 
 def get_release(cmbid):
@@ -122,7 +122,7 @@ def get_release(cmbid):
          to the recordings, the release, and the release artists.
 
     """
-    return conn._dunya_query_json("api/makam/release/%s" % cmbid)
+    return compmusic.dunya.conn._dunya_query_json("api/makam/release/%s" % cmbid)
 
 
 def get_works():
@@ -138,7 +138,7 @@ def get_works():
     For additional information about each work use :func:`get_work`.
 
     """
-    return conn._get_paged_json("api/makam/work")
+    return compmusic.dunya.conn._get_paged_json("api/makam/work")
 
 
 def get_work(wmbid):
@@ -148,7 +148,7 @@ def get_work(wmbid):
     :returns: mbid, title, composers, makams, forms, usuls, recordings
 
     """
-    return conn._dunya_query_json("api/makam/work/%s" % wmbid)
+    return compmusic.dunya.conn._dunya_query_json("api/makam/work/%s" % wmbid)
 
 
 def get_instruments():
@@ -164,7 +164,7 @@ def get_instruments():
     For additional information about each instrument use :func:`get_instrument`
 
     """
-    return conn._get_paged_json("api/makam/instrument")
+    return compmusic.dunya.conn._get_paged_json("api/makam/instrument")
 
 
 def get_instrument(iid):
@@ -177,7 +177,7 @@ def get_instrument(iid):
          level performance relationships of this instrument.
 
     """
-    return conn._dunya_query_json("api/makam/instrument/%s" % str(iid))
+    return compmusic.dunya.conn._dunya_query_json("api/makam/instrument/%s" % str(iid))
 
 
 def get_forms():
@@ -193,7 +193,7 @@ def get_forms():
     For additional information about each form use :func:`get_form`
 
     """
-    return conn._get_paged_json("api/makam/form")
+    return compmusic.dunya.conn._get_paged_json("api/makam/form")
 
 
 def get_form(fid):
@@ -202,7 +202,7 @@ def get_form(fid):
     :param fid: A form id or uuid
     :returns: uuid, name, works.
     """
-    return conn._dunya_query_json("api/makam/form/%s" % str(fid))
+    return compmusic.dunya.conn._dunya_query_json("api/makam/form/%s" % str(fid))
 
 
 def get_makams():
@@ -218,7 +218,7 @@ def get_makams():
     For additional information about each makam use :func:`get_makam`
 
     """
-    return conn._get_paged_json("api/makam/makam")
+    return compmusic.dunya.conn._get_paged_json("api/makam/makam")
 
 
 def get_makam(mid):
@@ -229,7 +229,7 @@ def get_makam(mid):
 
     the ``taksims`` and ``gazels`` lists are of recordings.
     """
-    return conn._dunya_query_json("api/makam/makam/%s" % str(mid))
+    return compmusic.dunya.conn._dunya_query_json("api/makam/makam/%s" % str(mid))
 
 
 def get_usuls():
@@ -245,7 +245,7 @@ def get_usuls():
     For additional information about each usul use :func:`get_usul`
 
     """
-    return conn._get_paged_json("api/makam/usul")
+    return compmusic.dunya.conn._get_paged_json("api/makam/usul")
 
 
 def get_symbtrs():
@@ -259,7 +259,7 @@ def get_symbtrs():
         }
 
     """
-    return conn._get_paged_json("api/makam/symbtr")
+    return compmusic.dunya.conn._get_paged_json("api/makam/symbtr")
 
 
 def get_symbtr(uuid):
@@ -271,7 +271,7 @@ def get_symbtr(uuid):
     returns: name and id of the symbtr file
 
     """
-    return conn._dunya_query_json("api/makam/symbtr/%s" % uuid)
+    return compmusic.dunya.conn._dunya_query_json("api/makam/symbtr/%s" % uuid)
 
 
 def get_usul(uid):
@@ -283,7 +283,7 @@ def get_usul(uid):
     the ``taksims`` and ``gazels`` lists are of recordings. They are
     only valid for the usul ``serbest``
     """
-    return conn._dunya_query_json("api/makam/usul/%s" % str(uid))
+    return compmusic.dunya.conn._dunya_query_json("api/makam/usul/%s" % str(uid))
 
 
 def get_works_by_query(mid='', uid='', fid='', cmbid='', ambid=''):
@@ -299,7 +299,7 @@ def get_works_by_query(mid='', uid='', fid='', cmbid='', ambid=''):
     """
     path = 'work?usul={0}&performer={1}&form={2}&artist={3}&makam={4}'
     path = path.format(uid, ambid, fid, cmbid, mid)
-    return conn._get_paged_json("api/makam/" + path)
+    return compmusic.dunya.conn._get_paged_json("api/makam/" + path)
 
 
 def download_mp3(recordingid, location, slugify=False):
@@ -327,7 +327,7 @@ def download_mp3(recordingid, location, slugify=False):
     else:
         name = "%s.mp3" % title
 
-    contents = docserver.get_mp3(recordingid)
+    contents = compmusic.dunya.docserver.get_mp3(recordingid)
     path = os.path.join(location, name)
     open(path, "wb").write(contents)
     return path
@@ -362,7 +362,7 @@ def download_release(releaseid, location, slugify=False):
         title = title.replace("/", "_")
 
         track = r["track"]
-        contents = docserver.get_mp3(rid)
+        contents = compmusic.dunya.docserver.get_mp3(rid)
         name = "%d_%s_%s.mp3" % (track, artists, title)
         path = os.path.join(releasedir, name)
         open(path, "wb").write(contents)

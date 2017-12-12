@@ -17,13 +17,15 @@
 import json
 import os
 
-import conn
+from six import string_types
+
+import compmusic.dunya.conn
 
 
 def get_collections():
     """Get a list of all collections in the server."""
     path = "document/collections"
-    return conn._get_paged_json(path)
+    return compmusic.dunya.conn._get_paged_json(path)
 
 
 def get_collection(slug):
@@ -33,7 +35,7 @@ def get_collection(slug):
 
     """
     path = "document/%s" % slug
-    return conn._dunya_query_json(path)
+    return compmusic.dunya.conn._dunya_query_json(path)
 
 
 def document(recordingid):
@@ -44,7 +46,7 @@ def document(recordingid):
 
     """
     path = "document/by-id/%s" % recordingid
-    recording = conn._dunya_query_json(path)
+    recording = compmusic.dunya.conn._dunya_query_json(path)
     return recording
 
 
@@ -53,21 +55,21 @@ def create_document(collection, document, title=None):
     data = {"collection": collection}
     if title:
         data["title"] = title
-    url = conn._make_url(path)
-    req = conn._dunya_post(url, data=data)
+    url = compmusic.dunya.conn._make_url(path)
+    req = compmusic.dunya.conn._dunya_post(url, data=data)
     return req.json()
 
 def add_sourcetype(document, filetype, file):
     """ If file is a string and refers to a file on disk, the contents
         of the file is read and send, otherwise it is sent as-is """
     path = "/document/by-id/%s/add/%s" % (document, filetype)
-    if isinstance(file, basestring) and os.path.exists(file):
+    if isinstance(file, string_types) and os.path.exists(file):
         f = open(file, "rb")
     else:
         f = file
     files = {"file": f}
-    url = conn._make_url(path)
-    req = conn._dunya_post(url, files=files)
+    url = compmusic.dunya.conn._make_url(path)
+    req = compmusic.dunya.conn._dunya_post(url, files=files)
     return req.json()
 
 def create_and_upload_document(collection, document, filetype, title, file):
@@ -92,7 +94,7 @@ def file_for_document(recordingid, thetype, subtype=None, part=None, version=Non
         args["part"] = part
     if version:
         args["v"] = version
-    return conn._dunya_query_file(path, **args)
+    return compmusic.dunya.conn._dunya_query_file(path, **args)
 
 
 def get_mp3(recordingid):

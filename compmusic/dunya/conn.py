@@ -1,8 +1,9 @@
 import logging
 import urllib
-import urlparse
+from six.moves.urllib import parse as urllibparse
 
 import requests
+import requests.adapters
 
 logger = logging.getLogger("dunya")
 
@@ -97,12 +98,12 @@ def _make_url(path, **kwargs):
     for key, value in kwargs.items():
         if isinstance(value, unicode):
             kwargs[key] = value.encode('utf8')
-    url = urlparse.urlunparse((
+    url = urllibparse.urlunparse((
         'http',
         HOSTNAME,
         '%s' % path,
         '',
-        urllib.urlencode(kwargs),
+        urllibparse.urlencode(kwargs),
         ''
     ))
     return url

@@ -4,8 +4,8 @@ import os
 
 logger = logging.getLogger("dunya")
 
-import conn
-import docserver
+from compmusic.dunya import conn
+import compmusic.dunya.docserver
 
 COLLECTIONS = None
 
@@ -257,7 +257,7 @@ def download_mp3(recordingid, location):
     concert = get_concert(recording["concert"][0]["mbid"])
     title = recording["title"]
     artists = " and ".join([a["name"] for a in concert["concert_artists"]])
-    contents = docserver.get_mp3(recordingid)
+    contents = compmusic.dunya.docserver.get_mp3(recordingid)
     name = "%s - %s.mp3" % (artists, title)
     path = os.path.join(location, name)
     open(path, "wb").write(contents)
@@ -292,7 +292,7 @@ def download_concert(concert_id, location):
         title = r["title"]
         disc = r["disc"]
         disctrack = r["disctrack"]
-        contents = docserver.get_mp3(rid)
+        contents = compmusic.dunya.docserver.get_mp3(rid)
         name = "%s - %s - %s - %s.mp3" % (disc, disctrack, artists, title)
         path = os.path.join(concertdir, name)
         open(path, "wb").write(contents)

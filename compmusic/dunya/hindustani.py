@@ -3,8 +3,8 @@ import os
 
 logger = logging.getLogger("dunya")
 
-import conn
-import docserver
+import compmusic.dunya.conn
+import compmusic.dunya.docserver
 
 COLLECTIONS = None
 
@@ -44,7 +44,7 @@ def get_recordings():
 
     """
     extra_headers = _get_collections()
-    return conn._get_paged_json("api/hindustani/recording", extra_headers=extra_headers)
+    return compmusic.dunya.conn._get_paged_json("api/hindustani/recording", extra_headers=extra_headers)
 
 
 def get_recording(rmbid):
@@ -60,7 +60,7 @@ def get_recording(rmbid):
 
     """
     extra_headers = _get_collections()
-    return conn._dunya_query_json("api/hindustani/recording/%s" % rmbid, extra_headers=extra_headers)
+    return compmusic.dunya.conn._dunya_query_json("api/hindustani/recording/%s" % rmbid, extra_headers=extra_headers)
 
 
 def get_artists():
@@ -77,7 +77,7 @@ def get_artists():
 
     """
     extra_headers = _get_collections()
-    return conn._get_paged_json("api/hindustani/artist", extra_headers=extra_headers)
+    return compmusic.dunya.conn._get_paged_json("api/hindustani/artist", extra_headers=extra_headers)
 
 
 def get_artist(ambid):
@@ -94,7 +94,7 @@ def get_artist(ambid):
 
     """
     extra_headers = _get_collections()
-    return conn._dunya_query_json("api/hindustani/artist/%s" % ambid, extra_headers=extra_headers)
+    return compmusic.dunya.conn._dunya_query_json("api/hindustani/artist/%s" % ambid, extra_headers=extra_headers)
 
 
 def get_releases():
@@ -111,7 +111,7 @@ def get_releases():
 
     """
     extra_headers = _get_collections()
-    return conn._get_paged_json("api/hindustani/release", extra_headers=extra_headers)
+    return compmusic.dunya.conn._get_paged_json("api/hindustani/release", extra_headers=extra_headers)
 
 
 def get_release(cmbid):
@@ -125,7 +125,7 @@ def get_release(cmbid):
 
     """
     extra_headers = _get_collections()
-    return conn._dunya_query_json("api/hindustani/release/%s" % cmbid, extra_headers=extra_headers)
+    return compmusic.dunya.conn._dunya_query_json("api/hindustani/release/%s" % cmbid, extra_headers=extra_headers)
 
 
 def get_works():
@@ -142,7 +142,7 @@ def get_works():
 
     """
     extra_headers = _get_collections()
-    return conn._get_paged_json("api/hindustani/work", extra_headers=extra_headers)
+    return compmusic.dunya.conn._get_paged_json("api/hindustani/work", extra_headers=extra_headers)
 
 
 def get_work(wmbid):
@@ -153,7 +153,7 @@ def get_work(wmbid):
 
     """
     extra_headers = _get_collections()
-    return conn._dunya_query_json("api/hindustani/work/%s" % wmbid, extra_headers=extra_headers)
+    return compmusic.dunya.conn._dunya_query_json("api/hindustani/work/%s" % wmbid, extra_headers=extra_headers)
 
 
 def get_raags():
@@ -169,7 +169,7 @@ def get_raags():
     For additional information about each raag use :func:`get_raag`.
 
     """
-    return conn._get_paged_json("api/hindustani/raag")
+    return compmusic.dunya.conn._get_paged_json("api/hindustani/raag")
 
 
 def get_raag(rid):
@@ -182,7 +182,7 @@ def get_raag(rid):
              relationships to a recording with this raag
 
     """
-    return conn._dunya_query_json("api/hindustani/raag/%s" % str(rid))
+    return compmusic.dunya.conn._dunya_query_json("api/hindustani/raag/%s" % str(rid))
 
 
 def get_taals():
@@ -198,7 +198,7 @@ def get_taals():
     For additional information about each taal use :func:`get_taal`.
 
     """
-    return conn._get_paged_json("api/hindustani/taal")
+    return compmusic.dunya.conn._get_paged_json("api/hindustani/taal")
 
 
 def get_taal(tid):
@@ -208,7 +208,7 @@ def get_taal(tid):
     :returns: uuid, name, recordings, composers
 
     """
-    return conn._dunya_query_json("api/hindustani/taal/%s" % str(tid))
+    return compmusic.dunya.conn._dunya_query_json("api/hindustani/taal/%s" % str(tid))
 
 
 def get_layas():
@@ -224,7 +224,7 @@ def get_layas():
     For additional information about each laya use :func:`get_laya`.
 
     """
-    return conn._get_paged_json("api/hindustani/laya")
+    return compmusic.dunya.conn._get_paged_json("api/hindustani/laya")
 
 
 def get_laya(lid):
@@ -234,7 +234,7 @@ def get_laya(lid):
     :returns: id, name, recordings
 
     """
-    return conn._dunya_query_json("api/hindustani/laya/%s" % str(lid))
+    return compmusic.dunya.conn._dunya_query_json("api/hindustani/laya/%s" % str(lid))
 
 
 def get_forms():
@@ -250,7 +250,7 @@ def get_forms():
     For additional information about each form use :func:`get_form`
 
     """
-    return conn._get_paged_json("api/hindustani/form")
+    return compmusic.dunya.conn._get_paged_json("api/hindustani/form")
 
 
 def get_form(fid):
@@ -263,7 +263,7 @@ def get_form(fid):
          level relationships to a recording with this form
 
     """
-    return conn._dunya_query_json("api/hindustani/form/%s" % str(fid))
+    return compmusic.dunya.conn._dunya_query_json("api/hindustani/form/%s" % str(fid))
 
 
 def get_instruments():
@@ -279,7 +279,7 @@ def get_instruments():
     For additional information about each instrument use :func:`get_instrument`
 
     """
-    return conn._get_paged_json("api/hindustani/instrument")
+    return compmusic.dunya.conn._get_paged_json("api/hindustani/instrument")
 
 
 def get_instrument(iid):
@@ -292,7 +292,7 @@ def get_instrument(iid):
              level performance relationships of this instrument.
 
     """
-    return conn._dunya_query_json("api/hindustani/instrument/%s" % str(iid))
+    return compmusic.dunya.conn._dunya_query_json("api/hindustani/instrument/%s" % str(iid))
 
 
 def download_mp3(recordingid, location):
@@ -309,7 +309,7 @@ def download_mp3(recordingid, location):
     release = get_release(recording["release"][0]["mbid"])
     title = recording["title"]
     artists = " and ".join([a["name"] for a in release["release_artists"]])
-    contents = docserver.get_mp3(recordingid)
+    contents = compmusic.dunya.docserver.get_mp3(recordingid)
     name = "%s - %s.mp3" % (artists, title)
     path = os.path.join(location, name)
     open(path, "wb").write(contents)
@@ -334,7 +334,7 @@ def download_release(release_id, location):
     for r in release["tracks"]:
         rid = r["mbid"]
         title = r["title"]
-        contents = docserver.get_mp3(rid)
+        contents = compmusic.dunya.docserver.get_mp3(rid)
         name = "%s - %s.mp3" % (artists, title)
         path = os.path.join(releasedir, name)
         open(path, "wb").write(contents)

@@ -17,29 +17,13 @@
 import logging
 import os
 
-eyed3api = None
 try:
     import eyed3
     import eyed3.mp3
 
     eyed3.utils.log.log.setLevel(logging.ERROR)
-    eyed3api = "new"
-except ImportError:
-    pass
 except AttributeError:
     eyed3.log.setLevel("ERROR")
-    eyed3api = "new"
-
-try:
-    import eyeD3
-
-    eyed3api = "old"
-except ImportError:
-    pass
-
-if not eyed3api:
-    raise ImportError("Cannot find eyed3 or eyeD3")
-
 
 def has_musicbrainz_tags(fname):
     """Return true if a file has musicbrainz tags set."""
@@ -65,10 +49,7 @@ def is_mp3_file(fname):
 
 
 def _mb_id(tag, key):
-    if eyed3api == "old":
-        texttags = tag.getUserTextFrames()
-    elif eyed3api == "new":
-        texttags = tag.frame_set.get("TXXX", [])
+    texttags = tag.frame_set.get("TXXX", [])
     tags = [t for t in texttags if t.description == key]
     if len(tags):
         return tags[0].text
@@ -86,10 +67,7 @@ def mb_artist_id(tag):
 
 
 def mb_recording_id(tag):
-    if eyed3api == "old":
-        ids = tag.getUniqueFileIDs()
-    else:
-        ids = list(tag.unique_file_ids)
+    ids = list(tag.unique_file_ids)
 
     for i in ids:
         if i.owner_id == "http://musicbrainz.org":
@@ -102,24 +80,15 @@ def file_metadata(fname):
     """ Get the file metadata for an mp3 file.
     The argument is expected to be an mp3 file. No checking is done
     """
-    if eyed3api == "old":
-        audfile = eyeD3.Mp3AudioFile(fname)
-        if not audfile:
-            return None
-        duration = audfile.play_time
-        artist = audfile.tag.getArtist()
-        title = audfile.tag.getTitle()
-        release = audfile.tag.getAlbum()
-    elif eyed3api == "new":
-        # We load the file directly instead of using .load() because
-        # load calls magic(), which is not threadsafe.
-        audfile = eyed3.mp3.Mp3AudioFile(fname)
-        if not audfile or not audfile.tag:
-            return None
-        duration = audfile.info.time_secs
-        artist = audfile.tag.artist
-        title = audfile.tag.title
-        release = audfile.tag.album
+    # We load the file directly instead of using .load() because
+    # load calls magic(), which is not threadsafe.
+    audfile = eyed3.mp3.Mp3AudioFile(fname)
+    if not audfile or not audfile.tag:
+        return None
+    duration = audfile.info.time_secs
+    artist = audfile.tag.artist
+    title = audfile.tag.title
+    release = audfile.tag.album
 
     releaseid = mb_release_id(audfile.tag)
     # TODO: Album release artist.

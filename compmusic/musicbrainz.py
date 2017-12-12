@@ -14,12 +14,14 @@
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
 
-from log import log
-import urllib2
-import xml.etree.ElementTree as etree
 import time
+import xml.etree.ElementTree as etree
 
 import musicbrainzngs as mb
+import requests
+
+from compmusic.log import log
+
 mb.set_useragent("Dunya", "0.1")
 mb.set_rate_limit(False)
 mb.set_hostname("musicbrainz.s.upf.edu")
@@ -47,12 +49,13 @@ def _get_items_in_collection(collectionid, collectiontype):
         try:
             log.debug("offset", offset)
             url = "https://beta.musicbrainz.org/ws/2/collection/%s/%s?offset=%d" % (collectionid, collectiontype, offset)
-            req = urllib2.Request(url, headers=headers)
-            xml = urllib2.urlopen(req).read()
+            res = requests.get(url, headers=headers)
+            res.raise_for_status()
+            xml = res.text
             count, ids = ws_ids(xml)
             items.extend(ids)
-        except urllib2.HTTPError as e:
-            if e.code != 503:
+        except requests.HTTPError as e:
+            if res.status_code != 503:
                 # if we get ratelimited, sleep and try again.
                 # any other error, re-raise
                 raise
