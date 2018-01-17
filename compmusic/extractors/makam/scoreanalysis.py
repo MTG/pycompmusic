@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-__author__ = 'sertansenturk'
-
 from __future__ import print_function
 
 from tomato.symbolic.symbtranalyzer import SymbTrAnalyzer
