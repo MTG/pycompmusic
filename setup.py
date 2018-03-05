@@ -2,11 +2,14 @@
 
 from setuptools import setup, find_packages
 
+import versioneer
+
 setup(name='pycompmusic',
-      version='0.1',
+      version=versioneer.get_version(),
       description='Tools for playing with the compmusic collection',
       author='CompMusic / MTG UPF',
       url='http://compmusic.upf.edu',
       install_requires=['musicbrainzngs', 'requests', 'six', 'eyed3'],
-      packages=find_packages(exclude=["test"])
+      packages=find_packages(exclude=["test"]),
+      cmdclass=versioneer.get_cmdclass()
 )
