@@ -96,7 +96,8 @@ def _make_url(path, **kwargs):
     if not kwargs:
         kwargs = {}
     for key, value in kwargs.items():
-        kwargs[key] = six.text_type(value)
+        if isinstance(value, six.text_type):
+            kwargs[key] = value.encode('utf8')
     url = urllibparse.urlunparse((
         'http',
         HOSTNAME,
