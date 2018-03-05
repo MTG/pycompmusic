@@ -1,5 +1,5 @@
 import logging
-import urllib
+import six
 from six.moves.urllib import parse as urllibparse
 
 import requests
@@ -96,8 +96,7 @@ def _make_url(path, **kwargs):
     if not kwargs:
         kwargs = {}
     for key, value in kwargs.items():
-        if isinstance(value, unicode):
-            kwargs[key] = value.encode('utf8')
+        kwargs[key] = six.text_type(value)
     url = urllibparse.urlunparse((
         'http',
         HOSTNAME,
