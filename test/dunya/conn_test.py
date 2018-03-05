@@ -1,3 +1,5 @@
+#!/usr/local/bin/python
+# -*- coding: utf-8 -*-
 import unittest
 
 from compmusic.dunya.conn import _make_url
