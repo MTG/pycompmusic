@@ -6,10 +6,10 @@ from tomato.audio.predominantmelody import PredominantMelody
 from tomato.audio.pitchdistribution import PitchDistribution
 
 
-class Andalusian(compmusic.extractors.ExtractorModule):
+class AndalusianPitch(compmusic.extractors.ExtractorModule):
     _version = "0.1"
     _sourcetype = "mp3"
-    _slug = "andalusian"
+    _slug = "andalusianpitch"
     _output = {
         "pitch": {"extension": "json", "mimetype": "application/json"},
         "pitch_distribution": {"extension": "json", "mimetype": "application/json"},
