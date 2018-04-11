@@ -21,10 +21,12 @@ class AndalusianPitch(compmusic.extractors.ExtractorModule):
         features = predominant_melody.extract(fname)
 
         pitch = features.get('pitch', None)
+        pitch_distribution = None
         if pitch:
             pitch = list(numpy.array(pitch)[:, 1])
 
-        pitch_distribution = PitchDistribution.from_hz_pitch(pitch)
-        pitch_distribution.cent_to_hz()
-
-        return {"pitch": pitch, "pitch_distribution": pitch_distribution.vals}
+            pitch_distribution = PitchDistribution.from_hz_pitch(pitch)
+            pitch_distribution.cent_to_hz()
+            pitch_distribution = pitch_distribution.vals
+            
+        return {"pitch": pitch, "pitch_distribution": pitch_distribution}
