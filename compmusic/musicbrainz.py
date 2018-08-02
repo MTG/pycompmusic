@@ -76,8 +76,9 @@ def get_works_in_collection(collection):
 def get_collection_name(collection):
     """ Get the name of a collection """
     url = "http://musicbrainz.org/ws/2/collection/%s/releases" % (collection, )
-    req = urllib2.Request(url, headers=headers)
-    xml = urllib2.urlopen(req).read()
+    res = requests.get(url, headers=headers)
+    res.raise_for_status()
+    xml = res.tex
     tree = etree.fromstring(xml)
     name = list(list(tree)[0])[0]
     return name.text
