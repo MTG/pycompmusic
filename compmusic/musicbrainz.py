@@ -55,8 +55,7 @@ def _get_items_in_collection(collectionid, collectiontype):
             collectionid, collectiontype, offset)
             res = requests_session.get(url, headers=headers)
             res.raise_for_status()
-            xml = res.text
-            count, ids = ws_ids(xml)
+            count, ids = ws_ids(res.content)
             items.extend(ids)
         except requests.HTTPError as e:
             if res.status_code != 503:
@@ -85,7 +84,7 @@ def get_collection_name(collection):
     url = "http://musicbrainz.org/ws/2/collection/%s/releases" % (collection, )
     res = requests_session.get(url, headers=headers)
     res.raise_for_status()
-    tree = etree.fromstring(res.text)
+    tree = etree.fromstring(res.content)
     name = list(list(tree)[0])[0]
     return name.text
 
