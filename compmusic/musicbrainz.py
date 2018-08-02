@@ -14,11 +14,11 @@
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
 
-import time
-import xml.etree.ElementTree as etree
-
 import musicbrainzngs as mb
 import requests
+from requests.adapters import HTTPAdapter
+import time
+import xml.etree.ElementTree as etree
 
 from compmusic.log import log
 
@@ -30,7 +30,10 @@ MUSICBRAINZ_COLLECTION_CARNATIC = ""
 MUSICBRAINZ_COLLECTION_HINDUSTANI = ""
 MUSICBRAINZ_COLLECTION_MAKAM = ""
 
-headers={"User-Agent": "Dunya/0.1 python-musicbrainzngs"}
+headers = {"User-Agent": "Dunya/0.1 python-musicbrainzngs"}
+
+requests_session = requests.Session()
+requests_session.mount('https://musicbrainz.org', HTTPAdapter(max_retries=5))
 
 def ws_ids(xml):
     ids = []
@@ -48,8 +51,9 @@ def _get_items_in_collection(collectionid, collectiontype):
     while offset < count:
         try:
             log.debug("offset", offset)
-            url = "https://beta.musicbrainz.org/ws/2/collection/%s/%s?offset=%d" % (collectionid, collectiontype, offset)
-            res = requests.get(url, headers=headers)
+            url = "https://musicbrainz.org/ws/2/collection/%s/%s?offset=%d" % (
+            collectionid, collectiontype, offset)
+            res = requests_session.get(url, headers=headers)
             res.raise_for_status()
             xml = res.text
             count, ids = ws_ids(xml)
@@ -65,23 +69,26 @@ def _get_items_in_collection(collectionid, collectiontype):
             time.sleep(1)
     return items
 
+
 def get_releases_in_collection(collection):
     """Get a list of the releases in the specified musicbrainz collection"""
     return _get_items_in_collection(collection, "releases")
+
 
 def get_works_in_collection(collection):
     """Get a list of the works in the specified musicbrainz collection"""
     return _get_items_in_collection(collection, "works")
 
+
 def get_collection_name(collection):
     """ Get the name of a collection """
     url = "http://musicbrainz.org/ws/2/collection/%s/releases" % (collection, )
-    res = requests.get(url, headers=headers)
+    res = requests_session.get(url, headers=headers)
     res.raise_for_status()
-    xml = res.tex
-    tree = etree.fromstring(xml)
+    tree = etree.fromstring(res.text)
     name = list(list(tree)[0])[0]
     return name.text
+
 
 def get_recordings_from_release(release):
     rel = mb.get_release_by_id(release, includes=["recordings"])["release"]
@@ -91,13 +98,16 @@ def get_recordings_from_release(release):
             recordings.append(t["recording"]["id"])
     return recordings
 
+
 def get_tags_from_recording(recording):
     rec = mb.get_recording_by_id(recording, includes=["tags"])["recording"]
     return rec.get("tag-list", [])
 
+
 def get_works_from_recording(recording):
     rec = mb.get_recording_by_id(recording, includes=["work-rels"])["recording"]
     return rec.get("work-relation-list", [])
+
 
 def get_work_attributes(workid):
     work = mb.get_work_by_id(workid)["work"]
