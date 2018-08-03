@@ -59,6 +59,21 @@ def create_document(collection, document, title=None):
     req = compmusic.dunya.conn._dunya_post(url, data=data)
     return req.json()
 
+
+def update_document(collection, document, title=None):
+    path = "/document/by-id/%s" % document
+    data = {"collection": collection}
+    if title:
+        data["title"] = title
+    url = compmusic.dunya.conn._make_url(path)
+    req = compmusic.dunya.conn._dunya_post(url, data=data)
+    return req.json()
+
+
+def update_sourcetype(document, filetype, file):
+    return add_sourcetype(document, filetype, file)
+
+
 def add_sourcetype(document, filetype, file):
     """ If file is a string and refers to a file on disk, the contents
         of the file is read and send, otherwise it is sent as-is """
@@ -72,8 +87,11 @@ def add_sourcetype(document, filetype, file):
     req = compmusic.dunya.conn._dunya_post(url, files=files)
     return req.json()
 
-def create_and_upload_document(collection, document, filetype, title, file):
-    pass
+
+def create_and_upload_document(collection, document, title, filetype, file):
+    create_document(collection, document, title)
+    add_sourcetype(document, filetype, file)
+
 
 def file_for_document(recordingid, thetype, subtype=None, part=None, version=None):
     """Get the most recent derived file given a filetype.
