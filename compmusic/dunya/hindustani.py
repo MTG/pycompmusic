@@ -311,6 +311,7 @@ def download_mp3(recordingid, location):
     artists = " and ".join([a["name"] for a in release["release_artists"]])
     contents = compmusic.dunya.docserver.get_mp3(recordingid)
     name = "%s - %s.mp3" % (artists, title)
+    name = name.replace("/", "-")
     path = os.path.join(location, name)
     open(path, "wb").write(contents)
     return name
@@ -330,7 +331,9 @@ def download_release(release_id, location):
     release = get_release(release_id)
     artists = " and ".join([a["name"] for a in release["release_artists"]])
     releasename = release["title"]
-    releasedir = os.path.join(location, "%s - %s" % (artists, releasename))
+    releasedir = "%s - %s" % (artists, releasename)
+    releasedir = releasedir.replace("/", "-")
+    releasedir = os.path.join(location, releasedir)
     for r in release["tracks"]:
         rid = r["mbid"]
         title = r["title"]

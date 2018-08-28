@@ -259,6 +259,7 @@ def download_mp3(recordingid, location):
     artists = " and ".join([a["name"] for a in concert["concert_artists"]])
     contents = compmusic.dunya.docserver.get_mp3(recordingid)
     name = "%s - %s.mp3" % (artists, title)
+    name = name.replace("/", "-")
     path = os.path.join(location, name)
     open(path, "wb").write(contents)
     return name
@@ -278,7 +279,9 @@ def download_concert(concert_id, location):
     concert = get_concert(concert_id)
     artists = " and ".join([a["name"] for a in concert["concert_artists"]])
     concertname = concert["title"]
-    concertdir = os.path.join(location, "%s - %s" % (artists, concertname))
+    concertdir = "%s - %s" % (artists, concertname)
+    concertdir = concertdir.replace("/", "-")
+    concertdir = os.path.join(location, concertdir)
     try:
         os.makedirs(concertdir)
     except OSError as exc:
