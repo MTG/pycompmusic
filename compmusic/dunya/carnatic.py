@@ -15,8 +15,7 @@ def set_collections(collections):
     You must call this before you can make any other calls, otherwise 
     they won't be restricted.
 
-    Arguments:
-        collections: list of collections mbids
+    :param collections: list of collections mbids
 
     """
     global COLLECTIONS
@@ -54,7 +53,7 @@ def get_recordings(recording_detail=False):
 def get_recording(rmbid):
     """ Get specific information about a recording.
 
-    :param rmbid: A recording mbid
+    :param rmbid: A recording MBID
 
     :returns: mbid, title, artists, raaga, taala, work.
 
@@ -70,10 +69,9 @@ def get_artists():
     """ Get a list of Carnatic artists in the database.
     This function will automatically page through API results.
 
-    returns: A list of dictionaries containing artist information::
+    :returns: A list of dictionaries containing artist information::
 
-        {"mbid": Musicbrainz artist id,
-        "name": Name of the artist}
+        {"mbid": MusicBrainz artist id, "name": Name of the artist}
 
     For additional information about each artist use :func:`get_artist`
 
@@ -86,7 +84,7 @@ def get_artists():
 def get_artist(ambid):
     """ Get specific information about an artist.
 
-    :param ambid: An artist mbid
+    :param ambid: An artist MBID
     
     :returns: mbid, name, concerts, instruments, recordings.
 
@@ -103,11 +101,9 @@ def get_concerts():
     """ Get a list of Carnatic concerts in the database.
     This function will automatically page through API results.
 
-    returns: A list of dictionaries containing concert information::
+    :returns: A list of dictionaries containing concert information::
 
-        {"mbid": Musicbrainz concert id,
-         "title": title of the concert
-        }
+        {"mbid": MusicBrainz Release ID, "title": title of the concert}
 
     For additional information about each concert use :func:`get_concert`
 
@@ -134,39 +130,34 @@ def get_works():
     """ Get a list of Carnatic works in the database.
     This function will automatically page through API results.
 
-    returns: A list of dictionaries containing work information::
+    :returns: A list of dictionaries containing work information::
 
-        {"mbid": Musicbrainz work id,
-         "name": work name
-        }
+        {"mbid": MusicBrainz work ID, "name": work name}
 
     For additional information about each work use :func:`get_work`.
 
     """
     return conn._get_paged_json("api/carnatic/work")
-    extra_headers = _get_collections()
 
 
 def get_work(wmbid):
     """ Get specific information about a work.
 
     :param wmbid: A work mbid
-        :returns: mbid, title, composers, raagas, taalas, recordings
+
+    :returns: mbid, title, composers, raagas, taalas, recordings
 
     """
     return conn._dunya_query_json("api/carnatic/work/%s" % (wmbid))
-    extra_headers = _get_collections()
 
 
 def get_raagas():
     """ Get a list of Carnatic raagas in the database.
     This function will automatically page through API results.
 
-    returns: A list of dictionaries containing raaga information:
+    :returns: A list of dictionaries containing raaga information::
 
-        {"uuid": raaga uuid,
-         "name": name of the raaga
-        }
+        {"uuid": raaga UUID, "name": name of the raaga}
 
     For additional information about each raaga use :func:`get_raaga`
 
@@ -192,11 +183,9 @@ def get_taalas():
     """ Get a list of Carnatic taalas in the database.
     This function will automatically page through API results.
 
-    returns: A list of dictionaries containing taala information::
+    :returns: A list of dictionaries containing taala information::
 
-        {"uuid": taala uuid,
-         "name": name of the taala
-        }
+        {"uuid": taala UUID, "name": name of the taala}
 
     For additional information about each taala use :func:`get_taala`.
 
@@ -221,11 +210,9 @@ def get_instruments():
     """ Get a list of Carnatic instruments in the database.
     This function will automatically page through API results.
 
-    returns: A list of dictionaries containing instrument information::
+    :returns: A list of dictionaries containing instrument information::
 
-        {"id": instrument id,
-         "name": Name of the instrument
-        }
+        {"id": instrument id, "name": Name of the instrument}
 
     For additional information about each instrument use :func:`get_instrument`
 

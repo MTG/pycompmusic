@@ -46,10 +46,9 @@ def get_artists():
     """ Get a list of makam artists in the database.
     This function will automatically page through API results.
 
-    returns: A list of dictionaries containing artist information::
+    :returns: A list of dictionaries containing artist information::
 
-        {"mbid": Musicbrainz artist id,
-        "name": Name of the artist}
+        {"mbid": MusicBrainz artist id, "name": Name of the artist}
 
     For additional information about each artist use :func:`get_artist`
 
@@ -75,10 +74,9 @@ def get_composers():
     """ Get a list of makam composers in the database.
     This function will automatically page through API results.
 
-    returns: A list of dictionaries containing composers information::
+    :returns: A list of dictionaries containing composers information::
 
-        {"mbid": Musicbrainz composer id,
-        "name": Name of the composer}
+        {"mbid": MusicBrainz artist id, "name": Name of the composer}
 
     For additional information about each composer use :func:`get_composer`
 
@@ -103,11 +101,9 @@ def get_releases():
     """ Get a list of makam releases in the database.
     This function will automatically page through API results.
 
-    returns: A list of dictionaries containing release information::
+    :returns: A list of dictionaries containing release information::
 
-        {"mbid": Musicbrainz release id,
-         "title": title of the release
-        }
+        {"mbid": MusicBrainz release id, "title": title of the release}
 
     For additional information about each release use :func:`get_release`
 
@@ -132,11 +128,9 @@ def get_works():
     """ Get a list of makam works in the database.
     This function will automatically page through API results.
 
-    returns: A list of dictionaries containing work information::
+    :returns: A list of dictionaries containing work information::
 
-        {"mbid": Musicbrainz work id,
-         "name": work name
-        }
+        {"mbid": MusicBrainz work id, "name": work name}
 
     For additional information about each work use :func:`get_work`.
 
@@ -158,11 +152,9 @@ def get_instruments():
     """ Get a list of makam instruments in the database.
     This function will automatically page through API results.
 
-    returns: A list of dictionaries containing instrument information::
+    :returns: A list of dictionaries containing instrument information::
 
-        {"id": instrument id,
-         "name": Name of the instrument
-        }
+        {"id": instrument id, "name": Name of the instrument}
 
     For additional information about each instrument use :func:`get_instrument`
 
@@ -187,11 +179,9 @@ def get_forms():
     """ Get a list of makam forms in the database.
     This function will automatically page through API results.
 
-    returns: A list of dictionaries containing form information::
+    :returns: A list of dictionaries containing form information::
 
-        {"uuid": form uuid,
-         "name": Name of the form
-        }
+        {"uuid": form uuid, "name": Name of the form}
 
     For additional information about each form use :func:`get_form`
 
@@ -212,11 +202,9 @@ def get_makams():
     """ Get a list of makam makams in the database.
     This function will automatically page through API results.
 
-    returns: A list of dictionaries containing makam information::
+    :returns: A list of dictionaries containing makam information::
 
-        {"uuid": makam uuid,
-         "name": Name of the makam
-        }
+        {"uuid": makam uuid, "name": Name of the makam}
 
     For additional information about each makam use :func:`get_makam`
 
@@ -239,11 +227,9 @@ def get_usuls():
     """ Get a list of makam usuls in the database.
     This function will automatically page through API results.
 
-    returns: A list of dictionaries containing usul information::
+    :returns: A list of dictionaries containing usul information::
 
-        {"uuid": usul uuid,
-         "name": Name of the usul
-        }
+        {"uuid": usul uuid, "name": Name of the usul}
 
     For additional information about each usul use :func:`get_usul`
 
@@ -252,14 +238,12 @@ def get_usuls():
 
 
 def get_symbtrs():
-    """ Get a list of musicbrainz id - symbtr mappings in the database.
+    """ Get a list of MusicBrainz id - symbtr mappings in the database.
     This function will automatically page through API results.
 
-    returns: A list of dictionaries containing symbtr information::
+    :returns: A list of dictionaries containing symbtr information::
 
-        {"uuid": musicbrainz uuid (could be a work id or a recording id),
-         "name": Name of the symbtr track
-        }
+        {"uuid": MusicBrainz uuid (work id or recording id), "name": Name of the symbtr track}
 
     """
     return compmusic.dunya.conn._get_paged_json("api/makam/symbtr")
@@ -291,14 +275,14 @@ def get_usul(uid):
 
 def get_works_by_query(mid='', uid='', fid='', cmbid='', ambid=''):
     """ Get the works filtered according to the input makam uuid, usul uuid
-	form uuid, composer mbid and artist mbid
+    form uuid, composer mbid and artist mbid
 
     :param mid: A makam id or uuid
     :param uid: An usul id or uuid
     :param fid: A form id or uuid
     :param cmbid: A composer mbid
     :param ambid: An artist mbid
-    :return: A list of dictionaries containing work/s
+    :returns: A list of dictionaries containing work/s
     """
     path = 'work?usul={0}&performer={1}&form={2}&artist={3}&makam={4}'
     path = path.format(uid, ambid, fid, cmbid, mid)
@@ -340,7 +324,7 @@ def download_release(releaseid, location, slugify=False):
     """Download the mp3s of all recordings in a release and save
     them to the specificed directory.
 
-    :param release: The MBID of the release
+    :param releaseid: The MBID of the release
     :param location: Where to save the mp3s to
     :param slugify: Boolean specifying whether to slugify the filepath or not
     """

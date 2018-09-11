@@ -14,8 +14,7 @@ def set_collections(collections):
     You must call this before you can make any other calls, otherwise 
     they won't be restricted.
 
-    Arguments:
-        collections: list of collections mbids
+    :param collections: list of collections mbids
 
     """
     global COLLECTIONS
@@ -53,7 +52,6 @@ def get_recordings(recording_detail=False):
 def get_recording(rmbid):
     """ Get specific information about a recording.
 
-    Arguments:
     :param rmbid: A recording mbid
 
     :returns: mbid, title, artists, raags, taals, layas, forms and works.
@@ -70,11 +68,9 @@ def get_artists():
     """ Get a list of Hindustani artists in the database.
     This function will automatically page through API results.
 
-    returns: A list of dictionaries containing artist information::
+    :returns: A list of dictionaries containing artist information::
 
-        {"mbid": Musicbrainz artist id,
-         "name": Name of the artist
-        }
+        {"mbid": MusicBrainz artist ID, "name": Name of the artist}
 
     For additional information about each artist use :func:`get_artist`.
 
@@ -86,7 +82,6 @@ def get_artists():
 def get_artist(ambid):
     """ Get specific information about an artist.
 
-    Arguments:
     :param ambid: An artist mbid
 
     :returns: mbid, name, releases, instruments, recordings
@@ -104,11 +99,9 @@ def get_releases():
     """ Get a list of Hindustani releases in the database.
     This function will automatically page through API results.
 
-    returns: A list of dictionaries containing release information::
+    :returns: A list of dictionaries containing release information::
 
-        {"mbid": Musicbrainz release id,
-         "title": title of the release
-        }
+        {"mbid": MusicBrainz release ID, "title": title of the release}
 
     For additional information about each release use :func:`get_release`.
 
@@ -135,11 +128,9 @@ def get_works():
     """ Get a list of Hindustani works in the database.
     This function will automatically page through API results.
 
-    returns: A list of dictionaries containing work information::
+    :returns: A list of dictionaries containing work information::
 
-        {"mbid": Musicbrainz work id,
-        "name": work name
-        }
+        {"mbid": MusicBrainz work ID, "name": work name}
 
     For additional information about each work use :func:`get_work`.
 
@@ -163,11 +154,9 @@ def get_raags():
     """ Get a list of Hindustani raags in the database.
     This function will automatically page through API results.
 
-    returns: A list of dictionaries containing raag information::
+    :returns: A list of dictionaries containing raag information::
 
-        {"uuid": raag uuid,
-         "name": name of the raag
-        }
+        {"uuid": raag uuid, "name": name of the raag}
 
     For additional information about each raag use :func:`get_raag`.
 
@@ -177,7 +166,7 @@ def get_raags():
 
 def get_raag(rid):
     """ Get specific information about a raag.
-    Arguments:
+
     :param rid: A raag id or uuid
     :returns: uuid, name, artists, recordings, composers
 
@@ -192,11 +181,9 @@ def get_taals():
     """ Get a list of Hindustani taals in the database.
     This function will automatically page through API results.
 
-    returns: A list of dictionaries containing taal information::
+    :returns: A list of dictionaries containing taal information::
 
-        {"uuid": taal uuid,
-         "name": name of the taal
-        }
+        {"uuid": taal uuid, "name": name of the taal}
 
     For additional information about each taal use :func:`get_taal`.
 
@@ -218,11 +205,9 @@ def get_layas():
     """ Get a list of Hindustani layas in the database.
     This function will automatically page through API results.
 
-    returns: A list of dictionaries containing laya information::
+    :returns: A list of dictionaries containing laya information::
 
-        {"id": laya id,
-         "name": name of the laya
-        }
+        {"id": laya id, "name": name of the laya}
 
     For additional information about each laya use :func:`get_laya`.
 
@@ -244,11 +229,9 @@ def get_forms():
     """ Get a list of Hindustani forms in the database.
     This function will automatically page through API results.
 
-    returns: A list of dictionaries containing form information::
+    :returns: A list of dictionaries containing form information::
 
-        {"uuid": form  uuid,
-         "name": name of the form
-        }
+        {"uuid": form uuid, "name": name of the form}
 
     For additional information about each form use :func:`get_form`
 
@@ -273,11 +256,9 @@ def get_instruments():
     """ Get a list of Hindustani instruments in the database.
     This function will automatically page through API results.
 
-    returns: A list of dictionaries containing instrument information::
+    :returns: A list of dictionaries containing instrument information::
 
-        {"id": instrument id,
-         "name": Name of the instrument
-        }
+        {"id": instrument id, "name": Name of the instrument}
 
     For additional information about each instrument use :func:`get_instrument`
 
