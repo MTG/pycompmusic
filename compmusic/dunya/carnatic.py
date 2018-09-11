@@ -31,21 +31,24 @@ def _get_collections():
     return extra_headers
 
 
-def get_recordings():
+def get_recordings(recording_detail=False):
     """ Get a list of carnatic recordings in the database.
     This function will automatically page through API results.
 
-    returns: A list of dictionaries containing recording information::
+    :param recording_detail: if True, return full details for each recording like :func:`get_recording`
 
-        {"mbid": Musicbrainz recording id,
-         "title": Title of the recording
-        }
+    :returns: A list of dictionaries containing recording information::
+
+        {"mbid": MusicBrainz recording ID, "title": Title of the recording}
 
     For additional information about each recording use :func:`get_recording`.
 
     """
     extra_headers = _get_collections()
-    return conn._get_paged_json("api/carnatic/recording", extra_headers=extra_headers)
+    args = {}
+    if recording_detail:
+        args['detail'] = '1'
+    return conn._get_paged_json("api/carnatic/recording", extra_headers=extra_headers, **args)
 
 
 def get_recording(rmbid):
