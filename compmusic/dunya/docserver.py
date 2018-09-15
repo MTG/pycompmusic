@@ -97,7 +97,7 @@ def file_for_document(recordingid, thetype, subtype=None, part=None, version=Non
     """Get the most recent derived file given a filetype.
 
     :param recordingid: Musicbrainz recording ID
-    :param derivedtype: the computed filetype
+    :param thetype: the computed filetype
     :param subtype: a subtype if the module has one
     :param part: the file part if the module has one
     :param version: a specific version, otherwise the most recent one will be used
@@ -123,15 +123,19 @@ def get_document_as_json(recordingid, thetype, subtype=None, part=None, version=
     """ Get a derived filetype and load it as json.
 
     :param recordingid: Musicbrainz recording ID
-    :param derivedtype: the computed filetype
+    :param thetype: the computed filetype
     :param subtype: a subtype if the module has one
     :param part: the file part if the module has one
     :param version: a specific version, otherwise the most recent one will be used
 
     """
 
-    doc = file_for_document(recordingid, thetype, subtype, part, version)
-    try:
-        return json.loads(doc)
-    except ValueError:
-        return doc
+    path = "document/by-id/%s/%s" % (recordingid, thetype)
+    args = {}
+    if subtype:
+        args["subtype"] = subtype
+    if part:
+        args["part"] = part
+    if version:
+        args["v"] = version
+    return compmusic.dunya.conn._dunya_query_json(path, **args)
