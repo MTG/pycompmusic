@@ -17,7 +17,7 @@ def get_recordings(recording_detail=False):
 
     :returns: A list of dictionaries containing recording information::
 
-        {"mbid": MusicBrainz recording id, "title": Title of the recordingß}
+        {"mbid": MusicBrainz recording id, "title": Title of the recording}
 
     For additional information about each recording use :func:`get_recording`.
 
