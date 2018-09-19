@@ -53,10 +53,7 @@ def get_recording(rmbid):
 
     :param rmbid: A recording mbid
 
-    :returns: mbid, title, artists, raaga, taala, work.
-
-         ``artists`` includes performance relationships
-         attached to the recording, the release, and the release artists.
+    :returns: instrumentalists, mbid, performers, release, shengqiangbanshi, title, work.
 
     """
     extra_headers = _get_collections()
@@ -64,7 +61,7 @@ def get_recording(rmbid):
 
 
 def get_artists():
-    """ Get a list of Carnatic artists in the database.
+    """ Get a list of Jingju artists in the database.
     This function will automatically page through API results.
 
     returns: A list of dictionaries containing artist information::
@@ -85,46 +82,39 @@ def get_artist(ambid):
 
     :param ambid: An artist mbid
 
-    :returns: mbid, name, concerts, instruments, recordings.
-
-         ``concerts``, ``instruments`` and ``recordings`` include
-         information from recording- and release-level
-         relationships, as well as release artists
+    :returns: alias, instrument, mbid, name, recordings, role_type.
 
     """
     extra_headers = _get_collections()
     return conn._dunya_query_json("api/jingju/artist/%s" % (ambid), extra_headers=extra_headers)
 
 
-def get_release():
-    """ Get a list of Carnatic concerts in the database.
+def get_releases():
+    """ Get a list of Jingju releases in the database.
     This function will automatically page through API results.
 
-    returns: A list of dictionaries containing concert information::
+    returns: A list of dictionaries containing release information::
 
-        {"mbid": Musicbrainz concert id,
-         "title": title of the concert
+        {"mbid": Musicbrainz release id,
+         "title": title of the release
         }
 
-    For additional information about each concert use :func:`get_concert`
+    For additional information about each release use :func:`get_release`
 
     """
     extra_headers = _get_collections()
     return conn._get_paged_json("api/jingju/release", extra_headers=extra_headers)
 
 
-def get_release(cmbid):
-    """ Get specific information about a concert.
+def get_release(rmbid):
+    """ Get specific information about a release.
 
-    :param cmbid: A concert mbid
-    :returns: mbid, title, artists, tracks.
-
-         ``artists`` includes performance relationships attached
-         to the recordings, the release, and the release artists.
+    :param rmbid: A release mbid
+    :returns: artists, mbid, recordings, title.
 
     """
     extra_headers = _get_collections()
-    return conn._dunya_query_json("api/jingju/release/%s" % cmbid, extra_headers=extra_headers)
+    return conn._dunya_query_json("api/jingju/release/%s" % rmbid, extra_headers=extra_headers)
 
 
 def get_works():
@@ -141,52 +131,16 @@ def get_works():
 
     """
     return conn._get_paged_json("api/jingju/work")
-    extra_headers = _get_collections()
 
 
 def get_work(wmbid):
     """ Get specific information about a work.
 
     :param wmbid: A work mbid
-        :returns: mbid, title, composers, raagas, taalas, recordings
+    :returns: mbid, play, recordings, score, title.
 
     """
     return conn._dunya_query_json("api/jingju/work/%s" % (wmbid))
-    extra_headers = _get_collections()
-
-
-
-
-
-
-
-def get_instruments():
-    """ Get a list of Carnatic instruments in the database.
-    This function will automatically page through API results.
-
-    returns: A list of dictionaries containing instrument information::
-
-        {"id": instrument id,
-         "name": Name of the instrument
-        }
-
-    For additional information about each instrument use :func:`get_instrument`
-
-    """
-    return conn._get_paged_json("api/jingju/instrument")
-
-
-def get_instrument(iid):
-    """ Get specific information about an instrument.
-
-    :param iid: An instrument id
-    :returns: id, name, artists.
-
-         ``artists`` includes artists with recording- and release-
-         level performance relationships of this instrument.
-
-    """
-    return conn._dunya_query_json("api/jingju/instrument/%s" % str(iid))
 
 
 def download_mp3(recordingid, location):
@@ -212,10 +166,10 @@ def download_mp3(recordingid, location):
 
 
 def download_release(release_id, location):
-    """Download the mp3s of all recordings in a concert and save
+    """Download the mp3s of all recordings in a release and save
     them to the specificed directory.
 
-    :param concert: The MBID of the concert
+    :param release: The MBID of the release
     :param location: Where to save the mp3s to
 
     """
@@ -226,7 +180,7 @@ def download_release(release_id, location):
     # artists = " and ".join([a["name"] for a in concert["concert_artists"]])
     releasename = release["title"]
     releasedir = "%s" % releasename
-    # releasedir = releasedir.replace("/", "-")
+    releasedir = releasedir.replace("/", "-")
     releasedir = os.path.join(location, releasedir)
     try:
         os.makedirs(releasedir)
