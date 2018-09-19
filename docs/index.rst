@@ -15,6 +15,8 @@ Module-specific APIs
 
 :doc:`makam`
 
+:doc:`jingju`
+
 Dunya API
 ---------
 
