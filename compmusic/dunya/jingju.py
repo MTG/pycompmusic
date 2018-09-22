@@ -12,7 +12,7 @@ COLLECTIONS = None
 
 def set_collections(collections):
     """ Set a list of collections mbid to restrict the queries.
-    You must call this before you can make any other calls, otherwise 
+    You must call this before you can make any other calls, otherwise
     they won't be restricted.
 
     Arguments:
@@ -31,9 +31,11 @@ def _get_collections():
     return extra_headers
 
 
-def get_recordings():
+def get_recordings(recording_detail=False):
     """ Get a list of jingju recordings in the database.
     This function will automatically page through API results.
+
+    :param recording_detail: if True, return full details for each recording like :func:`get_recording`
 
     returns: A list of dictionaries containing recording information::
 
@@ -45,7 +47,10 @@ def get_recordings():
 
     """
     extra_headers = _get_collections()
-    return conn._get_paged_json("api/jingju/recording", extra_headers=extra_headers)
+    args = {}
+    if recording_detail:
+        args['detail'] = '1'
+    return conn._get_paged_json("api/jingju/recording", extra_headers=extra_headers, **args)
 
 
 def get_recording(rmbid):
