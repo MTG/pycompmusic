@@ -65,7 +65,7 @@ def get_recording(rmbid):
     return conn._dunya_query_json("api/jingju/recording/%s" % rmbid, extra_headers=extra_headers)
 
 
-def get_artists():
+def get_artists(artist_detail=False):
     """ Get a list of Jingju artists in the database.
     This function will automatically page through API results.
 
@@ -79,7 +79,10 @@ def get_artists():
     """
 
     extra_headers = _get_collections()
-    return conn._get_paged_json("api/jingju/artist", extra_headers=extra_headers)
+    args = {}
+    if artist_detail:
+        args['detail'] = '1'
+    return conn._get_paged_json("api/jingju/artist", extra_headers=extra_headers, **args)
 
 
 def get_artist(ambid):
