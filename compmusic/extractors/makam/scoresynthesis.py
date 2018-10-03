@@ -1,7 +1,7 @@
 import json
 import os
 import tempfile
-import urllib2
+import requests
 
 import pydub
 from symbtrsynthesis.adaptivesynthesizer import AdaptiveSynthesizer
@@ -10,7 +10,7 @@ from symbtrsynthesis.musicxmlreader import MusicXMLReader
 import compmusic.dunya.conn
 import compmusic.extractors
 from compmusic import dunya
-from settings import token
+from .settings import token
 
 dunya.set_token(token)
 
@@ -27,10 +27,10 @@ class ScoreSynthesis(compmusic.extractors.ExtractorModule):
 
     @staticmethod
     def get_dataset():
-        response = urllib2.urlopen(
+        r = requests.get(
             'https://raw.githubusercontent.com/MTG/otmm_tuning_intonation'
             '_dataset/atli2017synthesis_fma/dataset.json')
-        return json.loads(response.read())
+        return r.json()
 
     def run(self, workid, fname):
         # get metadata

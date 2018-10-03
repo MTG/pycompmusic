@@ -24,7 +24,7 @@
 
 from __future__ import print_function
 
-import cStringIO
+import six
 import json
 import struct
 
@@ -220,7 +220,7 @@ class TomatoDunyaMakam(compmusic.extractors.ExtractorModule):
         pitch = [p[1] for p in audio_pitch['pitch']]
 
         # pitches as bytearray
-        packed_pitch = cStringIO.StringIO()
+        packed_pitch = six.BytesIO()
         max_pitch = max(pitch)
         temp = [p for p in pitch if p > 0]
         min_pitch = min(temp)

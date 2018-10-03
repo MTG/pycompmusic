@@ -14,13 +14,13 @@
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
 
-import cStringIO as StringIO
 import struct
 
 import essentia.standard
 import numpy as np
 from docserver import util
 from scipy.ndimage.filters import gaussian_filter
+import six
 
 import compmusic.extractors
 
@@ -99,7 +99,7 @@ class NormalisedPitchExtract(compmusic.extractors.ExtractorModule):
         bpo = 64  # 256 pixel high image spanning 4 octaves = 64px/octave
         height = 255  # Height of the image
         drawpitch = self.normalise_pitch(nppitch[:, 1], tonic, bpo, height)
-        packed_pitch = StringIO.StringIO()
+        packed_pitch = six.BytesIO()
         for p in drawpitch:
             packed_pitch.write(struct.pack("B", p))
         drawhist = self.get_histogram(drawpitch, 256, 1)

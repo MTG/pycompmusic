@@ -9,7 +9,7 @@ from __future__ import print_function
 import json
 import os
 import sys
-import urllib2
+import requests
 
 parentDir = os.path.abspath(
     os.path.join(os.path.dirname(os.path.realpath(__file__)), os.path.pardir, os.path.pardir, os.path.pardir,
@@ -179,8 +179,8 @@ def fetchNoteOnsetFile(musicbrainzid, outputDir, alignment_file_name):
 def fetchFileFromURL(URL, outputFileURI):
     print("fetching file from URL {} ...  ".format(URL))
     try:
-        response = urllib2.urlopen(URL)
-        a = response.read()
+        r = requests.get(URL)
+        a = r.text
     except Exception:
         "...maybe symbTr name has changed?"
 

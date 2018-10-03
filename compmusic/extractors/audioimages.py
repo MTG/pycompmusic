@@ -18,7 +18,7 @@ import collections as coll
 import os
 import tempfile
 import wave
-from StringIO import StringIO
+import six
 
 from docserver import util
 
@@ -62,12 +62,12 @@ class AudioImages(compmusic.extractors.ExtractorModule):
         smallfulloptions.pallete = None
         smallfulloptions.scale_exp = None
 
-        smallfullio = StringIO()
+        smallfullio = six.BytesIO()
         smallfullio.name = "wav.png"
         # We don't use the spectogram, but need to provide it anyway
-        smallfullspecio = StringIO()
+        smallfullspecio = six.BytesIO()
         smallfullspecio.name = "spec.png"
-        invmfccio = StringIO()
+        invmfccio = six.BytesIO()
         invmfccio.name = "spec.png"
         w2png.genimages(wavfname, smallfullio, smallfullspecio, invmfccio, smallfulloptions)
         return smallfullio.getvalue()
@@ -126,12 +126,12 @@ class AudioImages(compmusic.extractors.ExtractorModule):
                 wavout.close()
                 sumframes += framesperimage
 
-                specio = StringIO()
+                specio = six.BytesIO()
                 # Set the name attr so that PIL gets the filetype hint
                 specio.name = "spec.png"
-                wavio = StringIO()
+                wavio = six.BytesIO()
                 wavio.name = "wav.png"
-                in_mfcc_io = StringIO()
+                in_mfcc_io = six.BytesIO()
                 in_mfcc_io.name = "melspec.png"
 
                 w2png.genimages(smallname, wavio, specio, in_mfcc_io, options)
