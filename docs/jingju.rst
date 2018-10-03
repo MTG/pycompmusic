@@ -1,4 +1,4 @@
-Makam API
+Jingju API
 --------------
 
 .. automodule:: compmusic.dunya.jingju
