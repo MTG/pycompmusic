@@ -17,7 +17,7 @@
 import traceback
 from warnings import warn
 
-import log
+from compmusic.extractors import log
 
 try:
     import redis
