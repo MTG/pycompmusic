@@ -18,6 +18,8 @@ def set_collections(collections):
 
     """
     global COLLECTIONS
+    if not isinstance(collections, list):
+        raise ValueError('`collections` must be a list')
     COLLECTIONS = collections
 
 
