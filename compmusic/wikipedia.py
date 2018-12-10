@@ -34,7 +34,7 @@ def _get_extract(page):
     extract = _make_wp_query(params)
     pages = extract.get("query", {}).get("pages", {})
     if pages:
-        key = pages.keys()[0]
+        key = list(pages.keys())[0]
         if key == "-1":
             return None
         page = pages[key]
@@ -50,7 +50,7 @@ def download_image(imgname):
         args = {"format": "json", "action": "query", "prop": "imageinfo", "iiprop": "url",
                 "titles": "File:%s" % imgname}
         data = _make_wp_query(args)
-        imgurl = data["query"]["pages"].values()[0]
+        imgurl = list(data["query"]["pages"].values())[0]
         if "imageinfo" in imgurl:
             imgurl = imgurl["imageinfo"][0]["url"]
         else:
@@ -65,7 +65,7 @@ def load_article(title):
     """ Get the structure of a wikipedia article with this title """
     args = {"format": "json", "action": "query", "prop": "revisions", "rvprop": "content", "titles": title}
     data = _make_wp_query(args)
-    article = data["query"]["pages"].values()[0]
+    article = list(data["query"]["pages"].values())[0]
     if "revisions" in article:
         text = article["revisions"][0]["*"]
         parsed = mwparserfromhell.parse(text)
