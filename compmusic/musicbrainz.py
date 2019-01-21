@@ -24,7 +24,7 @@ from compmusic.log import log
 
 mb.set_useragent("Dunya", "0.1")
 mb.set_rate_limit(False)
-mb.set_hostname("musicbrainz.s.upf.edu")
+mb.set_hostname("musicbrainz.sb.upf.edu")
 
 MUSICBRAINZ_COLLECTION_CARNATIC = ""
 MUSICBRAINZ_COLLECTION_HINDUSTANI = ""
