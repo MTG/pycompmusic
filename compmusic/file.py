@@ -49,7 +49,7 @@ def is_mp3_file(fname):
 
 
 def _mb_id(tag, key):
-    texttags = tag.frame_set.get("TXXX", [])
+    texttags = tag.frame_set.get(b"TXXX", [])
     tags = [t for t in texttags if t.description == key]
     if len(tags):
         return tags[0].text
