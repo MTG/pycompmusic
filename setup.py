@@ -9,7 +9,7 @@ setup(name='pycompmusic',
       description='Tools for playing with the compmusic collection',
       author='CompMusic / MTG UPF',
       author_email='compmusic@upf.edu',
-      url='http://compmusic.upf.edu',
+      url='https://compmusic.upf.edu',
       install_requires=['musicbrainzngs', 'requests', 'six', 'eyed3'],
       packages=find_packages(exclude=["test"]),
       cmdclass=versioneer.get_cmdclass()
