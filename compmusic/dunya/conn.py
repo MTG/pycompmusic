@@ -7,11 +7,11 @@ import requests.adapters
 
 logger = logging.getLogger("dunya")
 
-HOSTNAME = "dunya.compmusic.upf.edu"
+HOSTNAME = "https://dunya.compmusic.upf.edu"
 TOKEN = None
 session = requests.Session()
-session.mount('http://' + HOSTNAME, requests.adapters.HTTPAdapter(max_retries=5))
-
+session.mount('http://', requests.adapters.HTTPAdapter(max_retries=5))
+session.mount('https://', requests.adapters.HTTPAdapter(max_retries=5))
 
 class HTTPError(Exception):
     pass
@@ -25,7 +25,8 @@ def set_hostname(hostname):
     """ Change the hostname of the dunya API endpoint.
 
     Arguments:
-        hostname: The new dunya hostname to set
+        hostname: The new dunya hostname to set. If you want to access over http or a different port,
+         include them in the hostname, e.g. `http://localhost:8000`
 
     """
     global HOSTNAME
@@ -93,14 +94,20 @@ def _dunya_post(url, data=None, files=None):
 
 
 def _make_url(path, **kwargs):
+    if "://" in HOSTNAME:
+        protocol, hostname = HOSTNAME.split("://")
+    else:
+        protocol = "http"
+        hostname = HOSTNAME
+
     if not kwargs:
         kwargs = {}
     for key, value in kwargs.items():
         if isinstance(value, six.text_type):
             kwargs[key] = value.encode('utf8')
     url = urllibparse.urlunparse((
-        'http',
-        HOSTNAME,
+        protocol,
+        hostname,
         '%s' % path,
         '',
         urllibparse.urlencode(kwargs),
