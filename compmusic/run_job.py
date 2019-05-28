@@ -106,6 +106,8 @@ def save_data(module, data):
                 output = json.dumps(d[i], cls=NumPyArangeEncoder)
             else:
                 output = d[i]
+            if isinstance(output,str):
+                output = output.encode("utf-8")
             open(fname, "wb").write(output)
 
 
