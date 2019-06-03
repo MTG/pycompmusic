@@ -17,6 +17,8 @@ Module-specific APIs
 
 :doc:`jingju`
 
+:doc:`andalusian`
+
 Dunya API
 ---------
 
