@@ -96,7 +96,7 @@ def get_artist(ambid):
             extra_headers=extra_headers)
 
 def get_works():
-    """ Get a list of Hindustani works in the database.
+    """ Get a list of Andalusian works in the database.
     This function will automatically page through API results.
 
     :returns: A list of dictionaries containing work information::
@@ -121,7 +121,7 @@ def get_work(wmbid):
 
 
 def get_mizans():
-    """ Get a list of Hindustani raags in the database.
+    """ Get a list of Andalusian mizan in the database.
     This function will automatically page through API results.
 
     :returns: A list of dictionaries containing mizan information::
@@ -192,7 +192,7 @@ def get_forms():
 
     For additional information about each form use :func:`get_form`
     """
-    return compmusic.dunya.conn._get_paged_json("api/Andalusian/form")
+    return compmusic.dunya.conn._get_paged_json("api/andalusian/form")
 
 
 def get_form(fid):
@@ -328,7 +328,7 @@ def download_lyrics(recordingid, location):
         result = compmusic.dunya.docserver.file_for_document(recordingid, "andalusian-lyrics").decode('utf-8')
         name = recordingid + "_lyrics.json"
         output = os.path.join(location, name)
-        with open(output, 'w') as output:
-            json.dump(result, output)
+        with open(output, 'w') as json_file:
+            json.dump(result, json_file)
     except:
         print("%s lyrics is not stored in Dunya"% recordingid)
