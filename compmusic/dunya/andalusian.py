@@ -2,7 +2,10 @@ import json
 import logging
 import os
 
+from requests.exceptions import HTTPError
+
 logger = logging.getLogger("dunya")
+
 
 import compmusic.dunya.conn
 import compmusic.dunya.docserver
@@ -48,8 +51,8 @@ def get_recordings(recording_detail=False):
     args = {}
     if recording_detail:
         args['detail'] = '1'
-    return compmusic.dunya.conn._get_paged_json("api/andalusian/recording", 
-            extra_headers=extra_headers, **args)
+    return compmusic.dunya.conn._get_paged_json("api/andalusian/recording",
+                                                extra_headers=extra_headers, **args)
 
 
 def get_recording(rmbid):
@@ -63,8 +66,8 @@ def get_recording(rmbid):
          the name and the transliterated name.
     """
     extra_headers = _get_collections()
-    return compmusic.dunya.conn._dunya_query_json("api/andalusian/recording/%s" % rmbid, 
-            extra_headers=extra_headers)
+    return compmusic.dunya.conn._dunya_query_json("api/andalusian/recording/%s" % rmbid,
+                                                  extra_headers=extra_headers)
 
 
 def get_artists():
@@ -76,8 +79,8 @@ def get_artists():
         {"mbid": MusicBrainz artist ID, "name": Name of the artist}
     """
     extra_headers = _get_collections()
-    return compmusic.dunya.conn._get_paged_json("api/andalusian/artist", 
-            extra_headers=extra_headers)
+    return compmusic.dunya.conn._get_paged_json("api/andalusian/artist",
+                                                extra_headers=extra_headers)
 
 
 def get_artist(ambid):
@@ -85,15 +88,16 @@ def get_artist(ambid):
 
     :param ambid: An artist mbid
 
-    :returns: mbid, name, releases, instruments, recordings
+    :returns: mbid, name, releases, instruments, recordings.
 
              ``releases``, ``instruments`` and ``recordings`` include
              information from recording- and release-level
              relationships, as well as release artists
     """
     extra_headers = _get_collections()
-    return compmusic.dunya.conn._dunya_query_json("api/andalusian/artist/%s" % ambid, 
-            extra_headers=extra_headers)
+    return compmusic.dunya.conn._dunya_query_json("api/andalusian/artist/%s" % ambid,
+                                                  extra_headers=extra_headers)
+
 
 def get_works():
     """ Get a list of Andalusian works in the database.
@@ -106,8 +110,9 @@ def get_works():
     For additional information about each work use :func:`get_work`.
     """
     extra_headers = _get_collections()
-    return compmusic.dunya.conn._get_paged_json("api/andalusian/work", 
-            extra_headers=extra_headers)
+    return compmusic.dunya.conn._get_paged_json("api/andalusian/work",
+                                                extra_headers=extra_headers)
+
 
 def get_work(wmbid):
     """ Get specific information about a work.
@@ -116,8 +121,8 @@ def get_work(wmbid):
     :returns: mbid, title, recordings
     """
     extra_headers = _get_collections()
-    return compmusic.dunya.conn._dunya_query_json("api/andalusian/work/%s" % wmbid, 
-        extra_headers=extra_headers)
+    return compmusic.dunya.conn._dunya_query_json("api/andalusian/work/%s" % wmbid,
+                                                  extra_headers=extra_headers)
 
 
 def get_mizans():
@@ -126,39 +131,45 @@ def get_mizans():
 
     :returns: A list of dictionaries containing mizan information::
 
-        {uuid, name, transliterated_name, display_order}
+        {"uuid": Mizan uuid, "name": Name of the mizan, transliterated_name: Transliterated name of the mizan,
+        "display_order"}
 
-    For additional information about each raag use :func:`get_mizan`.
+    For additional information about each mizan use :func:`get_mizan`.
     """
     return compmusic.dunya.conn._get_paged_json("api/andalusian/mizan")
+
 
 def get_mizan(mid):
     """ Get specific information about a mizan.
 
-    :param rid: A mizan id or uuid
+    :param mid: uuid
     :returns: uuid, name, transliterated_name, display_order
     """
     return compmusic.dunya.conn._dunya_query_json("api/andalusian/mizan/%s" % str(mid))
 
+
 def get_tabs():
-    """ Get a list of Andalusian in the database.
+    """ Get a list of Andalusian tabs in the database.
     This function will automatically page through API results.
 
     returns: A list of dictionaries containing tab information::
 
-        {uuid, name, transliterated_name, display_order}
+        {"uuid": Mizan uuid, "name": Name of the tab, transliterated_name: Transliterated name of the tab,
+        "display_order"}
 
     For additional information about each taal use :func:`get_tab`.
     """
     return compmusic.dunya.conn._get_paged_json("api/andalusian/tab")
 
+
 def get_tab(tid):
     """ Get specific information about a tab.
 
-    :param tid: A tab id or uuid
-    :returns: uuid, name, transliterated_name, display_order
+    :param tid: uuid
+    :returns: uuid, name, transliterated_name, display_order.
     """
     return compmusic.dunya.conn._dunya_query_json("api/andalusian/tab/%s" % str(tid))
+
 
 def get_nawbas():
     """ Get a list of Andalusian nawbas in the database.
@@ -166,7 +177,8 @@ def get_nawbas():
 
     :returns: A list of dictionaries containing nawba information::
 
-        {uuid, name, transliterated_name, display_order}
+        {"uuid": Nawba uuid, "name": Name of the nawba, transliterated_name: Transliterated name of the nawba,
+        "display_order"}
 
     For additional information about each nawba use :func:`get_nawba.
     """
@@ -176,7 +188,7 @@ def get_nawbas():
 def get_nawba(nid):
     """ Get specific information about a nawba.
 
-    :param nid: A nawba id or uuid
+    :param nid: uuid
     :returns: uuid, name, transliterated_name, display_order
     """
     return compmusic.dunya.conn._dunya_query_json("api/andalusian/nawba/%s" % str(nid))
@@ -188,7 +200,8 @@ def get_forms():
 
     :returns: A list of dictionaries containing form information::
 
-        {"uuid": form uuid, "name": name of the form}
+        {"uuid": Form uuid, "name": Name of the form, transliterated_name: Transliterated name of the form,
+        "display_order: Order number of form perform through the nawba"}
 
     For additional information about each form use :func:`get_form`
     """
@@ -198,7 +211,7 @@ def get_forms():
 def get_form(fid):
     """ Get specific information about a form.
 
-    :param fid: A form id or uuid
+    :param fid: uuid
     :returns: uuid, name, transliterated_name, display_order
     """
     return compmusic.dunya.conn._dunya_query_json("api/andalusian/form/%s" % str(fid))
@@ -210,7 +223,7 @@ def get_instruments():
 
     :returns: A list of dictionaries containing instrument information::
 
-        {"id": instrument id, "name": Name of the instrument}
+        {"id": instrument id, "name": Name of the instrument, "original_name"}
 
     For additional information about each instrument use :func:`get_instrument`
     """
@@ -241,14 +254,16 @@ def download_mp3(recordingid, location):
     name = "%s.mp3" % (title)
     name = name.replace("/", "-")
     path = os.path.join(location, name)
-    open(path, "wb").write(contents)
+    with open(path, "wb") as file:
+        file.write(contents)
     return name
 
-def download_xml(recordingid, location):
-    """Download the xml score of a document and save it to the specified directory.
+
+def download_score(recordingid, location):
+    """Download the score of a document and save it to the specified directory.
 
     :param recordingid: The MBID of the recording
-    :param location: Where to save the xml to
+    :param location: Where to save the score file to
 
     """
     if not os.path.exists(location):
@@ -258,26 +273,11 @@ def download_xml(recordingid, location):
         contents = compmusic.dunya.docserver.file_for_document(recordingid, 'symbtrxml')
         name = "%s.xml" % (recordingid)
         path = os.path.join(location, name)
-        open(path, "wb").write(contents)
-    except:
-        print("%s score is not stored in Dunya"% recordingid)
+        with open(path, "wb") as file:
+            file.write(contents)
+    except HTTPError:
+        print("%s score is not stored in Dunya" % recordingid)
 
-def get_works_by_query(amid= '', mid='',tid='', nid='', fid='', iid=''):
-    """ Get the works filtered according to the input andalusian artist, mizan, tab,
-    nawba, form, instrument and artist.
-
-    :param amid: An artist id or uuid
-    :param mid: A mizan id or uuid
-    :param tid: A tab id or uuid
-    :param nid: An nawba id or uuid
-    :param fid: A form id or uuid
-    :param fbid: A instrument mbid
-    :param ibid: An artist mbid
-    :returns: A list of dictionaries containing work/s
-    """
-    path = 'work?artist={0}&mizan={1}&tab={2}&nawba={3}&form={4}&instrument={5}'
-    path = path.format(amid,mid,tid,nid,fid,iid)
-    return compmusic.dunya.conn._get_paged_json("api/andalusian/" + path)
 
 def download_pitch_track(recordingid, location):
     """ Download the pitch track from a specific recording and save it to the specified 
@@ -294,8 +294,8 @@ def download_pitch_track(recordingid, location):
         output = os.path.join(location, name)
         with open(output, 'w') as output:
             json.dump(result, output)
-    except:
-        print("%s pitch track is not stored in Dunya"% recordingid)
+    except HTTPError:
+        print("%s pitch track is not stored in Dunya" % recordingid)
 
 
 def download_pitch_distribution(recordingid, location):
@@ -308,13 +308,15 @@ def download_pitch_distribution(recordingid, location):
     if not os.path.exists(location):
         raise Exception("Location %s doesn't exist; can't save" % location)
     try:
-        result = compmusic.dunya.docserver.get_document_as_json(recordingid, "andalusianpitch", subtype="pitch_distribution")
+        result = compmusic.dunya.docserver.get_document_as_json(recordingid, "andalusianpitch",
+                                                                subtype="pitch_distribution")
         name = recordingid + "_pitchdistribution.json"
         output = os.path.join(location, name)
         with open(output, 'w') as output:
             json.dump(result, output)
-    except:
-        print("%s pitch distribution is not stored in Dunya"% recordingid)
+    except HTTPError:
+        print("%s pitch distribution is not stored in Dunya" % recordingid)
+
 
 def download_lyrics(recordingid, location):
     """ Download the arabic and transliteration version of the lyrics of a specific recording
@@ -330,5 +332,5 @@ def download_lyrics(recordingid, location):
         output = os.path.join(location, name)
         with open(output, 'w') as json_file:
             json.dump(result, json_file)
-    except:
-        print("%s lyrics is not stored in Dunya"% recordingid)
+    except HTTPError:
+        print("%s lyrics is not stored in Dunya" % recordingid)
