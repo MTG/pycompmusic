@@ -6,7 +6,6 @@ from requests.exceptions import HTTPError
 
 logger = logging.getLogger("dunya")
 
-
 import compmusic.dunya.conn
 import compmusic.dunya.docserver
 
@@ -42,8 +41,8 @@ def get_recordings(recording_detail=False):
     like :func:`get_recording`
 
     :returns: A list of dictionaries containing recording information::
-        {"mbid": MusicBrainz recording ID, "title": Title of the recording,
-        "transliterated_title"}
+
+        {"mbid": MusicBrainz recording ID, "title": Title of the recording, "transliterated_title"}
 
     For additional information about each recording use :func:`get_recording`.
     """
@@ -152,7 +151,7 @@ def get_tabs():
     """ Get a list of Andalusian tabs in the database.
     This function will automatically page through API results.
 
-    returns: A list of dictionaries containing tab information::
+    :returns: A list of dictionaries containing tab information::
 
         {"uuid": Mizan uuid, "name": Name of the tab, transliterated_name: Transliterated name of the tab,
         "display_order"}
@@ -320,6 +319,7 @@ def download_pitch_distribution(recordingid, location):
 
 def download_lyrics(recordingid, location):
     """ Download the arabic and transliteration version of the lyrics of a specific recording
+
     :param recordingid: The MBID of the recording
     :param location: Where to save the json to
 
