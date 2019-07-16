@@ -14,7 +14,6 @@
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
 
-import json
 import os
 
 from six import string_types
@@ -51,6 +50,13 @@ def document(recordingid):
 
 
 def create_document(collection, document, title=None):
+    """Create a specific document inside a collection
+
+    :param collection: Name of the collection
+    :param document: Musicbrainz recording ID of the specific document
+    :returns: The contents of the most recent version of the derived file
+
+    """
     path = "/document/by-id/%s" % document
     data = {"collection": collection}
     if title:
@@ -61,6 +67,14 @@ def create_document(collection, document, title=None):
 
 
 def update_document(collection, document, title=None):
+    """Update a specific document inside a collection
+
+    :param collection: Name of the collection
+    :param document: Musicbrainz recording ID of the specific document
+    :param title: Name of the required document
+    :returns: The contents of the most recent version of the derived file
+
+    """
     path = "/document/by-id/%s" % document
     data = {"collection": collection}
     if title:
@@ -71,12 +85,27 @@ def update_document(collection, document, title=None):
 
 
 def update_sourcetype(document, filetype, file):
+    """Update a specific document considered sourcetype
+
+    :param document: Musicbrainz recording ID of the specific document
+    :param filetype: Name of the sourcetype
+    :param file: Path to the new file that will update the sourcetype
+    :returns: The contents of the most recent version of the derived file
+
+    """
     return add_sourcetype(document, filetype, file)
 
 
 def add_sourcetype(document, filetype, file):
-    """ If file is a string and refers to a file on disk, the contents
-        of the file is read and send, otherwise it is sent as-is """
+    """ Add a new file to the sourcetype.If file is a string and refers to a 
+    file on disk, the contents of the file is read and send, otherwise it is sent as-is 
+
+    :param document: Musicbrainz recording ID of the specific document
+    :param filetype: Name of the sourcetype
+    :param file: Path to the new file that will update the sourcetype
+    :returns: The contents of the most recent version of the derived file
+
+    """
     path = "/document/by-id/%s/add/%s" % (document, filetype)
     if isinstance(file, string_types) and os.path.exists(file):
         f = open(file, "rb")
@@ -89,6 +118,16 @@ def add_sourcetype(document, filetype, file):
 
 
 def create_and_upload_document(collection, document, title, filetype, file):
+    """ Create and upload a new file to the sourcetype
+
+    :param collection: Name of the collection
+    :param document: Musicbrainz recording ID of the specific document
+    :param title: Title of the document
+    :param filetype: Name of the sourcetype
+    :param file: Path to the new file that will update the sourcetype
+    :returns: The contents of the most recent version of the derived file
+
+    """
     create_document(collection, document, title)
     add_sourcetype(document, filetype, file)
 
@@ -116,6 +155,11 @@ def file_for_document(recordingid, thetype, subtype=None, part=None, version=Non
 
 
 def get_mp3(recordingid):
+    """Get an mp3 from a specifib mbid
+    
+    :param recordingid: Musicbrainz recording ID
+
+    """
     return file_for_document(recordingid, "mp3")
 
 
@@ -127,6 +171,8 @@ def get_document_as_json(recordingid, thetype, subtype=None, part=None, version=
     :param subtype: a subtype if the module has one
     :param part: the file part if the module has one
     :param version: a specific version, otherwise the most recent one will be used
+
+    :returns: The contents of the most recent version of the derived file
 
     """
 
