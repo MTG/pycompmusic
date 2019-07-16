@@ -155,7 +155,7 @@ def file_for_document(recordingid, thetype, subtype=None, part=None, version=Non
 
 
 def get_mp3(recordingid):
-    """Get an mp3 from a specifib mbid
+    """Get a mp3 from a specific mbid
     
     :param recordingid: Musicbrainz recording ID
 
@@ -171,7 +171,6 @@ def get_document_as_json(recordingid, thetype, subtype=None, part=None, version=
     :param subtype: a subtype if the module has one
     :param part: the file part if the module has one
     :param version: a specific version, otherwise the most recent one will be used
-
     :returns: The contents of the most recent version of the derived file
 
     """

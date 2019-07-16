@@ -8,3 +8,4 @@ from compmusic.dunya import carnatic
 from compmusic.dunya import hindustani
 from compmusic.dunya import makam
 from compmusic.dunya import jingju
+from compmusic.dunya import andalusian
