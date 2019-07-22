@@ -217,7 +217,7 @@ def download_release(release_id, location):
 def download_score(externalid, location):
     """Download the score of a document and save it to the specified directory.
 
-    :param externalid: Combination of serieid:workid of a score
+    :param externalid: Combination of seriesid:workid of a score
     :param location: Where to save the score file to
 
     """
@@ -225,11 +225,11 @@ def download_score(externalid, location):
         raise Exception("Location %s doesn't exist; can't save" % location)
 
     try:
-        contents = compmusic.dunya.docserver.file_for_document(recordingid, 'musicxmlscore')
-        name = "%s.xml" % (recordingid)
+        contents = compmusic.dunya.docserver.file_for_document(externalid, 'musicxmlscore')
+        name = "%s.xml" % externalid
         path = os.path.join(location, name)
-        with open(path, "wb") as file:
-            file.write(contents)
+        with open(path, "wb") as fp:
+            fp.write(contents)
     except HTTPError:
-        print("%s score is not stored in Dunya" % recordingid)
+        print("%s score is not stored in Dunya" % externalid)
 
