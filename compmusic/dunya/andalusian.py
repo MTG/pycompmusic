@@ -14,7 +14,7 @@ COLLECTIONS = None
 
 def set_collections(collections):
     """ Set a list of collections mbid to restrict the queries.
-    You must call this before you can make any other calls, otherwise 
+    You must call this before you can make any other calls, otherwise
     they won't be restricted.
 
     :param collections: list of collections mbids
@@ -37,7 +37,7 @@ def get_recordings(recording_detail=False):
     """ Get a list of andalusian recordings in the database.
     This function will automatically page through API results.
 
-    :param recording_detail: if True, return full details for each recording 
+    :param recording_detail: if True, return full details for each recording
     like :func:`get_recording`
 
     :returns: A list of dictionaries containing recording information::
@@ -246,11 +246,11 @@ def download_mp3(recordingid, location):
     recording = get_recording(recordingid)
     title = recording["title"]
     contents = compmusic.dunya.docserver.get_mp3(recordingid)
-    name = "%s.mp3" % (title)
+    name = "%s.mp3" % title
     name = name.replace("/", "-")
     path = os.path.join(location, name)
-    with open(path, "wb") as file:
-        file.write(contents)
+    with open(path, "wb") as fp:
+        fp.write(contents)
     return name
 
 
@@ -266,16 +266,16 @@ def download_score(recordingid, location):
 
     try:
         contents = compmusic.dunya.docserver.file_for_document(recordingid, 'symbtrxml')
-        name = "%s.xml" % (recordingid)
+        name = "%s.xml" % recordingid
         path = os.path.join(location, name)
-        with open(path, "wb") as file:
-            file.write(contents)
+        with open(path, "wb") as fp:
+            fp.write(contents)
     except HTTPError:
         print("%s score is not stored in Dunya" % recordingid)
 
 
 def download_pitch_track(recordingid, location):
-    """ Download the pitch track from a specific recording and save it to the specified 
+    """ Download the pitch track from a specific recording and save it to the specified
     directory.
 
     :param recordingid: The MBID of the recording

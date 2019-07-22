@@ -213,6 +213,7 @@ def download_release(release_id, location):
         path = os.path.join(releasedir, name)
         open(path, "wb").write(contents)
 
+
 def download_score(externalid, location):
     """Download the score of a document and save it to the specified directory.
 
