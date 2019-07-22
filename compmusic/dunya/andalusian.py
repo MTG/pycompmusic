@@ -130,8 +130,7 @@ def get_mizans():
 
     :returns: A list of dictionaries containing mizan information::
 
-        {"uuid": Mizan uuid, "name": Name of the mizan, transliterated_name: Transliterated name of the mizan,
-        "display_order"}
+        {"uuid": Mizan uuid, "name": Name of the mizan, "transliterated_name": Transliterated name of the mizan}
 
     For additional information about each mizan use :func:`get_mizan`.
     """
@@ -141,7 +140,7 @@ def get_mizans():
 def get_mizan(mid):
     """ Get specific information about a mizan.
 
-    :param mid: uuid
+    :param mid:A mizan mbid
     :returns: uuid, name, transliterated_name, display_order
     """
     return compmusic.dunya.conn._dunya_query_json("api/andalusian/mizan/%s" % str(mid))
@@ -153,8 +152,7 @@ def get_tabs():
 
     :returns: A list of dictionaries containing tab information::
 
-        {"uuid": Mizan uuid, "name": Name of the tab, transliterated_name: Transliterated name of the tab,
-        "display_order"}
+        {"uuid": Mizan uuid, "name": Name of the tab, "transliterated_name": Transliterated name of the tab}
 
     For additional information about each taal use :func:`get_tab`.
     """
@@ -164,7 +162,7 @@ def get_tabs():
 def get_tab(tid):
     """ Get specific information about a tab.
 
-    :param tid: uuid
+    :param tid: A tab mbid
     :returns: uuid, name, transliterated_name, display_order.
     """
     return compmusic.dunya.conn._dunya_query_json("api/andalusian/tab/%s" % str(tid))
@@ -176,8 +174,7 @@ def get_nawbas():
 
     :returns: A list of dictionaries containing nawba information::
 
-        {"uuid": Nawba uuid, "name": Name of the nawba, transliterated_name: Transliterated name of the nawba,
-        "display_order"}
+        {"uuid": Nawba uuid, "name": Name of the nawba, "transliterated_name": Transliterated name of the nawba}
 
     For additional information about each nawba use :func:`get_nawba.
     """
@@ -187,7 +184,7 @@ def get_nawbas():
 def get_nawba(nid):
     """ Get specific information about a nawba.
 
-    :param nid: uuid
+    :param nid: A nawba mbid
     :returns: uuid, name, transliterated_name, display_order
     """
     return compmusic.dunya.conn._dunya_query_json("api/andalusian/nawba/%s" % str(nid))
@@ -199,8 +196,7 @@ def get_forms():
 
     :returns: A list of dictionaries containing form information::
 
-        {"uuid": Form uuid, "name": Name of the form, transliterated_name: Transliterated name of the form,
-        "display_order: Order number of form perform through the nawba"}
+        {"uuid": Form uuid, "name": Name of the form, "transliterated_name": Transliterated name of the form}
 
     For additional information about each form use :func:`get_form`
     """
@@ -210,7 +206,7 @@ def get_forms():
 def get_form(fid):
     """ Get specific information about a form.
 
-    :param fid: uuid
+    :param fid: A form mbid
     :returns: uuid, name, transliterated_name, display_order
     """
     return compmusic.dunya.conn._dunya_query_json("api/andalusian/form/%s" % str(fid))
@@ -232,7 +228,7 @@ def get_instruments():
 def get_instrument(iid):
     """ Get specific information about an instrument.
 
-    :param iid: An instrument id
+    :param iid: An instrument mbid
     :returns: id, name
     """
     return compmusic.dunya.conn._dunya_query_json("api/andalusian/instrument/%s" % str(iid))

@@ -2,6 +2,8 @@ import errno
 import logging
 import os
 
+from requests.exceptions import HTTPError
+
 logger = logging.getLogger("dunya")
 
 from compmusic.dunya import conn
@@ -210,4 +212,23 @@ def download_release(release_id, location):
         name = "%s - %s - %s - %s.mp3" % (disc, disctrack, artists, title)
         path = os.path.join(releasedir, name)
         open(path, "wb").write(contents)
+
+def download_score(recordingid, location):
+    """Download the score of a document and save it to the specified directory.
+
+    :param recordingid: The MBID of the recording
+    :param location: Where to save the score file to
+
+    """
+    if not os.path.exists(location):
+        raise Exception("Location %s doesn't exist; can't save" % location)
+
+    try:
+        contents = compmusic.dunya.docserver.file_for_document(recordingid, 'musicxmlscore')
+        name = "%s.xml" % (recordingid)
+        path = os.path.join(location, name)
+        with open(path, "wb") as file:
+            file.write(contents)
+    except HTTPError:
+        print("%s score is not stored in Dunya" % recordingid)
 
