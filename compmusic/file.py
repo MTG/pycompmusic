@@ -17,24 +17,21 @@
 import logging
 import os
 
-try:
-    import eyed3
-    import eyed3.mp3
+import eyed3
+import eyed3.mp3
+import six
 
+try:
     eyed3.utils.log.log.setLevel(logging.ERROR)
 except AttributeError:
     eyed3.log.setLevel("ERROR")
-
-def has_musicbrainz_tags(fname):
-    """Return true if a file has musicbrainz tags set."""
-    pass
 
 
 def get_coverart(fname):
     """Get the embedded coverart, or None.
     Currently returns the first found coverart."""
     audfile = eyed3.load(fname)
-    images = audfile.tag.frame_set.get("APIC", [])
+    images = audfile.tag.frame_set.get(b"APIC", [])
     if images:
         for i in images:
             if i.picture_type == i.FRONT_COVER:
@@ -70,9 +67,12 @@ def mb_recording_id(tag):
     ids = list(tag.unique_file_ids)
 
     for i in ids:
-        if i.owner_id == "http://musicbrainz.org":
-            d = i.data.split("\0")
-            return d[-1]
+        if i.owner_id == b"http://musicbrainz.org":
+            d = i.data.split(b"\0")
+            mbid = d[-1]
+            if not isinstance(mbid, six.text_type):
+                mbid = six.text_type(mbid, "utf-8")
+            return mbid
     return None
 
 
