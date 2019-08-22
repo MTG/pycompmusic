@@ -18,7 +18,7 @@ For a list of publications see https://compmusic.upf.edu/node/4.
 
 License
 =======
-Dunya is Copyright 2013 Music Technology Group - Universitat Pompeu Fabra
+Dunya is Copyright 2013-2019 Music Technology Group - Universitat Pompeu Fabra
 
 Dunya is released under the terms of the GNU Affero General Public
 License (v3 or later). See the COPYING file for more information.
@@ -28,6 +28,8 @@ contact us at mtg@upf.edu
 
 Installation
 ============
+
+This library is designed for python 3. We only support python 2 on a best-effort basis.
 
 It is recommended to install pycompmusic and dependencies into a virtualenv.
 Do it like this:
@@ -43,7 +45,7 @@ install compmusic like this instead
 
 Now you can install the rest of the dependencies:
 
-    pip install -r requirements
+    pip install -r requirements.txt
 
 Documentation
 =============
