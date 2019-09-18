@@ -355,6 +355,26 @@ def download_release(releaseid, location, slugify=False):
         open(path, "wb").write(contents)
 
 
+def download_score(recordingid, location):
+    """Download the score of a document and save it to the specified directory.
+
+    :param recordingid: The MBID of the recording
+    :param location: Where to save the score file to
+
+    """
+    if not os.path.exists(location):
+        raise Exception("Location %s doesn't exist; can't save" % location)
+
+    try:
+        contents = compmusic.dunya.docserver.file_for_document(recordingid, 'symbtrxml')
+        name = "%s.xml" % recordingid
+        path = os.path.join(location, name)
+        with open(path, "wb") as fp:
+            fp.write(contents)
+    except HTTPError:
+        print("%s score is not stored in Dunya" % recordingid)
+
+
 def slugify_tr(value):
     value_slug = value.replace(u'\u0131', 'i')
     value_slug = unicodedata.normalize('NFKD', value_slug).encode('ascii', 'ignore').decode('ascii')
