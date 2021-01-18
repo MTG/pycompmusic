@@ -20,7 +20,7 @@ import essentia.standard
 import numpy as np
 from docserver import util
 from scipy.ndimage.filters import gaussian_filter
-import six
+import io
 
 import compmusic.extractors
 
@@ -99,7 +99,7 @@ class NormalisedPitchExtract(compmusic.extractors.ExtractorModule):
         bpo = 64  # 256 pixel high image spanning 4 octaves = 64px/octave
         height = 255  # Height of the image
         drawpitch = self.normalise_pitch(nppitch[:, 1], tonic, bpo, height)
-        packed_pitch = six.BytesIO()
+        packed_pitch = io.BytesIO()
         for p in drawpitch:
             packed_pitch.write(struct.pack("B", p))
         drawhist = self.get_histogram(drawpitch, 256, 1)
