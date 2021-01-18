@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+
 # Copyright 2013,2014 Music Technology Group - Universitat Pompeu Fabra
 # 
 # This file is part of Dunya

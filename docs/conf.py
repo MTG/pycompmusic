@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+
 #
 # pycompmusic documentation build configuration file, created by
 # sphinx-quickstart on Fri Jul 11 16:03:44 2014.
