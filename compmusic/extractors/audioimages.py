@@ -18,7 +18,6 @@ import collections as coll
 import os
 import tempfile
 import wave
-import six
 
 from docserver import util
 
