@@ -19,7 +19,6 @@ import os
 
 import eyed3
 import eyed3.mp3
-import six
 
 try:
     eyed3.utils.log.log.setLevel(logging.ERROR)
@@ -70,8 +69,8 @@ def mb_recording_id(tag):
         if i.owner_id == b"http://musicbrainz.org":
             d = i.data.split(b"\0")
             mbid = d[-1]
-            if not isinstance(mbid, six.text_type):
-                mbid = six.text_type(mbid, "utf-8")
+            if not isinstance(mbid, str):
+                mbid = str(mbid)
             return mbid
     return None
 
