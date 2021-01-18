@@ -29,7 +29,8 @@ contact us at mtg@upf.edu
 Installation
 ============
 
-This library is designed for python 3. We only support python 2 on a best-effort basis.
+This library is designed for python 3.4+, and python 2 is not longer supported. 
+However, for previous releases we support python 2 on a best-effort basis.
 
 It is recommended to install pycompmusic and dependencies into a virtualenv.
 Do it like this:
