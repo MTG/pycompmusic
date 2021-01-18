@@ -22,8 +22,6 @@
 # International Conference on Audio Technologies for Music and Media, Ankara,
 # Turkey.
 
-from __future__ import print_function
-
 import json
 import struct
 

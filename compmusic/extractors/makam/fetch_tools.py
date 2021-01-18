@@ -4,8 +4,6 @@ Created on Feb 3, 2016
 @author: joro
 '''
 
-from __future__ import print_function
-
 import json
 import os
 import sys

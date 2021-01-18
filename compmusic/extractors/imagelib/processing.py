@@ -19,7 +19,6 @@
 # Authors:
 #     See AUTHORS file.
 #
-from __future__ import print_function
 
 import math
 import os

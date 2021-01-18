@@ -7,8 +7,6 @@ It creates folder structure
 @author: joro
 '''
 
-
-from __future__ import print_function
 import musicbrainzngs as mb
 import os
 import sys

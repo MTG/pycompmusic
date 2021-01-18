@@ -19,7 +19,6 @@
 Rename audio directories and files that have been named
 by picard
 """
-from __future__ import print_function
 
 import argparse
 import os

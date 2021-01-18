@@ -20,8 +20,6 @@
 # Dzhambazov, G., & Serra X. (2015).  Modeling of Phoneme Durations for Alignment between Polyphonic Audio and Lyrics.
 #            Sound and Music Computing Conference 2015.
 
-from __future__ import print_function
-
 import sys
 import os
 import json

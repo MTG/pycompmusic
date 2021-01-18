@@ -20,8 +20,6 @@ This script generates links for adding attributes to MB works, extracted from
 the recordings tags.
 '''
 
-from __future__ import print_function
-
 import urllib2
 import urllib
 import json

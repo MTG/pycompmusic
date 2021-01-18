@@ -21,7 +21,6 @@ Created on Sep 12, 2013
 This python module is to implement tala Tracking using essentia audio analysis library
 More doc soon...
 '''
-from __future__ import print_function
 
 import math
 

@@ -21,8 +21,6 @@
 #
 # 03/10/2013: Modified from original code 
 
-from __future__ import print_function
-
 import sys
 
 from compmusic.extractors.imagelib.MelSpectrogramImage import create_wave_images
