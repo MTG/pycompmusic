@@ -16,8 +16,6 @@
 
 import os
 
-from six import string_types
-
 import compmusic.dunya.conn
 
 
@@ -107,7 +105,7 @@ def add_sourcetype(document, filetype, file):
 
     """
     path = "/document/by-id/%s/add/%s" % (document, filetype)
-    if isinstance(file, string_types) and os.path.exists(file):
+    if isinstance(file, str) and os.path.exists(file):
         f = open(file, "rb")
     else:
         f = file
