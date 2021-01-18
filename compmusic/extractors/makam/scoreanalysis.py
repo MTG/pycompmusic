@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 from tomato.symbolic.symbtranalyzer import SymbTrAnalyzer
 
