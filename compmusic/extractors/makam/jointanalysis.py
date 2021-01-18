@@ -24,7 +24,6 @@
 
 from __future__ import print_function
 
-import six
 import json
 import struct
 
@@ -37,6 +36,7 @@ from tomato.joint.jointanalyzer import JointAnalyzer
 
 from compmusic import dunya
 from settings import token
+import io
 
 dunya.set_token(token)
 
@@ -220,7 +220,7 @@ class TomatoDunyaMakam(compmusic.extractors.ExtractorModule):
         pitch = [p[1] for p in audio_pitch['pitch']]
 
         # pitches as bytearray
-        packed_pitch = six.BytesIO()
+        packed_pitch = io.BytesIO()
         max_pitch = max(pitch)
         temp = [p for p in pitch if p > 0]
         min_pitch = min(temp)
