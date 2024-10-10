@@ -25,12 +25,13 @@ import os
 import re
 import signal
 from functools import partial
-import subprocess
 
 import pysndfile
 import numpy
-from PIL import Image, ImageColor, ImageDraw  # @UnresolvedImport
+from PIL import Image, ImageDraw, ImageColor  # @UnresolvedImport
 
+
+# from . import get_sound_type
 
 def get_sound_type(input_filename):
     sound_type = os.path.splitext(input_filename.lower())[1].strip(".")
@@ -45,6 +46,31 @@ def get_sound_type(input_filename):
 
 class AudioProcessingException(Exception):
     pass
+
+
+class TestAudioFile(object):
+    """A class that mimics audiolab.sndfile but generates noise instead of reading
+    a wave file. Additionally it can be told to have a "broken" header and thus crashing
+    in the middle of the file. Also useful for testing ultra-short files of 20 samples."""
+
+    def __init__(self, num_frames, has_broken_header=False):
+        self.seekpoint = 0
+        self.nframes = num_frames
+        self.samplerate = 44100
+        self.channels = 1
+        self.has_broken_header = has_broken_header
+
+    def seek(self, seekpoint):
+        self.seekpoint = seekpoint
+
+    def read_frames(self, frames_to_read):
+        if self.has_broken_header and self.seekpoint + frames_to_read > self.num_frames / 2:
+            raise RuntimeError()
+
+        num_frames_left = self.num_frames - self.seekpoint
+        will_read = num_frames_left if num_frames_left < frames_to_read else frames_to_read
+        self.seekpoint += will_read
+        return numpy.random.random(will_read) * 2 - 1
 
 
 def get_max_level(filename):
@@ -152,7 +178,7 @@ class AudioProcessor(object):
     def spectral_centroid(self, seek_point, spec_range=110.0):
         """ starting at seek_point read fft_size samples, and calculate the spectral centroid """
 
-        samples = self.read(seek_point - self.fft_size // 2, self.fft_size, True)
+        samples = self.read(seek_point - self.fft_size / 2, self.fft_size, True)
 
         samples *= self.window
         fft = numpy.fft.rfft(samples)
@@ -168,15 +194,15 @@ class AudioProcessor(object):
         if energy > 1e-60:
             # calculate the spectral centroid
 
-            if self.spectrum_range is None:
+            if self.spectrum_range == None:
                 self.spectrum_range = numpy.arange(length)
 
             spectral_centroid = (spectrum * self.spectrum_range).sum() / (
-                        energy * (length - 1)) * self.audio_file.samplerate() * 0.5
+            energy * (length - 1)) * self.audio_file.samplerate() * 0.5
 
             # clip > log10 > scale between 0 and 1
             spectral_centroid = (math.log10(self.clip(spectral_centroid, self.lower, self.higher)) - self.lower_log) / (
-                        self.higher_log - self.lower_log)
+            self.higher_log - self.lower_log)
 
         return (spectral_centroid, db_spectrum)
 
@@ -197,8 +223,8 @@ class AudioProcessor(object):
         if start_seek < 0:
             start_seek = 0
 
-        if end_seek > self.audio_file.frames():
-            end_seek = self.audio_file.frames()
+        if end_seek > self.audio_file.nframes:
+            end_seek = self.audio_file.nframes
 
         if end_seek <= start_seek:
             samples = self.read(start_seek, 1)
@@ -301,7 +327,6 @@ class WaveformImage(object):
             colors = map(partial(desaturate, amount=0.8),
                          [self.color_from_value(value / 29.0) for value in range(0, 30)])
 
-        print(f"background_color: {background_color}, width: {image_width}, height: {image_height}")
         self.image = Image.new("RGB", (image_width, image_height), background_color)
 
         self.image_width = image_width
@@ -378,25 +403,13 @@ class SpectrogramImage(object):
     can be saved as PNG.
     """
 
-    def __init__(self, image_width, image_height, fft_size):
+    def __init__(self, image_width, image_height, fft_size, f_min=None, f_max=None, scale_exp=None, pallete=None):
         self.image_width = image_width
         self.image_height = image_height
         self.fft_size = fft_size
 
         self.image = Image.new("RGB", (image_height, image_width))
-        '''
-            colors = [
-                (0, 0, 0),
-                (58/4,68/4,65/4),
-                (80/2,100/2,153/2),
-                (90,180,100),
-                (224,224,44),
-                (255,60,30),
-                (255,255,255)
-             ]
-             '''
         # Changed Colormap to dull green
-
         kf = 2
         colors = [
             (0, 0, 0),
@@ -407,28 +420,45 @@ class SpectrogramImage(object):
             (0, 246 / kf, 0),
             (0, 254 / kf, 0)
         ]
+        self.exp = 1
+        if scale_exp:
+            self.exp = scale_exp
+        if pallete == 2:
+            colors = [
+                (0, 0, 0),
+                (58 / 4, 68 / 4, 65 / 4),
+                (80 / 2, 100 / 2, 153 / 2),
+                (90, 180, 100),
+                (224, 224, 44),
+                (255, 60, 30),
+                (255, 255, 255)
+            ]
 
         self.palette = interpolate_colors(colors)
 
         # generate the lookup which translates y-coordinate to fft-bin
         self.y_to_bin = []
-        f_min = 100.0
+
+        if not f_min:
+            f_min = 100.0
+        if not f_max:
+            f_max = 16000.0
+
         # f_max = 22050.0		# Changed the range
-        f_max = 16000.0
-        y_min = math.log10(f_min)
-        y_max = math.log10(f_max)
+        # y_min = math.log10(f_min)
+        # y_max = math.log10(f_max)
         freqs = numpy.linspace(f_min, f_max, image_height)
         for i, y in enumerate(range(self.image_height)):
             # freq = math.pow(10.0, y_min + y / (image_height - 1.0) *(y_max - y_min))
             freq = freqs[i]
             bin = freq / 22050.0 * (self.fft_size / 2 + 1)
 
-            if bin < self.fft_size / 2:
-                alpha = bin - int(bin)
+            if bin < self.fft_size / 2:  # make sure less than len(spectrum) -1, because  on draw_spectrum is called spectrum[index + 1]
+                alpha = bin - int(bin)  # how much content of next bin 
 
                 self.y_to_bin.append((int(bin), alpha * 255))
 
-        # this is a bit strange, but using image.load()[x,y] = ... is
+                # this is a bit strange, but using image.load()[x,y] = ... is
         # a lot slower than using image.putadata and then rotating the image
         # so we store all the pixels in an array and then create the image when saving
         self.pixels = []
@@ -436,7 +466,9 @@ class SpectrogramImage(object):
     def draw_spectrum(self, x, spectrum):
         # for all frequencies, draw the pixels
         for (index, alpha) in self.y_to_bin:
-            self.pixels.append(self.palette[int((255.0 - alpha) * spectrum[index] + alpha * spectrum[index + 1])])
+            palette_idx = int((255.0 - alpha) * (spectrum[index] ** self.exp) + alpha * (
+            spectrum[index + 1] ** self.exp))  # take  part (1-alpha) of current spectral bin and part (alpha) of next
+            self.pixels.append(self.palette[palette_idx])
 
         # if the FFT is too small to fill up the image, fill with black to the top
         for y in range(len(self.y_to_bin), self.image_height):  # @UnusedVariable
@@ -445,39 +477,6 @@ class SpectrogramImage(object):
     def save(self, filename, quality=80):
         self.image.putdata(self.pixels)
         self.image.transpose(Image.ROTATE_90).save(filename, quality=quality)
-
-
-def create_wave_images(input_filename, output_filename_w, output_filename_s, image_width, image_height, fft_size,
-                       progress_callback=None):
-    """
-    Utility function for creating both wavefile and spectrum images from an audio input file.
-    """
-    processor = AudioProcessor(input_filename, fft_size, numpy.hanning)
-    samples_per_pixel = processor.audio_file.frames() / float(image_width)
-
-    waveform = WaveformImage(image_width, image_height)
-    spectrogram = SpectrogramImage(image_width, image_height, fft_size)
-
-    for x in range(image_width):
-
-        if image_width >= 10:
-            if progress_callback and x % (image_width / 10) == 0:
-                progress_callback((x * 100) / image_width)
-
-        seek_point = int(x * samples_per_pixel)
-        next_seek_point = int((x + 1) * samples_per_pixel)
-
-        (spectral_centroid, db_spectrum) = processor.spectral_centroid(seek_point)
-        peaks = processor.peaks(seek_point, next_seek_point)
-
-        waveform.draw_peaks(x, peaks, spectral_centroid)
-        spectrogram.draw_spectrum(x, db_spectrum)
-
-    if progress_callback:
-        progress_callback(100)
-
-    waveform.save(output_filename_w)
-    spectrogram.save(output_filename_s)
 
 
 class NoSpaceLeftException(Exception):

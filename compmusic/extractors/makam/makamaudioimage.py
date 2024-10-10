@@ -20,7 +20,7 @@ import matplotlib
 import numpy as np
 from docserver import util
 
-from compmusic.extractors.audioimages import AudioImages
+from .imagelib.audioimages import AudioImages
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt

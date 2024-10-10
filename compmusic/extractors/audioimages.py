@@ -1,20 +1,21 @@
 # Copyright 2013,2014 Music Technology Group - Universitat Pompeu Fabra
-#
+# 
 # This file is part of Dunya
-#
+# 
 # Dunya is free software: you can redistribute it and/or modify it under the
 # terms of the GNU Affero General Public License as published by the Free Software
 # Foundation (FSF), either version 3 of the License, or (at your option) any later
 # version.
-#
+# 
 # This program is distributed in the hope that it will be useful, but WITHOUT ANY
 # WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-#
+# 
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see http://www.gnu.org/licenses/
 
 import collections as coll
+import io
 import os
 import tempfile
 import wave
@@ -23,7 +24,6 @@ from docserver import util
 
 import compmusic.extractors
 from compmusic.extractors.imagelib import wav2png
-import io
 
 
 class AudioImages(compmusic.extractors.ExtractorModule):
@@ -31,7 +31,7 @@ class AudioImages(compmusic.extractors.ExtractorModule):
     _sourcetype = "mp3"
     _slug = "audioimages"
 
-    __depends = "wav"
+    _depends = "wav"
 
     _output = {"waveform4": {"extension": "png", "mimetype": "image/png", "parts": True},
                "spectrum4": {"extension": "png", "mimetype": "image/png", "parts": True},
@@ -44,32 +44,18 @@ class AudioImages(compmusic.extractors.ExtractorModule):
                "smallfull": {"extension": "png", "mimetype": "image/png"}
                }
 
-    _zoom_levels = [4, 8, 16, 32]
-    _f_min = None
-    _f_max = None
-    _fft_size = 31
-    _scale_exp = None
-    _pallete = None
-
     def make_mini(self, wavfname):
-        smallfulloptions = coll.namedtuple('options', 'image_height fft_size image_width f_min f_max scale_exp pallete')
+        smallfulloptions = coll.namedtuple('options', 'image_height fft_size image_width')
         smallfulloptions.fft_size = 4096
         smallfulloptions.image_height = 65
         smallfulloptions.image_width = 900
-        smallfulloptions.f_min = None
-        smallfulloptions.f_max = None
-        smallfulloptions.f_max = None
-        smallfulloptions.pallete = None
-        smallfulloptions.scale_exp = None
 
         smallfullio = io.BytesIO()
         smallfullio.name = "wav.png"
         # We don't use the spectogram, but need to provide it anyway
         smallfullspecio = io.BytesIO()
         smallfullspecio.name = "spec.png"
-        invmfccio = io.BytesIO()
-        invmfccio.name = "spec.png"
-        wav2png.genimages(wavfname, smallfullio, smallfullspecio, invmfccio, smallfulloptions)
+        wav2png.genimages(wavfname, smallfullio, smallfullspecio, smallfulloptions)
         return smallfullio.getvalue()
 
     def run(self, musicbrainzid, fname):
@@ -79,14 +65,10 @@ class AudioImages(compmusic.extractors.ExtractorModule):
 
         panelWidth = 900  # pixels
         panelHeight = 255  # pixels
-        zoomlevels = self._zoom_levels  # seconds
-        options = coll.namedtuple('options', 'image_height fft_size image_width f_min f_max scale_exp pallete')
+        zoomlevels = [4, 8, 16, 32]  # seconds
+        options = coll.namedtuple('options', 'image_height fft_size image_width')
         options.image_height = panelHeight
-        options.fft_size = self._fft_size
-        options.f_min = self._f_min
-        options.f_max = self._f_max
-        options.pallete = self._pallete
-        options.scale_exp = self._scale_exp
+        options.fft_size = 31
 
         ret = {}
         for zoom in zoomlevels:
@@ -103,16 +85,14 @@ class AudioImages(compmusic.extractors.ExtractorModule):
 
             wfname = "waveform%s" % zoom
             specname = "spectrum%s" % zoom
-            inv_mfcc_name = "inv_mfcc_spectrum%s" % zoom
             wfdata = []
             specdata = []
-            inv_mfcc_data = []
 
             sumframes = 0
             while sumframes < totalframes:
                 if sumframes + framesperimage > totalframes:
                     remaining_frames = (totalframes - sumframes)
-                    options.image_width = options.image_width * remaining_frames / framesperimage
+                    options.image_width = options.image_width * remaining_frames // framesperimage
                 else:
                     remaining_frames = framesperimage
 
@@ -131,19 +111,15 @@ class AudioImages(compmusic.extractors.ExtractorModule):
                 specio.name = "spec.png"
                 wavio = io.BytesIO()
                 wavio.name = "wav.png"
-                in_mfcc_io = io.BytesIO()
-                in_mfcc_io.name = "melspec.png"
 
-                wav2png.genimages(smallname, wavio, specio, in_mfcc_io, options)
+                wav2png.genimages(smallname, wavio, specio, options)
                 os.unlink(smallname)
 
                 specdata.append(specio.getvalue())
                 wfdata.append(wavio.getvalue())
-                inv_mfcc_data.append(in_mfcc_io.getvalue())
 
             ret[wfname] = wfdata
             ret[specname] = specdata
-            ret[inv_mfcc_name] = inv_mfcc_data
 
         ret["smallfull"] = self.make_mini(wavfname)
         if created:
