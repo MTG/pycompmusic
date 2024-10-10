@@ -26,6 +26,7 @@ import re
 import signal
 from functools import partial
 
+import pysndfile
 import numpy
 from PIL import Image, ImageDraw, ImageColor  # @UnresolvedImport
 
@@ -41,13 +42,6 @@ def get_sound_type(input_filename):
         sound_type = "aiff"
 
     return sound_type
-
-
-try:
-    import scikits.audiolab as audiolab
-except ImportError:
-    print("WARNING: audiolab is not installed so wav2png will not work")
-import subprocess
 
 
 class AudioProcessingException(Exception):
@@ -82,8 +76,8 @@ class TestAudioFile(object):
 def get_max_level(filename):
     max_value = 0
     buffer_size = 4096
-    audio_file = audiolab.Sndfile(filename, 'r')
-    n_samples_left = audio_file.nframes
+    audio_file = pysndfile.PySndfile(filename, 'r')
+    n_samples_left = audio_file.frames()
 
     while n_samples_left:
         to_read = min(buffer_size, n_samples_left)
@@ -95,7 +89,7 @@ def get_max_level(filename):
             break
 
         # convert to mono by selecting left channel only
-        if audio_file.channels > 1:
+        if audio_file.channels() > 1:
             samples = samples[:, 0]
 
         max_value = max(max_value, numpy.abs(samples).max())
@@ -116,7 +110,7 @@ class AudioProcessor(object):
     def __init__(self, input_filename, fft_size, window_function=numpy.hanning):
         max_level = get_max_level(input_filename)
 
-        self.audio_file = audiolab.Sndfile(input_filename, 'r')
+        self.audio_file = pysndfile.PySndfile(input_filename, 'r')
         self.fft_size = fft_size
         self.window = window_function(self.fft_size)
         self.spectrum_range = None
@@ -150,15 +144,15 @@ class AudioProcessor(object):
                 add_to_start = -start  # remember: start is negative!
                 to_read = size + start
 
-                if to_read > self.audio_file.nframes:
-                    add_to_end = to_read - self.audio_file.nframes
-                    to_read = self.audio_file.nframes
+                if to_read > self.audio_file.frames():
+                    add_to_end = to_read - self.audio_file.frames()
+                    to_read = self.audio_file.frames()
         else:
             self.audio_file.seek(start)
 
             to_read = size
-            if start + to_read >= self.audio_file.nframes:
-                to_read = self.audio_file.nframes - start
+            if start + to_read >= self.audio_file.frames():
+                to_read = self.audio_file.frames() - start
                 add_to_end = size - to_read
 
         try:
@@ -168,7 +162,7 @@ class AudioProcessor(object):
             return numpy.zeros(size) if resize_if_less else numpy.zeros(2)
 
         # convert to mono by selecting left channel only
-        if self.audio_file.channels > 1:
+        if self.audio_file.channels() > 1:
             samples = samples[:, 0]
 
         if resize_if_less and (add_to_start > 0 or add_to_end > 0):
@@ -204,7 +198,7 @@ class AudioProcessor(object):
                 self.spectrum_range = numpy.arange(length)
 
             spectral_centroid = (spectrum * self.spectrum_range).sum() / (
-            energy * (length - 1)) * self.audio_file.samplerate * 0.5
+            energy * (length - 1)) * self.audio_file.samplerate() * 0.5
 
             # clip > log10 > scale between 0 and 1
             spectral_centroid = (math.log10(self.clip(spectral_centroid, self.lower, self.higher)) - self.lower_log) / (

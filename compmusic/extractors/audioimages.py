@@ -22,7 +22,7 @@ import wave
 from docserver import util
 
 import compmusic.extractors
-import imagelib.wav2png as w2png
+from compmusic.extractors.imagelib import wav2png
 import io
 
 
@@ -69,7 +69,7 @@ class AudioImages(compmusic.extractors.ExtractorModule):
         smallfullspecio.name = "spec.png"
         invmfccio = io.BytesIO()
         invmfccio.name = "spec.png"
-        w2png.genimages(wavfname, smallfullio, smallfullspecio, invmfccio, smallfulloptions)
+        wav2png.genimages(wavfname, smallfullio, smallfullspecio, invmfccio, smallfulloptions)
         return smallfullio.getvalue()
 
     def run(self, musicbrainzid, fname):
@@ -134,7 +134,7 @@ class AudioImages(compmusic.extractors.ExtractorModule):
                 in_mfcc_io = io.BytesIO()
                 in_mfcc_io.name = "melspec.png"
 
-                w2png.genimages(smallname, wavio, specio, in_mfcc_io, options)
+                wav2png.genimages(smallname, wavio, specio, in_mfcc_io, options)
                 os.unlink(smallname)
 
                 specdata.append(specio.getvalue())
