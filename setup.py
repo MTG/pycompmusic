@@ -10,7 +10,7 @@ setup(name='pycompmusic',
       author='CompMusic / MTG UPF',
       author_email='compmusic@upf.edu',
       url='https://compmusic.upf.edu',
-      install_requires=['musicbrainzngs', 'requests', 'eyed3'],
-      packages=find_packages(exclude=["test"]),
+      install_requires=['requests'],
+      packages=find_packages(),
       cmdclass=versioneer.get_cmdclass()
 )
