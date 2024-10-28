@@ -3,50 +3,38 @@ pycompmusic
 
 Introduction
 ------------
-Python tools for analysing and working with audio.
-
-This repository contains utilities and algorithms for use in the Dunya
-project (https://github.com/MTG/dunya, https://dunya.compmusic.upf.edu), 
-but is separate to make it easier to develop.
+API Interface to CompMusic Dunya. Dunya is a research project that studies several 
+world music traditions from the point of view of the information technologies, 
+with the aim to facilitate the cataloging and discovery of music recordings
+within large repositories. For more information: http://compmusic.upf.edu
 
 Authors
 -------
-Dunya and pycompmusic have been developed by a number of people in the
-CompMusic project. For a list of contributors see the AUTHORS file.
-Dunya includes methods and techniques developed as part of CompMusic.
-For a list of publications see https://compmusic.upf.edu/node/4.
+PyCompmusic was written by members of the Music Technology Group at 
+Universitat Pompeu Fabra (https://www.upf.edu/web/mtg/).
 
 License
 =======
-Dunya is Copyright 2013-2019 Music Technology Group - Universitat Pompeu Fabra
+Pycompmusic is Copyright 2013-2024 Music Technology Group - Universitat Pompeu Fabra
 
-Dunya is released under the terms of the GNU Affero General Public
-License (v3 or later). See the COPYING file for more information.
-
-If you would prefer to get a (non FOSS) commercial license, please
-contact us at mtg@upf.edu
+Pycompmusic is released under the terms of the MIT License. See the LICENSE file for
+more information.
 
 Installation
 ============
 
-This library is designed for python 3.4+, and python 2 is not longer supported. 
-However, for previous releases we support python 2 on a best-effort basis.
+This library is designed for use with Python 3
 
 It is recommended to install pycompmusic and dependencies into a virtualenv.
 Do it like this:
 
-    virtualenv -p python3 env
-    source env/bin/activate
+    python -m venv venv
+    source venv/bin/activate
     python setup.py install
 
-If you want to be able to edit files and have the changes be reflected, then
-install compmusic like this instead
+Alternatively, install directly from pypi:
 
-    pip install -e .
-
-Now you can install the rest of the dependencies:
-
-    pip install -r requirements.txt
+    pip install pycompmusic
 
 Documentation
 =============
@@ -62,16 +50,14 @@ to build the docs run
 from the root directory.
 
 API Quick reference
----------------
+-------------------
 
-In order to use the api is required to have a user in dunya. You can register on 
-dunya through the web: https://dunya.compmusic.upf.edu/social/register/ .
-Once your account is active you can start using the api, for example you can get
-the information of all the recording of the makam collections with this url:
-    https://dunya.compmusic.upf.edu/api/makam/recording
+In order to use the API you need to register for a user account with Dunya. 
+You can register at https://dunya.compmusic.upf.edu/user/register/ .
+Once your account is active you can start using the api.
 
 In this repository you can find the code to access the API with python. For 
-example to access the recording in the makam collection:
+example to access recordings in the makam collection:
 
     from compmusic import dunya
     dunya.set_token("<your_token>")
