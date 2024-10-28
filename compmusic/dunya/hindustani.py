@@ -1,17 +1,17 @@
 import logging
 import os
 
-logger = logging.getLogger("dunya")
-
 import compmusic.dunya.conn
 import compmusic.dunya.docserver
 
+
+logger = logging.getLogger("dunya")
 COLLECTIONS = None
 
 
 def set_collections(collections):
     """ Set a list of collections mbid to restrict the queries.
-    You must call this before you can make any other calls, otherwise 
+    You must call this before you can make any other calls, otherwise
     they won't be restricted.
 
     :param collections: list of collections mbids

@@ -4,11 +4,10 @@ import os
 
 from requests.exceptions import HTTPError
 
-logger = logging.getLogger("dunya")
-
 import compmusic.dunya.conn
 import compmusic.dunya.docserver
 
+logger = logging.getLogger("dunya")
 COLLECTIONS = None
 
 

@@ -4,11 +4,11 @@ import os
 
 from requests.exceptions import HTTPError
 
-logger = logging.getLogger("dunya")
-
 from compmusic.dunya import conn
 import compmusic.dunya.docserver
 
+
+logger = logging.getLogger("dunya")
 COLLECTIONS = None
 
 
@@ -232,4 +232,3 @@ def download_score(externalid, location):
             fp.write(contents)
     except HTTPError:
         print("%s score is not stored in Dunya" % externalid)
-

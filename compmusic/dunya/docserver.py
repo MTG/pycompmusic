@@ -79,8 +79,8 @@ def update_sourcetype(document, filetype, file):
 
 
 def add_sourcetype(document, filetype, file):
-    """ Add a new file to the sourcetype.If file is a string and refers to a 
-    file on disk, the contents of the file is read and send, otherwise it is sent as-is 
+    """ Add a new file to the sourcetype.If file is a string and refers to a
+    file on disk, the contents of the file is read and send, otherwise it is sent as-is
 
     :param document: Musicbrainz recording ID of the specific document
     :param filetype: Name of the sourcetype
@@ -138,7 +138,7 @@ def file_for_document(recordingid, thetype, subtype=None, part=None, version=Non
 
 def get_mp3(recordingid):
     """Get a mp3 from a specific mbid
-    
+
     :param recordingid: Musicbrainz recording ID
 
     """

@@ -12,6 +12,7 @@ session = requests.Session()
 session.mount('http://', requests.adapters.HTTPAdapter(max_retries=5))
 session.mount('https://', requests.adapters.HTTPAdapter(max_retries=5))
 
+
 class HTTPError(Exception):
     pass
 

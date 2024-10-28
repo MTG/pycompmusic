@@ -3,10 +3,11 @@ import os
 import re
 import unicodedata
 
-logger = logging.getLogger("dunya")
-
 import compmusic.dunya.conn
 import compmusic.dunya.docserver
+
+
+logger = logging.getLogger("dunya")
 
 
 def get_recordings(recording_detail=False):
@@ -252,9 +253,9 @@ def get_symbtrs():
 def get_symbtr(uuid):
     """ Get a symbtr file info from id
     This function will automatically page through API results.
-    
+
     :param uuid: A symbtr id
-    
+
     returns: name and id of the symbtr file
 
     """
@@ -371,13 +372,13 @@ def download_score(recordingid, location):
         path = os.path.join(location, name)
         with open(path, "wb") as fp:
             fp.write(contents)
-    except HTTPError:
+    except compmusic.HTTPError:
         print("%s score is not stored in Dunya" % recordingid)
 
 
 def slugify_tr(value):
     value_slug = value.replace(u'\u0131', 'i')
     value_slug = unicodedata.normalize('NFKD', value_slug).encode('ascii', 'ignore').decode('ascii')
-    value_slug = re.sub('[^\w\s-]', '', value_slug).strip()
+    value_slug = re.sub(r'[^\w\s-]', '', value_slug).strip()
 
-    return re.sub('[-\s]+', '-', value_slug)
+    return re.sub(r'[-\s]+', '-', value_slug)
