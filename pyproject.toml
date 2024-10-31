@@ -1,0 +1,29 @@
+[project]
+name = "pycompmusic"
+
+authors = [
+  { name="Music Technology Group, Universitat Pompeu Fabra", email="mtg-info@upf.edu" },
+]
+description = "API client for accessing data from Dunya"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "requests",
+]
+
+[project.urls]
+Homepage = "https://github.com/MTG/pycompmusic/"
+
+
+[tool.versioneer]
+VCS = "git"
+style = "pep440"
+versionfile_source = "compmusic/_version.py"
+versionfile_build = "compmusic/_version.py"
+tag_prefix = ""
+parentdir_prefix = ""
