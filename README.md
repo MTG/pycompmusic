@@ -34,7 +34,7 @@ Do it like this:
 
 Alternatively, install directly from pypi:
 
-    pip install pycompmusic
+    pip install compmusic
 
 Documentation
 =============

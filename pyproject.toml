@@ -1,5 +1,5 @@
 [project]
-name = "pycompmusic"
+name = "compmusic"
 dynamic=["version"]
 authors = [
   { name="Music Technology Group, Universitat Pompeu Fabra", email="mtg-info@upf.edu" },
